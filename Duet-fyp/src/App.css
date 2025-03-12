@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    font-family: "Poppins", serif;
+    /* font-weight: 400 !important; */
+    /* font-style: normal; */
+}
+
+.text-40 {
+    font-size: 40px !important;
+}
+
+.bannerheading {
+    /* font-size: 50px; */
+    font-weight: 700 !important;
+}
+
+.shadow-custom {
+    box-shadow: 3px 5px 6px #9d9d9d9e;
+}
+
+.herosection1 {
+    position: relative;
+    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWBbrmmxvNvsbgimzO1lCTcOer6j5SRC0dzQ&s');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    display: flex;
+    /* Enables flexbox */
+    justify-content: center;
+    /* Centers horizontally */
+    align-items: center;
+    /* Centers vertically */
+    height: 100vh;
+    /* Section height */
+}
+
+.clientbg {
+    background-image: url('./assets/images/banner3.webp');
+    background-size: cover;
+    opacity: 0.9;
+    background-color: black;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+}
+
+.herosection2 {
+    position: relative;
+    background-image: url('./assets/images/bannerimage2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    display: flex;
+    /* Enables flexbox */
+    justify-content: center;
+    /* Centers horizontally */
+    align-items: center;
+    /* Centers vertically */
+    height: 100vh;
+    /* Section height */
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000a6
+        /* Adjust opacity here */
+        /* z-index: 1; */
+}
