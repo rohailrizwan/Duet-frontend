@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
-import cardlogo from '../../assets/images/duetlogo.webp'
+import cardlogo from '../../assets/images/dashboardLogo.webp'
 import { styled } from "@mui/system";
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false);

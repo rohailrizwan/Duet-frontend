@@ -28,48 +28,16 @@
 
 .herosection1 {
     position: relative;
-    background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWBbrmmxvNvsbgimzO1lCTcOer6j5SRC0dzQ&s');
     background-size: cover;
-    background-position: center;
     background-repeat: no-repeat;
+    background-position: top center;
     width: 100%;
     display: flex;
-    /* Enables flexbox */
     justify-content: center;
-    /* Centers horizontally */
     align-items: center;
-    /* Centers vertically */
     height: 100vh;
-    /* Section height */
 }
 
-.clientbg {
-    background-image: url('./assets/images/banner3.webp');
-    background-size: cover;
-    opacity: 0.9;
-    background-color: black;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100%;
-    width: 100%;
-}
-
-.herosection2 {
-    position: relative;
-    background-image: url('./assets/images/bannerimage2.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    display: flex;
-    /* Enables flexbox */
-    justify-content: center;
-    /* Centers horizontally */
-    align-items: center;
-    /* Centers vertically */
-    height: 100vh;
-    /* Section height */
-}
 
 .overlay {
     position: absolute;
@@ -77,7 +45,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #000000a6
+    background-color: #00000095
         /* Adjust opacity here */
         /* z-index: 1; */
 }
