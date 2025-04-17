@@ -20,7 +20,8 @@ const Colors = {
     // red: "#FF2727",
     blue: "#3B8AFF",
     error: "#d32f2f",
-    primary:"#0F5189"
+    primary:"#0F5189",
+    btnColor:`linear-gradient(90deg, #8E24AA 0%, #D81B60 100%)`
   };
   
   export default Colors;

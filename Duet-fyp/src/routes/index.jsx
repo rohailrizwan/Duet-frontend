@@ -2,6 +2,7 @@ import React, { Suspense, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom';
 import PublicRoute from './Public';
 import PublicLayout from '../Layout/PublicLayout';
+import Login from '../Pages/Login';
 
 function ProtectedRoutes() {
   const user = true
@@ -53,9 +54,7 @@ function ProtectedRoutes() {
             ))}
           </Route> */}
 
-          {/* <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="*" element={<Nodatafound />} /> */}
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Suspense>
     </>

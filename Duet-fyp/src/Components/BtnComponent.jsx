@@ -1,87 +1,48 @@
-import { Button, CircularProgress } from "@mui/material";
-import Colors from "../assets/Style";
+import React from 'react';
+import { Button } from '@mui/material';
 
-
-function PrimaryButton(props) {
+const NewButton = ({
+  title = "",
+  handleFunction,
+  fullWidth = false,
+  height,
+  width,
+  sx = {},
+  ...rest
+}) => {
   return (
     <Button
-      variant="contained"
-      startIcon={props?.startIcon}
-      endIcon={props?.endIcon}
+      variant="outlined"
+      className='font_poppins'
+      onClick={handleFunction}
       sx={{
         borderRadius: "8px",
-        cursor:"pointer",
-        background: props?.backgroundColor || Colors.PrimaryBlue,
-        color: props?.color || "white",
-        height: props?.height,
+        color: "#fff",
         textTransform: "capitalize",
-        fontFamily: "Open Sans",
-        fontSize: props?.fontSize || "16px",
+        fontSize: "16px",
         fontWeight: 500,
-        width: props?.width,
-        p: props?.padding || "5px 25px",
-        paddingLeft:props?.paddingLeft || "",
-        border: props?.border || `1px solid ${Colors.PrimaryBlue}`,
-        ":hover": {
-          background: Colors.PrimaryBlue,
-          color: Colors.white,
+        padding: "8px 25px",
+        height: height || "auto",
+        width: width || "auto",
+        border: "2px solid white",
+        background: "linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)",
+        transition: "all 0.3s ease",
+        overflow: "hidden",
+        position: "relative",
+        "&:hover": {
+          background: "linear-gradient(90deg, #1565c0 0%, #0d47a1 100%)",
+          color: "#ffffff",
+          borderColor: "#0d47a1",
+          transform: "scale(1.05)",
         },
-        "&.Mui-disabled": {
-          background: Colors.PrimaryBlue,
-          color: "white",
-        },
-        ...props.style,
+        ...sx, // allow custom styling to be merged
       }}
-      {...props}
-      onClick={props?.handleFunction}
+      {...rest}
     >
-      {props.loading ? (
-        <CircularProgress
-          size={24}
-          sx={{
-            color: "white",
-            position: "absolute",
-            marginLeft:props?.startIcon?"40px":"0px"
-          }}
-        />
-      ) : (
-        props?.title
-      )}
+      {title}
     </Button>
   );
-}
+};
 
-function SecondaryButton(props) {
-  return (
-    <Button
-      variant={"outlined"}
-      sx={{
-        borderRadius: "8px",
-        color: props?.color || Colors.white,
-        textTransform: "capitalize",
-        fontFamily: "Open Sans",
-        fontSize: props?.fontSize || "16px",
-        fontWeight: 500,
-        height: props?.height,
-        p: "5px 25px",
-        width: props?.width,
-        border: `1px solid ${props?.borderColor || Colors.lightGray}`,
-        // ":hover": {
-        //   background: Colors.red,
-        //   color: Colors.white,
-        // },
-        "&.Mui-disabled": {
-          background: Colors.red,
-        },
-        ...props.style,
-      }}
-      {...props}
-      onClick={props?.handleFunction}
-    >
-      {props.title}
-    </Button>
-  );
-}
 
-export default PrimaryButton;
-export { SecondaryButton };
+export { NewButton };

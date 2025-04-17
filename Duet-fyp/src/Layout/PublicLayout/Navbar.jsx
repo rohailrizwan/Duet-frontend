@@ -13,7 +13,6 @@ import {
     ListItemButton,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import PrimaryButton from "../../Components/BtnComponent";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
@@ -69,7 +68,7 @@ export default function Navbar() {
             left: "0",
             width: "0%", // Initially no width
             height: "2px",
-            backgroundColor:scrolled?"white":Colors?.PrimaryBlue,
+            backgroundColor: scrolled ? "white" : Colors?.PrimaryBlue,
             transition: "width 0.3s ease-in-out",
         },
         "&:hover::after": {
@@ -81,7 +80,7 @@ export default function Navbar() {
             <AppBar
                 position="fixed" // Above banner
                 sx={{
-                    backgroundColor: scrolled ? "#1976d2" : "transparent",
+                    backgroundColor: scrolled ? "#0D47A1" : "transparent",
                     transition: "background-color 0.3s",
                     boxShadow: "none",
                     padding: "10px 20px",
@@ -147,14 +146,36 @@ export default function Navbar() {
                     </Box>
 
                     {/* Login Button (Right Side) */}
-                    <PrimaryButton
-                        title="Get Started"
-                        height="50px"
-                        padding="5px 15px"
-                        // width="100px"
-                        handleFunction={() => navigate("/signup")}
-                        endIcon={<ArrowForwardIcon />}
-                    />
+                    <Button
+                        variant="outlined"
+                        sx={{
+                            borderRadius: "8px",
+                            color: scrolled ? "#1976d2" : "#ffffff",
+                            textTransform: "capitalize",
+                            fontFamily: "Open Sans",
+                            fontSize:  "16px",
+                            fontWeight: 500,
+                            // height: props?.height,
+                            p: "8px 25px",
+                            // width: props?.width,
+                            border: `2px solid ${scrolled ? "#1976d2" : "#0d47a1"}`,
+                            background: scrolled ? "#ffffff" : "linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)",
+                            transition: "all 0.4s ease-in-out",
+                            position: "relative",
+                            overflow: "hidden",
+                            "&:hover": {
+                                background: "linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)",
+                                color: "#ffffff",
+                                borderColor: "#0d47a1",
+                                transform: "scale(1.05)",
+                            },
+                            
+                        }}
+                        
+                        // onClick={props?.handleFunction}
+                    >
+                        {"Get Started"} <ArrowForwardIcon/>
+                    </Button>
                 </Toolbar>
             </AppBar>
 
