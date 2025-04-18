@@ -1,5 +1,5 @@
 const Colors = {
-    PrimaryBlue:"#1976d2",
+    PrimaryBlue:"#2156a8",
     accent: "#E32652",
     densedAccent: "#E326524D",
     pink: "#FF6388",

@@ -17,14 +17,14 @@
     font-size: 40px !important;
 }
 
-.bannerheading {
-    /* font-size: 50px; */
-    font-weight: 700 !important;
+.headingcolorgradient{
+    font-weight: bold;
+    background: linear-gradient(90deg, #7b9acc, #2f3c5a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-.shadow-custom {
-    box-shadow: 3px 5px 6px #9d9d9d9e;
-}
+
 
 .herosection1 {
     position: relative;
@@ -45,7 +45,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #00000095
+    background-color: #000000a3
         /* Adjust opacity here */
         /* z-index: 1; */
 }

@@ -21,7 +21,7 @@ const LoginPage = () => {
             <Card sx={{ maxWidth: 900, width: '100%', borderRadius: 4, boxShadow: 3 }}>
                 <Grid container>
                     {/* Left Image Section */}
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={6} sx={{display:{xs:"none",md:"block"}}}>
                         <Box
                             sx={{
                                 height: '100%',
