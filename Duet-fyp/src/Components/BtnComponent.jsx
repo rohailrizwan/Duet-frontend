@@ -7,6 +7,7 @@ const NewButton = ({
   fullWidth = false,
   height,
   width,
+  endicon,
   sx = {},
   ...rest
 }) => {
@@ -15,6 +16,7 @@ const NewButton = ({
       variant="outlined"
       className='font_poppins'
       onClick={handleFunction}
+      endIcon={endicon}
       sx={{
         borderRadius: "8px",
         color: "#fff",

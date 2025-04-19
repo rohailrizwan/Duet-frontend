@@ -3,6 +3,7 @@ import Slider from 'react-slick';
 import { Box, Typography, Card, CardMedia, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
+import { NewButton } from '../../Components/BtnComponent';
 const facultyData = [
     {
         image: "https://randomuser.me/api/portraits/men/32.jpg",
@@ -56,6 +57,7 @@ const sliderSettings = {
             breakpoint: 600,
             settings: {
                 slidesToShow: 1,
+               
             }
         }
     ]
@@ -70,13 +72,16 @@ const FacultySection = () => {
             transition={{ duration: 1, ease: "easeOut" }}
             viewport={{ once: false, amount: 0.1 }}
             sx={{
-                backgroundColor: '#fff',
+                background: 'linear-gradient(to bottom right, #f5f7fa, #c3cfe2)',
                 padding: "100px 0px"
             }}
+        
         >
             <Container>
                 <Typography
-                    variant="h4"
+                     variant="h3"
+                     component="h2"
+                     gutterBottom
                     sx={{
                         fontWeight: 700,
                         mb: 6,
@@ -97,7 +102,7 @@ const FacultySection = () => {
                             borderRadius: 2
                         }
                     }}
-                    className='font_poppins '
+                    className='font_poppins headingcolorgradient'
                 >
                     Meet Our Faculty
                 </Typography>
@@ -106,8 +111,9 @@ const FacultySection = () => {
                         <Box
                             key={index}
                             sx={{
-                                display: 'flex',
+                                display: 'flex !important',
                                 justifyContent: 'center',
+                                padding:"10px 0px"
                             }}
                         >
                             <Card
@@ -139,7 +145,9 @@ const FacultySection = () => {
                         </Box>
                     ))}
                 </Slider>
-
+                <Box sx={{margin:'40px 0px 0px 0px',display:"flex",justifyContent:"center"}}>
+                    <NewButton title="View More"/>
+                </Box>
             </Container>
 
         </Box>

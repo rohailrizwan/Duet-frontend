@@ -2,8 +2,9 @@ import React from 'react';
 import { Grid, Typography, Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
-import aboutimage from '../../assets/images/Aboutimage.jpg'
-function Homesection1() {
+import aboutimage from '../../assets/images/alumni3.jpg';
+
+function Homesection2() {
     return (
         <Box
             component={motion.div}
@@ -18,26 +19,11 @@ function Homesection1() {
         >
             <Container>
                 <Grid container spacing={4} alignItems="center">
-                    <Grid item xs={12} md={6}>
-                        <Typography
-                            variant="h3"
-                            component="h2"
-                            gutterBottom
-                            sx={{ fontWeight: '600' }}
-                            className='font_poppins headingcolorgradient'
-                        >
-                            Connecting Our Community
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" className='font_poppins' style={{ lineHeight: "30px" }}>
-                            DUET Hub is a unique platform designed to connect the students, alumni, and faculty of Dawood University. Our mission is to foster a sense of community, offering resources for career development, mentorship, and professional growth. Through AI-driven resume screening, job matching, and real-time communication, DUET Hub creates an environment that encourages networking and collaboration. It’s a space where students can find job opportunities, alumni can share knowledge and experiences, and faculty can stay connected with the evolving achievements of their peers and students. Whether you are looking for guidance, sharing your accomplishments, or building your professional network, DUET Hub serves as a comprehensive platform for all.
-                        </Typography>
-                    </Grid>
-
-                    {/* Right side - Image */}
+                    {/* Left side - Image */}
                     <Grid item xs={12} md={6}>
                         <Box
                             component={motion.div}
-                            initial={{ opacity: 0, x: 100 }}
+                            initial={{ opacity: 0, x: -100 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             transition={{ duration: 1, ease: 'easeOut' }}
                             viewport={{ once: true }}
@@ -49,13 +35,13 @@ function Homesection1() {
                                 maxHeight: 400,
                                 width: '100%',
                                 backgroundColor: "#fff",
-                                p: 0
+                                p: 1
                             }}
                         >
                             <Box
                                 component="img"
                                 src={aboutimage}
-                                alt="DUET Hub Illustration"
+                                alt="DUET Hub Alumni"
                                 sx={{
                                     width: "100%",
                                     height: "100%",
@@ -64,7 +50,22 @@ function Homesection1() {
                                 }}
                             />
                         </Box>
+                    </Grid>
 
+                    {/* Right side - Text */}
+                    <Grid item xs={12} md={6}>
+                        <Typography
+                            variant="h3"
+                            component="h2"
+                            gutterBottom
+                            sx={{ fontWeight: '600' }}
+                            className='font_poppins headingcolorgradient'
+                        >
+                            Empowering DUET Alumni
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" style={{ lineHeight: "30px" }}>
+                            DUET Hub is more than just a platform—it's a growing community of proud alumni from Dawood University. Whether you're an experienced professional or a recent graduate, this is your space to reconnect, mentor, and thrive. Share your journey, offer guidance to current students, or discover new opportunities through alumni networks. With tools for communication, career development, and showcasing achievements, DUET Hub keeps alumni actively involved in shaping the future of DUET.
+                        </Typography>
                     </Grid>
                 </Grid>
             </Container>
@@ -72,4 +73,4 @@ function Homesection1() {
     );
 }
 
-export default Homesection1;
+export default Homesection2;
