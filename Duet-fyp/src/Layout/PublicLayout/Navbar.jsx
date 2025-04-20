@@ -32,16 +32,8 @@ export default function Navbar() {
             path: "/about",
         },
         {
-            text: "Contact",
-            path: "/contact",
-        },
-        {
-            text: "Faq",
-            path: "/faq",
-        },
-        {
-            text: "View job",
-            path: "/viewjob",
+            text: "Events",
+            path: "/events",
         },
     ];
 
@@ -134,8 +126,8 @@ export default function Navbar() {
                                             location.pathname === item?.path
                                                 ? scrolled
                                                     ? "white"
-                                                    : Colors?.PrimaryBlue
-                                                : "white",
+                                                    : "white"
+                                                : "lightgray",
                                     }}
 
                                 >

@@ -2,9 +2,9 @@ import React from 'react';
 import { Grid, Typography, Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
-import aboutimage from '../../assets/images/alumni3.jpg';
 
-function Homesection2() {
+
+function Homesection2({ title2, description2 ,aboutimg}) {
     return (
         <Box
             component={motion.div}
@@ -40,7 +40,7 @@ function Homesection2() {
                         >
                             <Box
                                 component="img"
-                                src={aboutimage}
+                                src={aboutimg}
                                 alt="DUET Hub Alumni"
                                 sx={{
                                     width: "100%",
@@ -61,10 +61,10 @@ function Homesection2() {
                             sx={{ fontWeight: '600' }}
                             className='font_poppins headingcolorgradient'
                         >
-                            Empowering DUET Alumni
+                            {title2}
                         </Typography>
                         <Typography variant="body1" color="text.secondary" style={{ lineHeight: "30px" }}>
-                            DUET Hub is more than just a platform—it's a growing community of proud alumni from Dawood University. Whether you're an experienced professional or a recent graduate, this is your space to reconnect, mentor, and thrive. Share your journey, offer guidance to current students, or discover new opportunities through alumni networks. With tools for communication, career development, and showcasing achievements, DUET Hub keeps alumni actively involved in shaping the future of DUET.
+                            {description2}
                         </Typography>
                     </Grid>
                 </Grid>

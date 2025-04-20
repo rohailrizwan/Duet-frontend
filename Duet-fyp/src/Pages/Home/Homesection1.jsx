@@ -2,8 +2,7 @@ import React from 'react';
 import { Grid, Typography, Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
-import aboutimage from '../../assets/images/Aboutimage.jpg'
-function Homesection1() {
+function Homesection1({title,description,aboutimg}) {
     return (
         <Box
             component={motion.div}
@@ -26,10 +25,10 @@ function Homesection1() {
                             sx={{ fontWeight: '600' }}
                             className='font_poppins headingcolorgradient'
                         >
-                            Connecting Our Community
+                            {title}
                         </Typography>
                         <Typography variant="body1" color="text.secondary" className='font_poppins' style={{ lineHeight: "30px" }}>
-                            DUET Hub is a unique platform designed to connect the students, alumni, and faculty of Dawood University. Our mission is to foster a sense of community, offering resources for career development, mentorship, and professional growth. Through AI-driven resume screening, job matching, and real-time communication, DUET Hub creates an environment that encourages networking and collaboration. It’s a space where students can find job opportunities, alumni can share knowledge and experiences, and faculty can stay connected with the evolving achievements of their peers and students. Whether you are looking for guidance, sharing your accomplishments, or building your professional network, DUET Hub serves as a comprehensive platform for all.
+                            {description}
                         </Typography>
                     </Grid>
 
@@ -54,7 +53,7 @@ function Homesection1() {
                         >
                             <Box
                                 component="img"
-                                src={aboutimage}
+                                src={aboutimg}
                                 alt="DUET Hub Illustration"
                                 sx={{
                                     width: "100%",

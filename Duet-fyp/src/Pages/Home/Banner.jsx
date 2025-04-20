@@ -2,43 +2,26 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import banner1 from '../../assets/images/banner1.jpg';
-import banner2 from '../../assets/images/banner2.jpg';
 import Container from "../../Components/Container";
 
-function Banner() {
-  const banners = [
-    {
-      id: 1,
-      image: banner1,
-      altText: "Empowering DUET Alumni & Students",
-      subtitle: 'Reconnect with your alumni network, share your journey and insights, and help guide the future of the community by mentoring and sharing experiences.'
-    },
-    {
-      id: 2,
-      image: banner2,
-      altText: "Your Journey from Campus to Career Starts Here",
-      subtitle: "Explore valuable mentorship, gain access to diverse job opportunities, and uncover real-world insights that will shape the path to your successful future."
-    }
-  ];
-
+function Banner({banners}) {  
   const settings = {
     dots: false,
-    infinite: true,
+    infinite: banners?.length > 1,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
     arrows: false,
-    autoplay: true,
+    autoplay: banners?.length > 1,
     autoplaySpeed: 3000,
     pauseOnHover: false,
-    fade: true
+    fade: banners?.length > 1
   };
 
   return (
     <div className="w-full">
       <Slider {...settings}>
-        {banners.map((banner) => (
+        {banners?.map((banner) => (
           <div key={banner.id}>
             <div
               className="relative w-full herosection1 bg-cover bg-center"
