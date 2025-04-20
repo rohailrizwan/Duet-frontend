@@ -4,66 +4,70 @@ import { Box, Typography, Card, CardMedia, CardContent } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
 import { NewButton } from '../../Components/BtnComponent';
-const facultyData = [
-    {
-        image: "https://randomuser.me/api/portraits/men/32.jpg",
-        name: "Dr. Ahsan Khan",
-        department: "Computer Science",
-        designation: "Associate Professor"
-    },
-    {
-        image: "https://randomuser.me/api/portraits/women/44.jpg",
-        name: "Prof. Sara Ahmed",
-        department: "Electrical Engineering",
-        designation: "Head of Department"
-    },
-    {
-        image: "https://randomuser.me/api/portraits/men/55.jpg",
-        name: "Engr. Bilal Qureshi",
-        department: "Mechanical Engineering",
-        designation: "Assistant Professor"
-    },
-    {
-        image: "https://randomuser.me/api/portraits/women/65.jpg",
-        name: "Dr. Nida Farooq",
-        department: "Architecture",
-        designation: "Senior Lecturer"
-    },
-    {
-        image: "https://randomuser.me/api/portraits/men/75.jpg",
-        name: "Dr. Imran Sheikh",
-        department: "Civil Engineering",
-        designation: "Professor"
-    }
-];
-
-const sliderSettings = {
-    dots: false,
-    arrows: false,
-    infinite: facultyData?.length > 3 ? true : false,
-    speed: 1000,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    responsive: [
-        {
-            breakpoint: 960,
-            settings: {
-                slidesToShow: 2
-            }
-        },
-        {
-            breakpoint: 600,
-            settings: {
-                slidesToShow: 1,
-               
-            }
-        }
-    ]
-};
+import { useNavigate } from 'react-router-dom';
 
 const FacultySection = () => {
+    const navigate=useNavigate()
+    const facultyData = [
+        {
+            image: "https://randomuser.me/api/portraits/men/32.jpg",
+            name: "Dr. Ahsan Khan",
+            department: "Computer Science",
+            designation: "Associate Professor"
+        },
+        {
+            image: "https://randomuser.me/api/portraits/women/44.jpg",
+            name: "Prof. Sara Ahmed",
+            department: "Electrical Engineering",
+            designation: "Head of Department"
+        },
+        {
+            image: "https://randomuser.me/api/portraits/men/55.jpg",
+            name: "Engr. Bilal Qureshi",
+            department: "Mechanical Engineering",
+            designation: "Assistant Professor"
+        },
+        {
+            image: "https://randomuser.me/api/portraits/women/65.jpg",
+            name: "Dr. Nida Farooq",
+            department: "Architecture",
+            designation: "Senior Lecturer"
+        },
+        {
+            image: "https://randomuser.me/api/portraits/men/75.jpg",
+            name: "Dr. Imran Sheikh",
+            department: "Civil Engineering",
+            designation: "Professor"
+        }
+    ];
+    const sliderSettings = {
+        dots: false,
+        arrows: false,
+        infinite: facultyData?.length > 3 ? true : false,
+        speed: 1000,
+        autoplay: true,
+        autoplaySpeed: 2000,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        responsive: [
+            {
+                breakpoint: 960,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 600,
+                settings: {
+                    slidesToShow: 1,
+
+                }
+            }
+        ]
+    };
+    const handleFunction = () => {
+        navigate('/viewfaculty')
+    }
     return (
         <Box
             component={motion.div}
@@ -75,13 +79,13 @@ const FacultySection = () => {
                 background: 'linear-gradient(to bottom right, #f5f7fa, #c3cfe2)',
                 padding: "100px 0px"
             }}
-        
+
         >
             <Container>
                 <Typography
-                     variant="h3"
-                     component="h2"
-                     gutterBottom
+                    variant="h3"
+                    component="h2"
+                    gutterBottom
                     sx={{
                         fontWeight: 700,
                         mb: 6,
@@ -113,7 +117,7 @@ const FacultySection = () => {
                             sx={{
                                 display: 'flex !important',
                                 justifyContent: 'center',
-                                padding:"10px 0px"
+                                padding: "10px 0px"
                             }}
                         >
                             <Card
@@ -121,7 +125,7 @@ const FacultySection = () => {
                                     borderRadius: 3,
                                     boxShadow: 3,
                                     maxWidth: 300,
-                                    marginRight:"5px",
+                                    marginRight: "5px",
                                     width: '100%', // ensures proper responsiveness
                                 }}
                             >
@@ -145,8 +149,8 @@ const FacultySection = () => {
                         </Box>
                     ))}
                 </Slider>
-                <Box sx={{margin:'40px 0px 0px 0px',display:"flex",justifyContent:"center"}}>
-                    <NewButton title="View More"/>
+                <Box sx={{ margin: '40px 0px 0px 0px', display: "flex", justifyContent: "center" }}>
+                    <NewButton title="View More" handleFunction={handleFunction} />
                 </Box>
             </Container>
 

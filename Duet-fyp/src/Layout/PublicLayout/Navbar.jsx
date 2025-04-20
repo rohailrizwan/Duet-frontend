@@ -35,6 +35,10 @@ export default function Navbar() {
             text: "Events",
             path: "/events",
         },
+        {
+            text: "Terms",
+            path: "/terms",
+        },
     ];
 
     useEffect(() => {

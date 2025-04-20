@@ -1,11 +1,18 @@
 import React from 'react';
 import { Language, LocationOn, Phone } from '@mui/icons-material';
-import { Box, Grid, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import Container from '../../Components/Container';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Colors from '../../assets/Style';
 import { styled } from "@mui/system";
 function Footer() {
+    const navigate=useNavigate()
+    const LinkItems = [
+        { href: '/about', label: 'About Us' },
+        { href: '/viewfaculty', label: 'Faculty' },
+        { href: '/events', label: 'Events' },
+        { href: '/terms', label: 'Terms & Condition' }
+    ];
     const UnderlineText = styled("span")({
         position: "relative",
         display: "inline",
@@ -56,27 +63,48 @@ function Footer() {
                         </Grid>
 
                         {/* Quick Links */}
-                        <Grid item xs={12} sm={6} md={4}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: {xs:"start",md:"center"}, justifyContent: 'center' }}>
-                                <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', marginBottom: "15px", textAlign: 'center' }}>
+                        <Grid
+                            item
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            sx={{ display: 'flex', justifyContent: { xs: "start", md: "center" }, textAlign: 'center' }}
+                        >
+                            <Box>
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: '600', textAlign: 'left' }}>
                                     Quick Links
                                 </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, }}>
-                                    {[
-                                        { href: '/about', label: 'About Us' },
-                                        { href: '/alumni', label: 'Alumni' },
-                                        { href: '/events', label: 'Events' },
-                                        { href: '/contact', label: 'Contact' }
-                                    ].map((link, index) => (
-                                        <Link key={index} href={link.href} sx={{ textAlign: 'center' }}>
-                                            <UnderlineText>
-                                                {link.label}
-                                            </UnderlineText>
-                                        </Link>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, textAlign: 'left' }}>
+                                    {LinkItems.map((item, index) => (
+                                        <Button
+                                            key={index}
+                                            sx={{
+                                                color: "white",
+                                                display: "flex",
+                                                justifyContent: "flex-start",
+                                                width: "100%", // Keeps the width based on the text
+                                                padding: "8px 0px 0px 0px", // Ensures no padding issues
+                                                paddingRight: "10px",
+                                                marginBottom: "5px",
+                                                "&:hover": {
+                                                    backgroundColor: "transparent !important", // Prevents background change
+                                                    color: "white !important", // Prevents text color change
+                                                    boxShadow: "none !important", // Prevents shadow effects
+                                                    transform: "none !important", // Prevents scaling
+                                                },
+                                            }}
+                                            onClick={() => navigate(item?.href)}
+                                        >
+                                            <span>
+                                                <UnderlineText>{item?.label}</UnderlineText>
+                                            </span>
+                                        </Button>
                                     ))}
                                 </Box>
                             </Box>
                         </Grid>
+
+
 
 
                         {/* Contact Info */}
@@ -121,7 +149,7 @@ function Footer() {
                     &copy; {new Date().getFullYear()} DUET Hub. All rights reserved.
                 </p>
             </Box>
-        </div>
+        </div >
     );
 }
 
