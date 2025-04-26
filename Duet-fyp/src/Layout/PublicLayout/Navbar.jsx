@@ -18,7 +18,8 @@ import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
 import cardlogo from '../../assets/images/dashboardLogo.webp'
 import { styled } from "@mui/system";
-export default function Navbar() {
+import AvatarComponent from "../../Components/Avatar";
+export default function Navbar({user}) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate()
@@ -141,7 +142,10 @@ export default function Navbar() {
                         ))}
                     </Box>
 
-                    {/* Login Button (Right Side) */}
+                   {
+                    user?(
+                        <AvatarComponent scrolled={scrolled}/>
+                    ):(
                     <Button
                         variant="outlined"
                         sx={{
@@ -163,6 +167,8 @@ export default function Navbar() {
                     >
                         {"Get Started"} <ArrowForwardIcon/>
                     </Button>
+                    )
+                   }
                 </Toolbar>
             </AppBar>
 

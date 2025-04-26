@@ -12,9 +12,10 @@ function PublicLayout() {
   useEffect(() => {
     scrolltop.current.scrollIntoView({ behavior: "smooth" });
   }, [location.pathname]);
+  const user=true
   return (
     <div>
-      <Navbar />
+      <Navbar user={user}/>
       <Box component="main" ref={scrolltop}>
       <Outlet />
       </Box>

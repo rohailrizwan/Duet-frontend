@@ -1,8 +1,11 @@
 import React, { Suspense, useState } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PublicRoute from './Public';
 import PublicLayout from '../Layout/PublicLayout';
 import Login from '../Pages/Login';
+import ProtectedLinks from './Protected';
+import ProtectedLayout from '../Layout/ProtectedLayout';
+import { AlumniTab, FacultyTab, StudentTab } from './Tabs';
 
 function ProtectedRoutes() {
   const user = true
@@ -24,18 +27,26 @@ function ProtectedRoutes() {
   // }, [location.pathname]);
   
 
-  // const isProtected = (children, path) => {
-  //   if (!application_name || !LoginData) {
-  //     return <Navigate to="/login" replace />;
-  //   }
-  //   if (
-  //     (LoginData?.type === "Employer" && EmployerTab.some((tab) => tab.path === path)) ||
-  //     (LoginData?.type === "Job Seeker" && JobseekerTab.some((tab) => tab.path === path))
-  //   ) {
-  //     return children;
-  //   }
-  //   return <Navigate to="/" replace />;
-  // };
+  const type="Student"
+  
+  const isProtected = (children, path) => {
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+  
+    const isStudent = type == "Student" && StudentTab.some(tab => tab.path === path);
+    const isAlumni = type == "Alumni" && AlumniTab.some(tab => tab.path === path);
+    const isFaculty = type == "Faculty" && FacultyTab.some(tab => tab.path === path);
+  
+    if (isStudent || isFaculty || isAlumni) {
+      return children;
+    }
+  
+    return <Navigate to="/" replace />;
+  };
+  
+  
+  
 
   return (
     <>
@@ -48,11 +59,11 @@ function ProtectedRoutes() {
             ))}
           </Route>
 
-          {/* <Route path="/dashboard" element={<PortalDashboard />}>
-            {Protectedroutes?.map((route) => (
+          <Route path="/profile" element={< ProtectedLayout type={type} user={user}/>}>
+            {ProtectedLinks?.map((route) => (
               <Route key={route.path} path={route.path} element={isProtected(route.component, route?.path)} />
             ))}
-          </Route> */}
+          </Route>
 
           <Route path="/login" element={<Login />} />
         </Routes>
