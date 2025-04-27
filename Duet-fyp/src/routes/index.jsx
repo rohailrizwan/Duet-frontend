@@ -27,7 +27,7 @@ function ProtectedRoutes() {
   // }, [location.pathname]);
   
 
-  const type="Student"
+  const type="Alumni"
   
   const isProtected = (children, path) => {
     if (!user) {

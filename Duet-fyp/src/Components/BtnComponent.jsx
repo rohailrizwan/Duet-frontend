@@ -45,6 +45,43 @@ const NewButton = ({
     </Button>
   );
 };
+const NewButton2 = ({
+  title = "",
+  handleFunction,
+  fullWidth = false,
+  height,
+  width,
+  endicon,
+  fontsize,
+  sx = {},
+  ...rest
+}) => {
+  return (
+    <Button
+      variant="outlined"
+      className='font_poppins'
+      type='submit'
+      onClick={handleFunction}
+      endIcon={endicon}
+      sx={{
+        // mt: 2,
+        borderRadius: rest?.radius || 8,
+        width:width || "auto",
+        fontSize:fontsize || "",
+        background: 'linear-gradient(to right, #1976d2, #2196f3)',
+        color: '#fff',
+        textTransform: 'none',
+        fontWeight: 500,
+        '&:hover': {
+            background: 'linear-gradient(to right, #1565c0, #1e88e5)'
+        }
+    }}
+      {...rest}
+    >
+      {title}
+    </Button>
+  );
+};
 
 
-export { NewButton };
+export { NewButton ,NewButton2};

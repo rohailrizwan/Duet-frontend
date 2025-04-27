@@ -25,7 +25,6 @@
 }
 
 
-
 .herosection1 {
     position: relative;
     background-size: cover;
@@ -49,3 +48,26 @@
         /* Adjust opacity here */
         /* z-index: 1; */
 }
+
+/* Scrollbar ka width aur background */
+::-webkit-scrollbar {
+    width: 4px;
+    background-color: #e0e0e0; /* halka grey background */
+  }
+  
+  /* Scrollbar ka thumb (jo move karta hai) */
+  ::-webkit-scrollbar-thumb {
+    background-color: #2156a8; /* tumhara diya hua blue color */
+    border-radius: 0px;
+  }
+  
+  /* Thumb jab hover hoga */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #1b4691; /* thoda darker blue on hover */
+  }
+  
+  /* Scrollbar ka track */
+  ::-webkit-scrollbar-track {
+    background-color: #f5f5f5; /* aur halka grey for track */
+  }
+  

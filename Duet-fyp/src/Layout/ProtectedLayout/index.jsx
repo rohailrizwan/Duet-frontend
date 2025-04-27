@@ -26,7 +26,6 @@ const drawerWidth = 240;
 
 function ProtectedLayout({ type, user }) {
   const [activeTab, setActiveTab] = useState([]);
-  const [selectedTab, setSelectedTab] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -67,7 +66,7 @@ function ProtectedLayout({ type, user }) {
               <ListItem
                 button
                 key={item.label}
-                onClick={() => setSelectedTab(item.label)}
+                onClick={() => navigate(item.path)}
                 sx={{ '&:hover': { backgroundColor: '#1f4692', cursor: "pointer" } }}
                 className="font_poppins"
               >
