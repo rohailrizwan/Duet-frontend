@@ -7,7 +7,10 @@ const steps = ['Personal Information', 'Academic Details'];
 
 export default function UpdateFaculty() {
   const [activeStep, setActiveStep] = useState(0);
-
+  const [skillsList, setSkillsList] = useState([]);
+  const [awardsList, setAwardsList] = useState([]);
+  const [researchList, setResearchList] = useState([]);
+  const [subjectsList, setSubjectsList] = useState([]);
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
     defaultValues: {
@@ -16,11 +19,19 @@ export default function UpdateFaculty() {
       email: '',
       phone: '',
       dob: '',
+      address: '',
+      github: "",
+      linkedin: "",
+      description: "", // personal
+      subjects: '',
+      researchPapers: '',
+      awards: '',
+      specialization: '',
+      skills: '',
       department: '',
       qualification: '',
       designation: '',
       experience: '',
-      address: '',
     },
 
   });
@@ -50,6 +61,24 @@ export default function UpdateFaculty() {
     const file = e.target.files[0];
     setValue('image', file, { shouldValidate: true });
   };
+
+
+
+  const addToList = (list, setList, key, value) => {
+    if (value && !list.includes(value)) {
+      const updated = [...list, value];
+      setList(updated);
+      setValue(key, updated);
+    }
+  };
+
+  const removeFromList = (list, setList, key, index) => {
+    const updated = [...list];
+    updated.splice(index, 1);
+    setList(updated);
+    setValue(key, updated);
+  };
+
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 0 }}>
@@ -157,16 +186,42 @@ export default function UpdateFaculty() {
                 fullWidth
                 margin="normal"
               />
+              <TextField
+                label="Description (max 400 characters)"
+                multiline
+                rows={4}
+                inputProps={{ maxLength: 400 }}
+                {...register('description', { required: 'Description is required' })}
+                error={Boolean(errors.description)}
+                helperText={errors.description?.message}
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="Linked In (Url)"
+                {...register('linkedin', { required: 'Url is required' })}
+                error={Boolean(errors.linkedin)}
+                helperText={errors.linkedin?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Github (Url)"
+                {...register('github', { required: 'Github is required' })}
+                error={Boolean(errors.github)}
+                helperText={errors.github?.message}
+                fullWidth
+                margin="normal"
+              />
             </Box>
           )}
 
           {activeStep === 1 && (
             <Box>
-              {/* Department Dropdown */}
-              <FormControl fullWidth margin="normal" error={Boolean(errors.department)}>
+              <FormControl fullWidth margin="normal" error={!!errors.department}>
                 <InputLabel>Department</InputLabel>
                 <Select
-                  label="Department"
                   defaultValue=""
                   {...register('department', { required: 'Department is required' })}
                 >
@@ -174,26 +229,13 @@ export default function UpdateFaculty() {
                   <MenuItem value="Electrical Engineering">Electrical Engineering</MenuItem>
                   <MenuItem value="Mechanical Engineering">Mechanical Engineering</MenuItem>
                   <MenuItem value="Civil Engineering">Civil Engineering</MenuItem>
-                  {/* Add more departments if needed */}
                 </Select>
                 <FormHelperText>{errors.department?.message}</FormHelperText>
               </FormControl>
 
-              {/* Qualification TextField */}
-              <TextField
-                label="Qualification"
-                {...register('qualification', { required: 'Qualification is required' })}
-                error={Boolean(errors.qualification)}
-                helperText={errors.qualification?.message}
-                fullWidth
-                margin="normal"
-              />
-
-              {/* Designation Dropdown */}
-              <FormControl fullWidth margin="normal" error={Boolean(errors.designation)}>
+              <FormControl fullWidth margin="normal" error={!!errors.designation}>
                 <InputLabel>Designation</InputLabel>
                 <Select
-                  label="Designation"
                   defaultValue=""
                   {...register('designation', { required: 'Designation is required' })}
                 >
@@ -201,20 +243,95 @@ export default function UpdateFaculty() {
                   <MenuItem value="Associate Professor">Associate Professor</MenuItem>
                   <MenuItem value="Assistant Professor">Assistant Professor</MenuItem>
                   <MenuItem value="Lecturer">Lecturer</MenuItem>
-                  {/* Add more designations if needed */}
                 </Select>
                 <FormHelperText>{errors.designation?.message}</FormHelperText>
               </FormControl>
 
-              {/* Experience TextField */}
+              <TextField label="Qualification" {...register('qualification', { required: 'Qualification is required' })}
+                error={!!errors.qualification} helperText={errors.qualification?.message} fullWidth margin="normal" />
+
+              <TextField label="Experience (in years)" {...register('experience', { required: 'Experience is required' })}
+                error={!!errors.experience} helperText={errors.experience?.message} fullWidth margin="normal" />
+
+              <TextField label="Specializations" multiline rows={2}
+                {...register('specialization')}
+                fullWidth margin="normal" />
+
               <TextField
-                label="Experience (in years)"
-                {...register('experience', { required: 'Experience is required' })}
-                error={Boolean(errors.experience)}
-                helperText={errors.experience?.message}
+                label="Add Subject"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addToList(subjectsList, setSubjectsList, 'subjects', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
                 fullWidth
                 margin="normal"
               />
+              {subjectsList.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography>{item}</Typography>
+                  <Button color="error" onClick={() => removeFromList(subjectsList, setSubjectsList, 'subjects', idx)}>Remove</Button>
+                </Box>
+              ))}
+
+              <TextField
+                label="Add Research Paper"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addToList(researchList, setResearchList, 'researchPapers', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                fullWidth
+                margin="normal"
+              />
+              {researchList.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography>{item}</Typography>
+                  <Button color="error" onClick={() => removeFromList(researchList, setResearchList, 'researchPapers', idx)}>Remove</Button>
+                </Box>
+              ))}
+
+              <TextField
+                label="Add Award"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addToList(awardsList, setAwardsList, 'awards', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                fullWidth
+                margin="normal"
+              />
+              {awardsList.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography>{item}</Typography>
+                  <Button color="error" onClick={() => removeFromList(awardsList, setAwardsList, 'awards', idx)}>Remove</Button>
+                </Box>
+              ))}
+
+              <TextField
+                label="Add Skill"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addToList(skillsList, setSkillsList, 'skills', e.target.value);
+                    e.target.value = '';
+                  }
+                }}
+                fullWidth
+                margin="normal"
+              />
+              {skillsList?.map((item, idx) => (
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                  <Typography>{item}</Typography>
+                  <Button color="error" onClick={() => removeFromList(skillsList, setSkillsList, 'skills', idx)}>Remove</Button>
+                </Box>
+              ))}
 
             </Box>
           )}

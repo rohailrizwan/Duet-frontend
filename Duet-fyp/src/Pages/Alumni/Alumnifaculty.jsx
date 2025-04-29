@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { NewButton } from '../../Components/BtnComponent';
+import { Description } from '@mui/icons-material';
 
 const steps = ['Personal Information', 'Academic Details', 'Work Experience'];
 
@@ -16,7 +17,10 @@ export default function AlumniProfile() {
       email: '',
       phone: '',
       dob: '',
+      linkedin: '',
+      github: '',
       address: '',
+      description:"",
       enrollment: '',
       department: '',
       semester: '',
@@ -60,7 +64,6 @@ export default function AlumniProfile() {
 
   const onSubmit = (data) => {
     console.log('Form Submitted:', data);
-    // API call here
   };
 
   const handleImageChange = (e) => {
@@ -186,6 +189,33 @@ export default function AlumniProfile() {
                 {...register('address', { required: 'Address is required' })}
                 error={Boolean(errors.address)}
                 helperText={errors.address?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Description (max 400 characters)"
+                multiline
+                rows={4}
+                inputProps={{ maxLength: 400 }}
+                {...register('description', { required: 'Description is required' })}
+                error={Boolean(errors.description)}
+                helperText={errors.description?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Linked In (Url)"
+                {...register('linkedin', { required: 'Url is required' })}
+                error={Boolean(errors.linkedin)}
+                helperText={errors.linkedin?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Github (Url)"
+                {...register('github', { required: 'Github is required' })}
+                error={Boolean(errors.github)}
+                helperText={errors.github?.message}
                 fullWidth
                 margin="normal"
               />

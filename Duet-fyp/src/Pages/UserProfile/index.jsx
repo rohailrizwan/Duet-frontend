@@ -3,17 +3,28 @@ import { School as SchoolIcon, Business as BusinessIcon, Email as EmailIcon, Pho
 import React from 'react';
 import Container from '../../Components/Container';
 import AlumniProfile from '../Alumni/AlumniProfile';
+import StudentProfile from '../Student/StudentProfile';
+import FacultyProfile from '../Faculty/FacultyProfile';
 
 function ProfilePage() {
     // Example user profile data
-    const type="Alumni"
+    const type="Faculty"
   
 
     return (
         <Box  sx={{ py: 2, minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
           {type == "Alumni" ? (
             <AlumniProfile/>
-          ):null}
+          ):
+           type == "Student" ?(
+            <StudentProfile/>
+           ): 
+           type == "Faculty"? (
+              <FacultyProfile/>
+           ): (
+            null
+           )
+          }
         </Box>
     );
 }

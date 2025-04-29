@@ -16,6 +16,7 @@ import HomeIcon from '@mui/icons-material/Home';
   { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisble:true },
   { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon />,isvisible:false },
+  { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon />,isvisible:false },
 ];
 
  const StudentTab = [
@@ -25,6 +26,7 @@ import HomeIcon from '@mui/icons-material/Home';
   { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisble:true },
   { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
+  { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
 ];
 
  const AlumniTab = [
@@ -35,6 +37,7 @@ import HomeIcon from '@mui/icons-material/Home';
   { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisble:true },
   { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
   { label: "Profile",  path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
+  { label: "Profile",  path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
 ];
 
 export {FacultyTab,StudentTab,AlumniTab}

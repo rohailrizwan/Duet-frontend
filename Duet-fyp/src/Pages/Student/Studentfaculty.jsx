@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar } from '@mui/material';
+import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar, TextareaAutosize, IconButton } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { NewButton } from '../../Components/BtnComponent';
+import { Add, Delete } from '@mui/icons-material';
 
-const steps = ['Personal Information', 'Academic Details'];
+
+const steps = ['Personal Information', 'Academic Details', 'Work Experience'];
 
 export default function Studentfaculty() {
   const [activeStep, setActiveStep] = useState(0);
+  const [skills, setSkills] = useState(['']);
 
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
@@ -15,7 +18,11 @@ export default function Studentfaculty() {
       name: '',
       email: '',
       phone: '',
+      github: "",
+      linkedin: "",
+      description: "",
       dob: '',
+      designation: "",
       enrollment: '',
       department: '',
       semester: '',
@@ -29,7 +36,14 @@ export default function Studentfaculty() {
         collegeName: '',
         passingYear: '',
         grade: ''
-      }
+      },
+      workExperience: [{
+        companyName: '',
+        jobTitle: '',
+        startYear: '',
+        endYear: '',
+        responsibilities: ''
+      }]
     },
   });
 
@@ -39,6 +53,9 @@ export default function Studentfaculty() {
       valid = await trigger(['image', 'name', 'email', 'phone', 'dob', 'address']);
     } else if (activeStep === 1) {
       valid = await trigger(['enrollment', 'department', 'semester', 'matricDetails', 'interDetails']);
+    }
+    else if (activeStep === 2) {
+      valid = await trigger(['workExperience']);
     }
     if (valid) {
       setActiveStep((prev) => prev + 1);
@@ -58,7 +75,32 @@ export default function Studentfaculty() {
     const file = e.target.files[0];
     setValue('image', file, { shouldValidate: true });
   };
+  const addWorkExperience = () => {
+    const workExperience = [...watch('workExperience'), {
+      companyName: '',
+      jobTitle: '',
+      startYear: '',
+      endYear: '',
+      responsibilities: ''
+    }];
+    setValue('workExperience', workExperience);
+  };
 
+  const removeWorkExperience = (index) => {
+    const workExperience = [...watch('workExperience')];
+    workExperience.splice(index, 1);
+    setValue('workExperience', workExperience);
+  };
+
+  const handleAddSkill = () => {
+    setSkills([...skills, '']);
+  };
+  
+  const handleRemoveSkill = (index) => {
+    const updatedSkills = skills.filter((_, i) => i !== index);
+    setSkills(updatedSkills);
+  };
+  
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 0 }}>
 
@@ -66,7 +108,7 @@ export default function Studentfaculty() {
         <Typography variant="h4" fontWeight="bold" mb={4} textAlign="left" className="font_poppins colorgradient">
           Update Profile
         </Typography>
-        
+
         {/* Stepper */}
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
           {steps.map((label) => (
@@ -98,7 +140,7 @@ export default function Studentfaculty() {
                 htmlFor="upload-button"
                 sx={{
                   display: 'flex',
-                  justifyContent: "center", 
+                  justifyContent: "center",
                   p: 2,
                   border: '2px dashed #2156a8',
                   borderRadius: 2,
@@ -139,6 +181,14 @@ export default function Studentfaculty() {
                 margin="normal"
               />
               <TextField
+                label="Designation (Optional)"
+                {...register('designation')}
+                // error={Boolean(errors.designation)}
+                // helperText={errors.designation?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
                 label="Phone Number"
                 {...register('phone', { required: 'Phone number is required' })}
                 error={Boolean(errors.phone)}
@@ -161,6 +211,34 @@ export default function Studentfaculty() {
                 {...register('address', { required: 'Address is required' })}
                 error={Boolean(errors.address)}
                 helperText={errors.address?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Description (max 400 characters)"
+                multiline
+                rows={4}
+                inputProps={{ maxLength: 400 }}
+                {...register('description', { required: 'Description is required' })}
+                error={Boolean(errors.description)}
+                helperText={errors.description?.message}
+                fullWidth
+                margin="normal"
+              />
+
+              <TextField
+                label="Linked In (Url)"
+                {...register('linkedin', { required: 'Url is required' })}
+                error={Boolean(errors.linkedin)}
+                helperText={errors.linkedin?.message}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Github (Url)"
+                {...register('github', { required: 'Github is required' })}
+                error={Boolean(errors.github)}
+                helperText={errors.github?.message}
                 fullWidth
                 margin="normal"
               />
@@ -253,9 +331,121 @@ export default function Studentfaculty() {
                 fullWidth
                 margin="normal"
               />
+
+              <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>
+                Skills
+              </Typography>
+
+              {skills.map((skill, index) => (
+                <Box key={index} display="flex" alignItems="center" mb={2}>
+                  <TextField
+                    label={`Skill ${index + 1}`}
+                    value={skill}
+                    onChange={(e) => {
+                      const updatedSkills = [...skills];
+                      updatedSkills[index] = e.target.value;
+                      setSkills(updatedSkills);
+                    }}
+                    fullWidth
+                    required
+                  />
+                  <IconButton onClick={() => handleRemoveSkill(index)} color="error" sx={{ ml: 1 }}>
+                    <Delete />
+                  </IconButton>
+                </Box>
+              ))}
+
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleAddSkill}
+                startIcon={<Add />}
+              >
+                Add Skill
+              </Button>
+
+
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => append({ name: '' })}
+                startIcon={<Add />}
+              >
+                Add Skill
+              </Button>
+
             </Box>
           )}
+          {activeStep === 2 && (
+            <Box>
+              <Typography variant="h6" fontWeight="bold" mb={2}>
+                Work Experience
+              </Typography>
 
+              {/* Work Experience Fields */}
+              {watch('workExperience')?.map((work, index) => (
+                <Box key={index} sx={{ mb: 3 }}>
+                  <TextField
+                    label="Company Name"
+                    {...register(`workExperience.${index}.companyName`, { required: 'Company name is required' })}
+                    error={Boolean(errors.workExperience?.[index]?.companyName)}
+                    helperText={errors.workExperience?.[index]?.companyName?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Job Title"
+                    {...register(`workExperience.${index}.jobTitle`, { required: 'Job title is required' })}
+                    error={Boolean(errors.workExperience?.[index]?.jobTitle)}
+                    helperText={errors.workExperience?.[index]?.jobTitle?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Start Year"
+                    type="number"
+                    {...register(`workExperience.${index}.startYear`, { required: 'Start year is required' })}
+                    error={Boolean(errors.workExperience?.[index]?.startYear)}
+                    helperText={errors.workExperience?.[index]?.startYear?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="End Year"
+                    type="number"
+                    {...register(`workExperience.${index}.endYear`, { required: 'End year is required' })}
+                    error={Boolean(errors.workExperience?.[index]?.endYear)}
+                    helperText={errors.workExperience?.[index]?.endYear?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <TextField
+                    label="Responsibilities"
+                    {...register(`workExperience.${index}.responsibilities`, { required: 'Responsibilities are required' })}
+                    error={Boolean(errors.workExperience?.[index]?.responsibilities)}
+                    helperText={errors.workExperience?.[index]?.responsibilities?.message}
+                    fullWidth
+                    margin="normal"
+                  />
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => removeWorkExperience(index)}
+                    sx={{ mt: 2 }}
+                  >
+                    Remove
+                  </Button>
+                </Box>
+              ))}
+              <Button
+                variant="contained"
+                onClick={addWorkExperience}
+                sx={{ mt: 3 }}
+              >
+                Add Work Experience
+              </Button>
+            </Box>
+          )}
           {/* Buttons */}
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
             <Button

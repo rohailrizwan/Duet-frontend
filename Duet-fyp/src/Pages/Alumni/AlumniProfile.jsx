@@ -9,6 +9,7 @@ function AlumniProfile() {
         imageUrl: "https://via.placeholder.com/150", // Placeholder image URL
         name: "Ali Khan",
         designation: "Frontend Developer",
+        description:"abcd",
         type: "Alumni", // This could be 'Student', 'Faculty', or 'Alumni'
         academic: {
             school: { name: "XYZ High School", year: "2010", grade: "A+" }, // Matric
@@ -58,7 +59,7 @@ function AlumniProfile() {
 
                         </Box>
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column',marginBottom:'20px' }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '20px' }}>
                         {user?.linkedin && (
                             <IconButton
                                 href={user.linkedin}
@@ -120,20 +121,19 @@ function AlumniProfile() {
 
 
                     {/* About Section */}
-                    <Typography variant="h6" className='font_poppins' gutterBottom sx={{ fontWeight: 'bold' }}>About</Typography>
-                    <Typography variant="body1">
-                        {user.type === 'Alumni' || user.type === 'Faculty' ? (
-                            <Box display="flex" alignItems="center" sx={{ mb: 2,paddingLeft:"16px" }}>
-                                <BusinessIcon sx={{ marginRight: 2, color: '#1976d2' }} />
-                                <Typography variant="body1">{user.workExperience.length} years of experience</Typography>
-                            </Box>
-                        ) : (
-                            <Box display="flex" alignItems="center" sx={{ mb: 2,paddingLeft:"16px" }}>
-                                <SchoolIcon sx={{ marginRight: 2, color: '#1976d2' }} />
-                                <Typography variant="body1">Student</Typography>
-                            </Box>
-                        )}
-                    </Typography>
+                    {user?.description && (
+                        <>
+                            <Typography variant="h6" className='font_poppins' gutterBottom sx={{ fontWeight: 'bold' }}>
+                                About
+                            </Typography>
+
+                            {/* Description text */}
+                            <Typography variant="body1" className='font_poppins' sx={{ mb: 2, paddingLeft: "16px" }}>
+                                {user?.description || "No description available."}
+                            </Typography>
+
+                        </>
+                    )}
 
                     <Divider sx={{ my: 2 }} />
 
@@ -141,7 +141,7 @@ function AlumniProfile() {
                     <Typography variant="h6" className='font_poppins' gutterBottom sx={{ fontWeight: 'bold' }}>
                         Academic Details
                     </Typography>
-                    <Box display="flex" alignItems="center" sx={{ mb: 2,paddingLeft:"16px" }}>
+                    <Box display="flex" alignItems="center" sx={{ mb: 2, paddingLeft: "16px" }}>
                         <SchoolIcon sx={{ marginRight: 2, color: '#1976d2', fontSize: 30 }} />
                         <Typography variant="body1" sx={{ fontSize: '1rem', color: 'text.primary' }}>
                             {user.academic.school.name} (Matric) - {user.academic.school.year}, Grade: {user.academic.school.grade}
@@ -149,14 +149,14 @@ function AlumniProfile() {
                     </Box>
 
 
-                    <Box display="flex" alignItems="center" sx={{ mb: 2,paddingLeft:"16px" }}>
+                    <Box display="flex" alignItems="center" sx={{ mb: 2, paddingLeft: "16px" }}>
                         <SchoolIcon sx={{ marginRight: 2, color: '#1976d2' }} />
                         <Typography variant="body1">
                             {user.academic.inter.name} (Inter) - {user.academic.inter.year}, Grade: {user.academic.inter.grade}
                         </Typography>
                     </Box>
 
-                    <Box display="flex" alignItems="center" sx={{ mb: 2,paddingLeft:"16px" }}>
+                    <Box display="flex" alignItems="center" sx={{ mb: 2, paddingLeft: "16px" }}>
                         <SchoolIcon sx={{ marginRight: 2, color: '#1976d2' }} />
                         <Typography variant="body1">
                             {user.academic.university.name} (University) - {user.academic.university.year}, Grade: {user.academic.university.grade}

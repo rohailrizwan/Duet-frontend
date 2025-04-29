@@ -1,4 +1,5 @@
 import Addjob from "../Pages/AddJob"
+import ChangePassword from "../Pages/Changepassword"
 import CreatePost from "../Pages/CreatePost"
 import MyJob from "../Pages/Myjob"
 import MyProfile from "../Pages/myProfile"
@@ -13,6 +14,10 @@ const ProtectedLinks=[
     {
         path: "/profile", //userjobseeker
         component: <MyProfile />,
+    },
+    {
+        path: "/profile/ChangePassword", //userjobseeker
+        component: <ChangePassword />,
     },
     {
         path: "/profile/updateprofile", //userjobseeker

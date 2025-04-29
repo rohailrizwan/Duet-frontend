@@ -89,7 +89,7 @@ function ProtectedLayout({ type, user }) {
 
           <Collapse in={settingsOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button sx={{ pl: 4, cursor: "pointer" }} onClick={() => navigate('/profile/updateprofile')}>
+              <ListItem button sx={{ pl: 4, cursor: "pointer" }} onClick={() => navigate('/profile/ChangePassword')}>
                 <ListItemIcon sx={{ color: 'white' }}>
                   <Lock />
                 </ListItemIcon>
