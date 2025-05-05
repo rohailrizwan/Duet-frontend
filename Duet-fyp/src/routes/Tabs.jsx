@@ -22,9 +22,9 @@ import HomeIcon from '@mui/icons-material/Home';
  const StudentTab = [
   { label: "Home", path: "/profile", icon: <HomeIcon />,isvisble:true },
   { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisble:true },
-  { label: "Create Resume", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisble:true },
-  { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisble:true },
+  { label: "Create Resume", path: "/profile/createresume", icon: <VisibilityIcon />,isvisble:true },
   { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
+  { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisble:false },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
   { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
 ];

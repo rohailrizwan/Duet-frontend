@@ -4,6 +4,8 @@ import CreatePost from "../Pages/CreatePost"
 import MyJob from "../Pages/Myjob"
 import MyProfile from "../Pages/myProfile"
 import Profile from "../Pages/Profile"
+import CreateResume from "../Pages/Student/CreateResume"
+import CandidateResume from "../Pages/Student/ResumeForm/CandidateResume"
 import UserProfile from "../Pages/UserProfile"
 import ViewJob from "../Pages/ViewJob"
 import ViewResume from "../Pages/ViewResume"
@@ -12,40 +14,44 @@ import ViewResume from "../Pages/ViewResume"
 
 const ProtectedLinks=[
     {
-        path: "/profile", //userjobseeker
+        path: "/profile", //Dashboard
         component: <MyProfile />,
     },
     {
-        path: "/profile/ChangePassword", //userjobseeker
+        path: "/profile/ChangePassword", //change password
         component: <ChangePassword />,
     },
     {
-        path: "/profile/updateprofile", //userjobseeker
+        path: "/profile/updateprofile", //Profile update
         component: <Profile />,
     },
     {
-        path: "/profile/viewjob", //userjobseeker
+        path: "/profile/viewjob", //upcoming jobs
         component: <ViewJob />,
     },
     {
-    path: "/profile/addjob", //userjobseeker
+    path: "/profile/addjob", //  faculty and alumni
         component: <Addjob />,
     },
     {
-    path: "/profile/resume", //userjobseeker
-        component: <Addjob />,
-    },
-    {
-    path: "/profile/myjob", //userjobseeker
+    path: "/profile/myjob", //faculty and alumni job
         component: <MyJob />,
     },
     {
-    path: "/profile/ViewResume", //userjobseeker
+    path: "/profile/ViewResume", // faculty and alumni
         component: <ViewResume />,
     },
     {
-    path: "/profile/userProfile", //userjobseeker
+    path: "/profile/userProfile", // profile
         component: <UserProfile />,
+    },
+    {
+    path: "/profile/createresume", //userjobseeker
+        component: <CreateResume />,
+    },
+    {
+    path: "/profile/candidateResume", //userjobseeker
+        component: <CandidateResume />,
     },
     
 ]
