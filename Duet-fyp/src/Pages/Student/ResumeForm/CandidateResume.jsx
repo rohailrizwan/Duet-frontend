@@ -61,7 +61,7 @@ const sampleResumeData = {
   activities:
     "• Member of the college coding club\n• Participated in national level hackathons\n• Volunteer for tech workshops\n• Organized departmental technical events",
 }
-
+  
 const CandidateResume = ({ resumeData = sampleResumeData }) => {
   const [loading, setLoading] = useState(true)
 
