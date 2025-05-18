@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import about from '../../assets/images/eventsbanner.webp';
 import Banner from '../Home/Banner';
 import Ourevents from './Ourevents';
+import WebServices from '../../apis/Website';
+import CustomPagination from '../../Components/Pagination';
 function UpcomingEvents() {
+    const [data, setData] = useState([])
+    const [page, setpage] = useState(1)
+    const [limit, setlimit] = useState(10)
+    const [totalPages, settotalPages] = useState()
+    const [loading, setloading] = useState(true)
     const banners = [
         {
             id: 1,
@@ -31,10 +38,30 @@ function UpcomingEvents() {
             image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d"
         }
     ];
+
+    useEffect(() => {
+        fetchdata(page,limit)
+    }, [])
+    const fetchdata = async () => {
+        setloading(true)
+        try {
+            const response = await WebServices?.getEvent()
+            console.log(response);
+            setloading(false)
+        } catch (error) {
+            setloading(false)
+        }
+    }
+
+    const handleChange = (event, value) => {
+        setpage(value);
+        fetchdata(value,limit)
+    };
     return (
         <div>
             <Banner banners={banners} />
-            <Ourevents events={events}/>
+            <Ourevents events={events} isLoading={loading}/>
+            <CustomPagination page={page} count={totalPages} onChange={handleChange} />
         </div>
     )
 }

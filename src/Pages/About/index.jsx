@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Banner from '../Home/Banner'
 import ConnectWithUs from '../Home/Lastsection';
 import about from '../../assets/images/about.jpg';
@@ -6,8 +6,10 @@ import about1 from '../../assets/images/about1.jpg';
 import about2 from '../../assets/images/mission2.webp';
 import Homesection2 from '../Home/HomeSection2';
 import Homesection1 from '../Home/Homesection1';
+import WebServices from '../../apis/Website';
 
 function About() {
+    const [data,setData]=useState([])
     const banners = [
         {
             id: 1,
@@ -16,6 +18,19 @@ function About() {
             subtitle: 'Connecting Students, Alumni, and Faculty to Empower Futures and Build Lasting Bonds within the DUET Community.'
         },
     ];
+
+    useEffect(()=>{
+        fetchdata()
+      },[])
+      const fetchdata=async()=>{
+          try {
+            const response = await WebServices?.getAbout()
+            console.log(response);
+            
+          } catch (error) {
+            
+          }
+      }
     const title = "About Us"
     const description = `DUET Hub brings together students, alumni, and faculty under one digital roof.
     It’s a place where ideas are exchanged, careers are shaped, and lifelong bonds are formed.
