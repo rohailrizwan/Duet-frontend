@@ -27,9 +27,9 @@ function Termlisting() {
     setloading(true);
     try {
       const response = await WebServices?.getTerms(page, limit);
-      console.log(response);
-      setData(response?.data || []);
-      settotalPages(response?.totalPages || 1);
+      console.log(response?.termsAndConditions?.data);
+      setData(response?.termsAndConditions?.data || []);
+      settotalPages(response?.termsAndConditions?.totalPages || 1);
     } catch (error) {
       console.error(error);
     }
@@ -113,10 +113,10 @@ function Termlisting() {
                 <CheckCircleIcon sx={{ color: Colors?.PrimaryBlue, mt: '5px' }} />
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {term.title}
+                    {term.heading}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                    {term.description}
+                    {term.content}
                   </Typography>
                 </Box>
               </Box>

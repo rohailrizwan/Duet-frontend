@@ -26,7 +26,7 @@ function About() {
           try {
             const response = await WebServices?.getAbout()
             console.log(response);
-            
+            setData(response?.aboutPage)
           } catch (error) {
             
           }
@@ -46,8 +46,8 @@ function About() {
     return (
         <div>
             <Banner banners={banners} />
-            <Homesection1 title={title} description={description} aboutimg={about}/>
-            <Homesection2 title2={title2} description2={description2} aboutimg={about2}/>
+            <Homesection1 title={title} description={data?.platformOverview || description} aboutimg={about}/>
+            <Homesection2 title2={title2} description2={data?.missionStatement || description2} aboutimg={about2}/>
             <ConnectWithUs />
         </div>
     )

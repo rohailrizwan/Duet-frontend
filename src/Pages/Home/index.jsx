@@ -11,7 +11,9 @@ import aboutimage from '../../assets/images/Aboutimage.jpg'
 import aboutimage2 from '../../assets/images/alumni3.jpg';
 import WebServices from '../../apis/Website'
 function Home() {
-  const [data,setData]=useState([])
+  const [Student,setStudent]=useState([])
+  const [Faculty,setFaculty]=useState([])
+  const [loading,setloading]=useState(true)
   const banners = [
     {
       id: 1,
@@ -32,10 +34,13 @@ function Home() {
   const fetchdata=async()=>{
       try {
         const response = await WebServices?.getHome()
-        console.log(response);
-        
+        console.log(response?.faculty);
+        console.log(response?.users);
+        setStudent(response?.users)
+        setFaculty(response?.faculty)
+        setloading(false)
       } catch (error) {
-        
+        setloading(false)
       }
   }
   const title = "Connecting Our Community"
@@ -46,9 +51,9 @@ function Home() {
     <div>
       <Banner banners={banners} />
       <Homesection1 title={title} description={description} aboutimg={aboutimage} />
-      <FacultySection />
-      <Homesection2 title2={title2} description2={description2} aboutimg={aboutimage2} />
-      <FutureInnovatorsSection />
+      <FacultySection data={Faculty} loading={loading}/>
+      <Homesection2 title2={title2} description2={description2} aboutimg={aboutimage2} data={Faculty}/>
+      <FutureInnovatorsSection data={Student} loading={loading}/>
       <ConnectWithUs />
     </div>
   )
