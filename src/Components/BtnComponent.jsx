@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 
 const NewButton = ({
   title = "",
@@ -8,15 +8,20 @@ const NewButton = ({
   height,
   width,
   endicon,
+  type = "button",
+  isloading = false,
   sx = {},
   ...rest
 }) => {
   return (
     <Button
       variant="outlined"
-      className='font_poppins'
+      type={type}
+      className="font_poppins"
       onClick={handleFunction}
-      endIcon={endicon}
+      endIcon={!isloading && endicon}
+      fullWidth={fullWidth}
+      disabled={isloading}
       sx={{
         borderRadius: "8px",
         color: "#fff",
@@ -37,14 +42,20 @@ const NewButton = ({
           borderColor: "#0d47a1",
           transform: "scale(1.05)",
         },
-        ...sx, // allow custom styling to be merged
+        ...sx,
       }}
       {...rest}
     >
-      {title}
+      {isloading ? (
+        <CircularProgress size={20} sx={{ color: 'white' }} />
+      ) : (
+        title
+      )}
     </Button>
   );
 };
+
+
 const NewButton2 = ({
   title = "",
   handleFunction,
@@ -66,16 +77,16 @@ const NewButton2 = ({
       sx={{
         // mt: 2,
         borderRadius: rest?.radius || 8,
-        width:width || "auto",
-        fontSize:fontsize || "",
+        width: width || "auto",
+        fontSize: fontsize || "",
         background: 'linear-gradient(to right, #1976d2, #2196f3)',
         color: '#fff',
         textTransform: 'none',
         fontWeight: 500,
         '&:hover': {
-            background: 'linear-gradient(to right, #1565c0, #1e88e5)'
+          background: 'linear-gradient(to right, #1565c0, #1e88e5)'
         }
-    }}
+      }}
       {...rest}
     >
       {title}
@@ -84,4 +95,4 @@ const NewButton2 = ({
 };
 
 
-export { NewButton ,NewButton2};
+export { NewButton, NewButton2 };

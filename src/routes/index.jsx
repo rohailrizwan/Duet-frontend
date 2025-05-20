@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import PublicRoute from './Public';
 import PublicLayout from '../Layout/PublicLayout';
@@ -6,25 +6,19 @@ import Login from '../Pages/Login';
 import ProtectedLinks from './Protected';
 import ProtectedLayout from '../Layout/ProtectedLayout';
 import { AlumniTab, FacultyTab, StudentTab } from './Tabs';
+import FullScreenLoader from '../Components/FullScreenLoader';
+import ToasterContainer from '../Components/Toaster';
 
 function ProtectedRoutes() {
   const user = true
-  const [loading, setLoading] = useState(false); // Initial Loader
+  const [loading, setLoading] = useState(true); // Initial Loader
   const location = useLocation();
 
-  // useEffect(() => {
-  //   const isDashboard = location?.pathname.includes('/dashboard');
-  
-  //   if (!isDashboard) {
-  //     setLoading(true);
-  
-  //     const timer = setTimeout(() => {
-  //       setLoading(false);
-  //     }, 2000);
-  
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [location.pathname]);
+  useEffect(()=>{
+      setTimeout(() => {
+          setLoading(false)
+      }, 2000);
+  },[location?.pathname])
   
 
   const type="Faculty"
@@ -50,8 +44,9 @@ function ProtectedRoutes() {
 
   return (
     <>
-      {loading && <FullScreenLoader />} {/* Loader Component */}
+      {loading && location.pathname == "/" && <FullScreenLoader />} {/* Loader Component */}
       <Suspense>
+        <ToasterContainer/>
         <Routes>
           <Route path="/" element={<PublicLayout/>}>
             {PublicRoute?.map((item) => (

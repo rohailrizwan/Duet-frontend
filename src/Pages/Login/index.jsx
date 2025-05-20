@@ -4,9 +4,68 @@ import { Box, Card, TextField, Typography, Grid, InputAdornment, IconButton } fr
 import loginimage from '../../assets/images/loginimage.jpg'
 import { NewButton } from '../../Components/BtnComponent';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
+import authServices from '../../apis/auth';
+import { ErrorToaster } from '../../Components/Toaster';
+import OtpComponent from '../../Components/OtpComponent';
+
+
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setemail] = useState('');
+    const [password, setpassword] = useState(false);
+    const [otploading ,setotploading] = useState(false);
+    const [otpModal, setotpModal] = useState(false);
+    const [isloading, setisloading] = useState(false);
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
+
+    const handleSubmit = async () => {
+        setisloading(true)
+        console.log(email, password);
+        let obj = {
+            email: email,
+            password: password
+        }
+        console.log(obj);
+        try {
+            const response = await authServices?.postLogin(obj)
+            if (response?.message) {
+                console.log(response);
+                setisloading(false)
+            }
+            else {
+                setisloading(false)
+            }
+        } catch (error) {
+            console.log(error, "error");
+            setotpModal(true)
+            setisloading(false)
+            ErrorToaster(error || '')
+        }
+    }
+    const handleOtp=async(otp)=>{
+        console.log(otp);
+         let obj = {
+            email: email,
+            otp: otp
+        }
+        console.log(obj);
+        setotploading(true)
+        try {
+            const response = await authServices?.verifyOtp(obj)
+            if (response?.message) {
+                console.log(response);
+                setotploading(false)
+            }
+            else {
+                setotploading(false)
+            }
+        } catch (error) {
+            console.log(error, "error");
+            setotpModal(true)
+            setotploading(false)
+            ErrorToaster(error || '')
+        }
+    }
     return (
         <Box
             sx={{
@@ -21,7 +80,7 @@ const LoginPage = () => {
             <Card sx={{ maxWidth: 900, width: '100%', borderRadius: 4, boxShadow: 3 }}>
                 <Grid container>
                     {/* Left Image Section */}
-                    <Grid item xs={12} md={6} sx={{display:{xs:"none",md:"block"}}}>
+                    <Grid item xs={12} md={6} sx={{ display: { xs: "none", md: "block" } }}>
                         <Box
                             sx={{
                                 height: '100%',
@@ -53,6 +112,7 @@ const LoginPage = () => {
                                 fullWidth
                                 variant="outlined"
                                 sx={{ mb: 2 }}
+                                onChange={(e) => setemail(e.target.value)}
                             />
                             <TextField
                                 label="Password"
@@ -60,21 +120,24 @@ const LoginPage = () => {
                                 fullWidth
                                 variant="outlined"
                                 sx={{ mb: 3 }}
+                                onChange={(e) => setpassword(e.target.value)}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
                                             <IconButton onClick={handleTogglePassword} edge="end">
-                                                {showPassword ? <VisibilityOff /> : <Visibility />}
+                                                {!showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
                                     ),
                                 }}
                             />
-                            <NewButton title="Login" fullWidth={true} width="100%" />
+                            <NewButton title="Login" fullWidth={true} width="100%" type='submit' isloading={isloading} handleFunction={handleSubmit} />
                         </Box>
                     </Grid>
                 </Grid>
             </Card>
+           <OtpComponent visible={otpModal} onClose={()=>setotpModal(false)} onVerify={handleOtp} onResend={handleSubmit} otploading={otploading}/>
+
         </Box>
     );
 };
