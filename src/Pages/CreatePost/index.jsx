@@ -9,52 +9,85 @@ import {
     TextField,
     Typography,
     IconButton,
-    Grid
+    Grid,
+    CircularProgress
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import CloseIcon from "@mui/icons-material/Close";
+import Imageupload from "../../Components/Uploadimage";
+import Colors from "../../assets/Style";
+import UploadServices from "../../apis/Upload";
+import { ErrorToaster } from "../../Components/Toaster";
+import { imagebaseUrl } from "../../Config/axios";
+import PostService from "../../apis/Post";
 
 const CreatePostModal = ({ open, setOpen }) => {
-    const [file, setFile] = useState(null);
     const [altText, setAltText] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [selectedImage, setselectedImage] = useState("");
+    const [imageUrl, setimageUrl] = useState("");
+    const [loading, setloading] = useState(false);
 
-    // Dropzone setup
-    const onDrop = useCallback(accepted => {
-        if (accepted.length) {
-            setFile(
-                Object.assign(accepted[0], {
-                    preview: URL.createObjectURL(accepted[0])
-                })
-            );
+    
+    const handelRemove=()=>{
+        setselectedImage(null)
+        setimageUrl(null)
+    }
+    const handleSubmit = async() => {
+        if(!title && !altText && !description && !selectedImage){
+            return ErrorToaster('Please fill the field')
         }
-    }, []);
-    const {
-        getRootProps,
-        getInputProps,
-        isDragActive
-    } = useDropzone({
-        onDrop,
-        accept: { "image/*": [] },
-        multiple: false
-    });
-
-    // Remove selected image
-    const removeImage = () => {
-        URL.revokeObjectURL(file.preview);
-        setFile(null);
+        setloading(true)
+        const formdata = new FormData()
+        formdata.append('document',selectedImage)
+        try {
+            const response=await UploadServices?.uploadImage(formdata)
+            console.log(response);
+            let obj={
+                image:`${imagebaseUrl}/${response?.url}`,
+                title:title,
+                imageDesc:altText,
+                description:description
+            }
+            handlepost(obj)
+        } 
+        catch (error) {
+            ErrorToaster("Image Failed")
+             setloading(false)
+        }
     };
 
-    // Submit handler
-    const handleSubmit = () => {
-        setOpen(false);
-    };
+    const handlepost=async(obj)=>{
+        console.log(obj);
+        try {
+            const response = await PostService.addpost(obj)
+            if(response){
+                console.log(response);
+                setloading(false)
+            }
+        } catch (error) {
+            console.log(error);
+            ErrorToaster(error || "Error")
+            setloading(false)
+        }
+    }
 
+    const handleClose=()=>{
+        setselectedImage(null)
+        setAltText('')
+        setDescription("")
+        setimageUrl(null)
+        setTitle('')
+        setOpen(false)
+    }
     // Description limit
     const handleDescriptionChange = e => {
         if (e.target.value.length <= 200) {
             setDescription(e.target.value);
+        }
+        else{
+            ErrorToaster('Description less than 200 words')
         }
     };
 
@@ -65,45 +98,7 @@ const CreatePostModal = ({ open, setOpen }) => {
                 <Grid container spacing={2}>
                     {/* Drag & Drop Zone */}
                     <Grid item xs={12}>
-                        <Box
-                            {...getRootProps()}
-                            sx={{
-                                border: "2px dashed #aaa",
-                                borderRadius: 2,
-                                p: 3,
-                                textAlign: "center",
-                                cursor: "pointer",
-                                bgcolor: isDragActive ? "#f0f0f0" : "transparent"
-                            }}
-                        >
-                            <input {...getInputProps()} />
-                            {file ? (
-                                <Box sx={{ position: "relative", display: "inline-block" }}>
-                                    <img
-                                        src={file.preview}
-                                        alt={altText || "preview"}
-                                        style={{ width: 100, height: 100, objectFit: "cover" }}
-                                    />
-                                    <IconButton
-                                        onClick={removeImage}
-                                        sx={{
-                                            position: "absolute",
-                                            top: 0,
-                                            right: 0,
-                                            bgcolor: "rgba(255,255,255,0.8)"
-                                        }}
-                                    >
-                                        <CloseIcon fontSize="small" />
-                                    </IconButton>
-                                </Box>
-                            ) : (
-                                <Typography>
-                                    {isDragActive
-                                        ? "Drop the image here..."
-                                        : "Drag & drop an image, or click to select one"}
-                                </Typography>
-                            )}
-                        </Box>
+                        <Imageupload selectedimage={selectedImage} setSelectedimage={setselectedImage} setimageUrl={setimageUrl} imageUrl={imageUrl} handelRemove={handelRemove}/>
                     </Grid>
 
                     {/* Title */}
@@ -142,16 +137,17 @@ const CreatePostModal = ({ open, setOpen }) => {
                     </Grid>
                 </Grid>
             </DialogContent>
-            <DialogActions>
-                <Button onClick={() => setOpen(false)} sx={{color:"lightgray"}}>
+            <DialogActions sx={{marginRight:"10px"}}>
+                <Button onClick={handleClose} sx={{color:"lightgray"}}>
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="contained"
-                    sx={{ borderRadius: 2 }}
+                    sx={{ borderRadius: 2 ,background:Colors?.PrimaryBlue}}
+                    disabled={loading}
                 >
-                    Submit
+                    {loading?<CircularProgress size={12} color="white"/>:'Submit'}
                 </Button>
             </DialogActions>
         </Dialog>

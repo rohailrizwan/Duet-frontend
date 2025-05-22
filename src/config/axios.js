@@ -3,6 +3,7 @@ import axios from "axios";
 
 const server = "https://duet.mangotech-api.com/api";
 export const baseUrl = "https://duet.mangotech-api.com/";
+export const imagebaseUrl = "https://duet.mangotech-api.com/uploads";
 
 // Default instance (without token)
 const instance = axios.create({
