@@ -1,32 +1,37 @@
-import { useState } from 'react';
-import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar, TextareaAutosize, IconButton } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar, TextareaAutosize, IconButton, CircularProgress } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { NewButton } from '../../Components/BtnComponent';
 import { Add, Delete } from '@mui/icons-material';
+import studentService from '../../apis/Student';
+import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
+import UploadServices from '../../apis/Upload';
+import { imagebaseUrl } from '../../Config/axios';
 
 
 const steps = ['Personal Information', 'Academic Details', 'Work Experience'];
 
 export default function Studentfaculty() {
   const [activeStep, setActiveStep] = useState(0);
+  const [data, setdata] = useState();
   const [skills, setSkills] = useState(['']);
+  const [loading, setloading] = useState(false);
 
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
     defaultValues: {
       image: null,
       name: '',
-      email: '',
-      phone: '',
-      github: "",
-      linkedin: "",
-      description: "",
+      email: "",
       dob: '',
-      designation: "",
-      enrollment: '',
-      department: '',
-      semester: '',
       address: '',
+      contactNumber: "",
+      linkedInUrl: "",
+      gitHubUrl: "",
+      personalizedDescription: "", // step 1
+      enrollNumber: '',
+      department: "",
+      semester: '',
       matricDetails: {
         schoolName: '',
         passingYear: '',
@@ -34,8 +39,8 @@ export default function Studentfaculty() {
       },
       interDetails: {
         collegeName: '',
-        passingYear: '',
-        grade: ''
+        collegepassingYear: '',
+        collegegrade: ''
       },
       workExperience: [{
         companyName: '',
@@ -49,10 +54,18 @@ export default function Studentfaculty() {
 
   const next = async () => {
     let valid = false;
+    if (!watch('image')) {
+      ErrorToaster('Profile image is required')
+      return; // Don't proceed
+    }
     if (activeStep === 0) {
-      valid = await trigger(['image', 'name', 'email', 'phone', 'dob', 'address']);
+      valid = await trigger(['linkedInUrl', 'gitHubUrl', 'address', 'dob', 'contactNumber', 'personalizedDescription', 'name', 'image', 'email']);
     } else if (activeStep === 1) {
-      valid = await trigger(['enrollment', 'department', 'semester', 'matricDetails', 'interDetails']);
+      if (skills?.length == 0) {
+        ErrorToaster('Skills are required')
+        return
+      }
+      valid = await trigger(['enrollNumber', 'department', 'semester', 'matricDetails', 'interDetails']);
     }
     else if (activeStep === 2) {
       valid = await trigger(['workExperience']);
@@ -66,11 +79,78 @@ export default function Studentfaculty() {
     if (activeStep > 0) setActiveStep((prev) => prev - 1);
   };
 
-  const onSubmit = (data) => {
-    console.log('Form Submitted:', data);
-    // API call here
-  };
+ const onSubmit = async (newdata) => {
+  setloading(true);
+  console.log('Form Submitted:', newdata?.semester);
+  // return
+  let profilePicture = '';
 
+  if (typeof newdata?.image === 'string') {
+    // Already a URL
+    profilePicture = newdata?.image;
+  } else {
+    // File or Blob - needs to be uploaded
+    const formdata = new FormData();
+    formdata.append('document', newdata?.image);
+
+    try {
+      const response = await UploadServices?.uploadImage(formdata);
+      if (response) {
+        profilePicture = `${imagebaseUrl}/${response?.url}`;
+      } else {
+        throw new Error("Image upload failed");
+      }
+    } catch (error) {
+      ErrorToaster(error?.message || "Image Upload Error");
+      setloading(false);
+      return;
+    }
+  }
+
+  const obj = {
+    profilePicture:profilePicture,
+    name: newdata?.name,
+    contactNumber: newdata?.contactNumber,
+    dob: newdata?.dob,
+    address: newdata?.address,
+    personalizedDescription: newdata?.personalizedDescription,
+    linkedInUrl: newdata?.linkedInUrl,
+    gitHubUrl: newdata?.gitHubUrl,
+    academicDetails: {
+      enrollNumber: newdata?.enrollNumber,
+      department: data?.department?._id,
+      semester: newdata?.semester,
+    },
+    matriculationDetails:{
+      schoolName:newdata?.schoolName,
+      passingYear:newdata?.passingYear,
+      grade:newdata?.grade
+    },
+    intermediateDetails: {
+      collegeName: newdata?.collegeName,
+      passingYear: newdata?.passingYear,
+      grade: newdata?.grade,
+    },
+    workExperience: newdata?.workExperience,
+    skills: skills,
+  };
+  handleFormSubmit(obj);
+};
+
+
+  const handleFormSubmit = async (obj) => {
+    try {
+      const response = await studentService?.updatePost({ id: "682cd27dd0b25c1b3b77b793", obj: obj })
+      if (response) {
+        console.log(response);
+        SuccessToaster(response?.message)
+        setloading(false)
+      }
+    } catch (error) {
+      ErrorToaster(error?.message || "Error")
+      setloading(false)
+    }
+  }
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setValue('image', file, { shouldValidate: true });
@@ -95,12 +175,67 @@ export default function Studentfaculty() {
   const handleAddSkill = () => {
     setSkills([...skills, '']);
   };
-  
+
   const handleRemoveSkill = (index) => {
     const updatedSkills = skills.filter((_, i) => i !== index);
     setSkills(updatedSkills);
   };
-  
+
+  const getStudent = async () => {
+    try {
+      const response = await studentService?.getProfile('682cd27dd0b25c1b3b77b793')
+      console.log(response);
+      setdata(response?.data)
+    } catch (error) {
+      ErrorToaster(error?.message || 'Error')
+    }
+  }
+
+  useEffect(() => {
+    getStudent()
+  }, [])
+
+  useEffect(() => {
+    if (data) {
+      setValue('image', data?.profilePicture) // step 1
+      setValue('name', data?.name) // step 1
+      setValue('email', data?.email) // step 1
+      setValue('personalizedDescription', data?.personalizedDescription) // step 1
+      setValue('contactNumber', data?.contactNumber) // step 1
+      setValue('dob', convertToDateInputFormat(data?.dob)) // step 1
+      setValue('address', data?.address) // step 1
+      setValue('linkedInUrl', data?.linkedInUrl) // step 1
+      setValue('gitHubUrl', data?.gitHubUrl) // step 1
+
+      setValue('enrollNumber', data?.academicDetails?.enrollNumber)
+      setValue('department', data?.department?.name)
+      setValue('semester', data?.academicDetails?.semester)
+
+      setValue("schoolName",data?.matriculationDetails?.schoolName)
+      setValue("passingYear",data?.matriculationDetails?.passingYear)
+      setValue("grade",data?.matriculationDetails?.grade)
+      setValue("collegeName",data?.intermediateDetails?.collegeName)
+      setValue("collegepassingYear",data?.intermediateDetails?.passingYear)
+      setValue("collegegrade",data?.intermediateDetails?.grade)
+
+      setSkills(data?.skills)
+      setValue('workExperience',data?.workExperience)
+    }
+  }, [setValue, data])
+
+  const convertToDateInputFormat = (isoDate) => {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  console.log(watch('dob'));
+  console.log(skills);
+
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 0 }}>
 
@@ -128,7 +263,13 @@ export default function Studentfaculty() {
               {/* Avatar */}
               <Box textAlign="center" mb={2}>
                 <Avatar
-                  src={watch('image') ? URL.createObjectURL(watch('image')) : ''}
+                  src={
+                    watch('image')
+                      ? typeof watch('image') === 'string'
+                        ? watch('image') // already a URL
+                        : URL.createObjectURL(watch('image')) // binary file
+                      : ''
+                  }
                   alt="Profile Preview"
                   sx={{ width: 120, height: 120, bgcolor: '#e0e0e0', fontSize: 40 }}
                 />
@@ -159,7 +300,7 @@ export default function Studentfaculty() {
                   style={{ display: 'none' }}
                 />
                 <Typography variant="body1" color="primary">
-                  {watch('image') ? watch('image')?.name : 'Click to upload'}
+                  {'Click to upload'}
                 </Typography>
               </Box>
 
@@ -171,34 +312,33 @@ export default function Studentfaculty() {
                 helperText={errors.name?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
+                variant='outlined'
                 label="Email"
                 {...register('email', { required: 'Email is required' })}
                 error={Boolean(errors.email)}
                 helperText={errors.email?.message}
                 fullWidth
                 margin="normal"
+                disabled
+                InputLabelProps={{ shrink: true }}
               />
-              <TextField
-                label="Designation (Optional)"
-                {...register('designation')}
-                // error={Boolean(errors.designation)}
-                // helperText={errors.designation?.message}
-                fullWidth
-                margin="normal"
-              />
+
               <TextField
                 label="Phone Number"
-                {...register('phone', { required: 'Phone number is required' })}
+                {...register('contactNumber', { required: 'Phone number is required' })}
                 error={Boolean(errors.phone)}
                 helperText={errors.phone?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Date of Birth"
                 type="date"
+                value={watch('dob') || ''}
                 {...register('dob', { required: 'Date of birth is required' })}
                 InputLabelProps={{ shrink: true }}
                 error={Boolean(errors.dob)}
@@ -206,6 +346,9 @@ export default function Studentfaculty() {
                 fullWidth
                 margin="normal"
               />
+
+
+
               <TextField
                 label="Address"
                 {...register('address', { required: 'Address is required' })}
@@ -213,34 +356,38 @@ export default function Studentfaculty() {
                 helperText={errors.address?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Description (max 400 characters)"
                 multiline
                 rows={4}
                 inputProps={{ maxLength: 400 }}
-                {...register('description', { required: 'Description is required' })}
-                error={Boolean(errors.description)}
-                helperText={errors.description?.message}
+                {...register('personalizedDescription', { required: 'Description is required' })}
+                error={Boolean(errors.personalizedDescription)}
+                helperText={errors.personalizedDescription?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
 
               <TextField
                 label="Linked In (Url)"
-                {...register('linkedin', { required: 'Url is required' })}
-                error={Boolean(errors.linkedin)}
-                helperText={errors.linkedin?.message}
+                {...register('linkedInUrl', { required: 'Url is required' })}
+                error={Boolean(errors.linkedInUrl)}
+                helperText={errors.linkedInUrl?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Github (Url)"
-                {...register('github', { required: 'Github is required' })}
-                error={Boolean(errors.github)}
-                helperText={errors.github?.message}
+                {...register('gitHubUrl', { required: 'Github is required' })}
+                error={Boolean(errors.gitHubUrl)}
+                helperText={errors.gitHubUrl?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
             </Box>
           )}
@@ -253,11 +400,12 @@ export default function Studentfaculty() {
 
               <TextField
                 label="Enrollment Number"
-                {...register('enrollment', { required: 'Enrollment number is required' })}
-                error={Boolean(errors.enrollment)}
-                helperText={errors.enrollment?.message}
+                {...register('enrollNumber', { required: 'Enrollment number is required' })}
+                error={Boolean(errors.enrollNumber)}
+                helperText={errors.enrollNumber?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Department"
@@ -266,6 +414,8 @@ export default function Studentfaculty() {
                 helperText={errors.department?.message}
                 fullWidth
                 margin="normal"
+                disabled
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Semester"
@@ -274,62 +424,69 @@ export default function Studentfaculty() {
                 helperText={errors.semester?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
 
               {/* Matric Details */}
               <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>Matriculation Details</Typography>
               <TextField
                 label="School Name"
-                {...register('matricDetails.schoolName', { required: 'School name is required' })}
-                error={Boolean(errors.matricDetails?.schoolName)}
-                helperText={errors.matricDetails?.schoolName?.message}
+                {...register('schoolName', { required: 'School name is required' })}
+                error={Boolean(errors.schoolName)}
+                helperText={errors.schoolName?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Passing Year"
                 type="number"
-                {...register('matricDetails.passingYear', { required: 'Passing year is required' })}
-                error={Boolean(errors.matricDetails?.passingYear)}
-                helperText={errors.matricDetails?.passingYear?.message}
+                {...register('passingYear', { required: 'Passing year is required' })}
+                error={Boolean(errors.passingYear)}
+                helperText={errors.passingYear?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Grade"
-                {...register('matricDetails.grade', { required: 'Grade is required' })}
-                error={Boolean(errors.matricDetails?.grade)}
-                helperText={errors.matricDetails?.grade?.message}
+                {...register('grade', { required: 'Grade is required' })}
+                error={Boolean(errors.grade)}
+                helperText={errors.grade?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
 
               {/* Inter Details */}
               <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>Intermediate Details</Typography>
               <TextField
                 label="College Name"
-                {...register('interDetails.collegeName', { required: 'College name is required' })}
-                error={Boolean(errors.interDetails?.collegeName)}
-                helperText={errors.interDetails?.collegeName?.message}
+                {...register('collegeName', { required: 'College name is required' })}
+                error={Boolean(errors.collegeName)}
+                helperText={errors.collegeName?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Passing Year"
                 type="number"
-                {...register('interDetails.passingYear', { required: 'Passing year is required' })}
-                error={Boolean(errors.interDetails?.passingYear)}
-                helperText={errors.interDetails?.passingYear?.message}
+                {...register('collegepassingYear', { required: 'Passing year is required' })}
+                error={Boolean(errors.collegepassingYear)}
+                helperText={errors.collegepassingYear?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Grade"
-                {...register('interDetails.grade', { required: 'Grade is required' })}
-                error={Boolean(errors.interDetails?.grade)}
-                helperText={errors.interDetails?.grade?.message}
+                {...register('collegegrade', { required: 'Grade is required' })}
+                error={Boolean(errors.collegegrade)}
+                helperText={errors.collegegrade?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
 
               <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>
@@ -352,23 +509,16 @@ export default function Studentfaculty() {
                   <IconButton onClick={() => handleRemoveSkill(index)} color="error" sx={{ ml: 1 }}>
                     <Delete />
                   </IconButton>
+
+
                 </Box>
               ))}
+
 
               <Button
                 variant="outlined"
                 color="primary"
                 onClick={handleAddSkill}
-                startIcon={<Add />}
-              >
-                Add Skill
-              </Button>
-
-
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={() => append({ name: '' })}
                 startIcon={<Add />}
               >
                 Add Skill
@@ -392,6 +542,7 @@ export default function Studentfaculty() {
                     helperText={errors.workExperience?.[index]?.companyName?.message}
                     fullWidth
                     margin="normal"
+                    InputLabelProps={{ shrink: true }}
                   />
                   <TextField
                     label="Job Title"
@@ -400,6 +551,7 @@ export default function Studentfaculty() {
                     helperText={errors.workExperience?.[index]?.jobTitle?.message}
                     fullWidth
                     margin="normal"
+                    InputLabelProps={{ shrink: true }}
                   />
                   <TextField
                     label="Start Year"
@@ -409,6 +561,7 @@ export default function Studentfaculty() {
                     helperText={errors.workExperience?.[index]?.startYear?.message}
                     fullWidth
                     margin="normal"
+                    InputLabelProps={{ shrink: true }}
                   />
                   <TextField
                     label="End Year"
@@ -418,6 +571,7 @@ export default function Studentfaculty() {
                     helperText={errors.workExperience?.[index]?.endYear?.message}
                     fullWidth
                     margin="normal"
+                    InputLabelProps={{ shrink: true }}
                   />
                   <TextField
                     label="Responsibilities"
@@ -426,6 +580,7 @@ export default function Studentfaculty() {
                     helperText={errors.workExperience?.[index]?.responsibilities?.message}
                     fullWidth
                     margin="normal"
+                    InputLabelProps={{ shrink: true }}
                   />
                   <Button
                     variant="outlined"
@@ -469,7 +624,7 @@ export default function Studentfaculty() {
                 type="submit"
                 sx={{ bgcolor: '#2156a8', '&:hover': { background: "linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)", } }}
               >
-                Submit
+                {loading ? <CircularProgress size={'12'} color='white' /> : 'Submit'}
               </Button>
             )}
           </Box>
