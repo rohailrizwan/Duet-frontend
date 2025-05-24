@@ -4,7 +4,7 @@ import UpdateFaculty from '../Faculty/UpdateFaculty'
 import Alumnifaculty from '../Alumni/Alumnifaculty'
 
 function Profile() {
-  const type="Student"
+  const type="Alumni"
   return (
     <div>
       {
