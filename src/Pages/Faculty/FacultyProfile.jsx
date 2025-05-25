@@ -1,242 +1,388 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+    Avatar,
     Box,
     Typography,
-    Avatar,
-    Chip,
-    List,
-    ListItem,
-    ListItemText,
-    Divider,
-    IconButton,
     Grid,
-    Paper
+    Chip,
+    Divider,
+    Card,
+    CardContent,
+    CircularProgress,
+    Link,
 } from '@mui/material';
 import {
-    School as SchoolIcon,
-    Business as BusinessIcon,
     Email as EmailIcon,
     Phone as PhoneIcon,
     LinkedIn as LinkedInIcon,
-    MenuBook as ResearchIcon,
-    Article as ArticleIcon,
+    GitHub as GitHubIcon,
+    CalendarToday as CalendarIcon,
+    School as SchoolIcon,
 } from '@mui/icons-material';
-import GitHubIcon from '@mui/icons-material/GitHub';
+import FacultyService from '../../apis/Faculty';
+import Colors from '../../assets/Style';
+import { ErrorToaster } from '../../Components/Toaster';
 import Container from '../../Components/Container';
 
+const InfoItem = ({ icon: Icon, text, color }) => (
+    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <Box
+            sx={{
+                mr: 1,
+                backgroundColor: color || Colors?.PrimaryBlue,
+                borderRadius: '50%',
+                width: 32,
+                height: 32,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                color: '#fff',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            }}
+        >
+            <Icon fontSize="small" />
+        </Box>
+        <Typography variant="body1" sx={{ fontWeight: 500, color: Colors?.PrimaryDark }}>
+            {text}
+        </Typography>
+    </Box>
+);
+
+const ChipSection = ({ title, data }) => (
+    <>
+        <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ mt: 4, mb: 2, color: Colors?.PrimaryDark }}
+        >
+            {title}
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {data?.length > 0 ? (
+                data.map((item, idx) => (
+                    <Chip
+                        key={idx}
+                        label={item}
+                        sx={{
+                            background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                            color: '#fff',
+                            fontWeight: '600',
+                            boxShadow: '0 4px 8px rgba(101, 41, 255, 0.4)',
+                            cursor: 'pointer',
+                            transition: 'transform 0.3s ease',
+                            '&:hover': {
+                                transform: 'scale(1.1)',
+                                boxShadow: '0 6px 12px rgba(101, 41, 255, 0.6)',
+                            },
+                        }}
+                    />
+                ))
+            ) : (
+                <Typography variant="body2" sx={{ color: 'gray' }}>
+                    No {title} Found
+                </Typography>
+            )}
+        </Box>
+    </>
+);
+
 const FacultyProfile = () => {
-    const user = {
-        imageUrl: "https://via.placeholder.com/150",
-        name: "Dr. Ali Khan",
-        designation: "Associate Professor - Computer Science",
-        type: "Faculty",
-        description: "Passionate educator and researcher in Artificial Intelligence and Web Technologies with 10+ years of academic experience.",
-        email: "ali.khan@duet.edu.pk",
-        phone: "+92 300 1234567",
-        linkedin: "https://linkedin.com/in/alikhan",
-        github: "https://github.com/alikhan",
-        academic: {
-            matric: { name: "XYZ High School", year: "2005", grade: "A+" },
-            inter: { name: "ABC College", year: "2007", grade: "A" },
-            bachelors: { name: "Tech University", year: "2011", grade: "A" },
-            masters: { name: "Innovative Tech Institute", year: "2013", grade: "A+" },
-            phd: { name: "University of Research", year: "2018", title: "AI-Powered Web Systems" }
-        },
-        workExperience: [
-            {
-                jobTitle: "Associate Professor",
-                companyName: "Dawood University",
-                startDate: "2019-01-01",
-                endDate: "",
-                description: "Teaching, mentoring, and leading research in Computer Science."
-            },
-            {
-                jobTitle: "Lecturer",
-                companyName: "ABC Institute",
-                startDate: "2014-01-01",
-                endDate: "2018-12-31",
-                description: "Taught core courses including Web Development and Data Structures."
+    const [data, setData] = useState();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getFaculty = async () => {
+            try {
+                const res = await FacultyService.getProfile('6830cf1403414c821d034ef6');
+                setData(res?.data);
+                setLoading(false);
+            } catch (err) {
+                ErrorToaster(err?.message || 'Error fetching profile');
+                setLoading(false);
             }
-        ],
-        researchInterests: [
-            "Artificial Intelligence",
-            "Natural Language Processing",
-            "Web Technologies",
-            "Human-Computer Interaction"
-        ],
-        publications: [
-            {
-                title: "Smart NLP for Urdu Language",
-                journal: "Journal of AI Research",
-                year: 2021
-            },
-            {
-                title: "Web 4.0 and Semantic Intelligence",
-                journal: "International Web Journal",
-                year: 2022
-            }
-        ],
-        skills: ["React", "Node.js", "Machine Learning", "LaTeX"]
-    };
+        };
+        getFaculty();
+    }, []);
+
+    if (loading) {
+        return (
+            <Box
+                sx={{
+                    height: '70vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    background: 'linear-gradient(120deg, #f0f4ff, #dbe9ff)',
+                }}
+            >
+                <CircularProgress sx={{ color: Colors?.PrimaryBlue }} />
+            </Box>
+        );
+    }
+
+    const {
+        name,
+        profilePicture,
+        email,
+        contactNumber,
+        dob,
+        linkedInUrl,
+        gitHubUrl,
+        personalizedDescription,
+        academicDetails,
+    } = data;
+
+    const {
+        designation,
+        specialization,
+        qualification,
+        experienceYear,
+        department,
+        awards,
+        subjects,
+        skills,
+        researchPapers,
+    } = academicDetails || {};
 
     return (
-        <Box>
-            <Container>
-                <Box sx={{ p: 3 }}>
-                    {/* Top Section */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar src={user.imageUrl} sx={{ width: 100, height: 100 }} />
-                        <Box>
-                            <Typography variant="h5" fontWeight="bold">{user.name}</Typography>
-                            <Typography variant="subtitle1" color="text.secondary">{user.designation}</Typography>
-                            <Chip label={user.type} color="primary" sx={{ mt: 1 }} />
-                        </Box>
-                    </Box>
-
-                    {/* Contact & Links */}
-                    <Box sx={{ mt: 3 }}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} sm={6}>
-                                <List>
-                                    <ListItem>
-                                        <EmailIcon sx={{ mr: 2, color: '#1976d2' }} />
-                                        <ListItemText primary={user.email} />
-                                    </ListItem>
-                                    <ListItem>
-                                        <PhoneIcon sx={{ mr: 2, color: '#1976d2' }} />
-                                        <ListItemText primary={user.phone} />
-                                    </ListItem>
-                                </List>
-                            </Grid>
-                        </Grid>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', marginBottom: '20px' }}>
-                        {user?.linkedin && (
-                            <IconButton
-                                href={user.linkedin}
-                                target="_blank"
+        <Container sx={{ backgroundColor: '#f5f8ff', borderRadius: 3, py: 5 }}>
+            <Box sx={{ px: { xs: 2, md: 4 } }}>
+                <Grid container spacing={{ xs: 3, md: 4 }}>
+                    {/* Profile Card */}
+                    <Grid item xs={12} lg={12}>
+                        <Card
+                            sx={{
+                                p: 4,
+                                textAlign: 'center',
+                                borderRadius: 3,
+                                boxShadow: 'none',
+                                backgroundColor:'none', // Removed gradient, simple white bg
+                                color: Colors?.PrimaryDark,
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                gap: "10px"
+                            }}
+                        >
+                            <Avatar
+                                src={profilePicture || 'https://via.placeholder.com/150'}
+                                alt={'name'}
                                 sx={{
-                                    mt: 2,
-                                    color: "#0A66C2",
-                                    '&:hover': {
-                                        backgroundColor: 'transparent', // Disable hover background color change
-                                        color: "#0A66C2", // Keep the color unchanged
-                                    }
+                                    width: 140,
+                                    height: 140,
+                                    mb: 3,
+                                    border: '4px solid rgba(37, 117, 252, 0.2)',
+                                    boxShadow: '0 8px 20px rgba(37, 117, 252, 0.15)',
                                 }}
-                            >
-                                <LinkedInIcon fontSize="large" />
-                                <Typography
+                            />
+                            <Box sx={{display:"flex",flexDirection:"column",alignItems:"start"}}>
+                                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                    {name}
+                                </Typography>
+                                <Typography variant="subtitle1" sx={{ opacity: 0.8, mb: 1 }}>
+                                    {designation}
+                                </Typography>
+                                <Chip
+                                    label="Faculty"
                                     sx={{
-                                        color: "gray",
-                                        marginLeft: "10px",
-                                        wordBreak: "break-word",  // Allow the text to break and wrap
-                                        whiteSpace: "normal",     // Ensure the text wraps
-                                        textAlign: "left",        // Align text to the left
-                                        width: '100%',            // Ensure the width takes full available space
+                                        backgroundColor: 'rgba(37, 117, 252, 0.15)',
+                                        color: Colors?.PrimaryBlue,
+                                        fontWeight: 'bold',
+                                        letterSpacing: 1.2,
+                                        mb: 1,
+                                        px: 2,
+                                        py: 0.5,
+                                        borderRadius: 2,
+                                        boxShadow: 'none',
                                     }}
-                                >
-                                    {user?.linkedin}
-                                </Typography>
-                            </IconButton>
-                        )}
+                                />
+                            </Box>
+                        </Card>
+                    </Grid>
 
-                        {user?.github && (
-                            <IconButton
-                                href={user.github}
-                                target="_blank"
-                                sx={{
-                                    mt: 2,
-                                    '&:hover': {
-                                        backgroundColor: 'transparent', // Disable hover background color change
-                                        color: "#0A66C2", // Keep the color unchanged
-                                    }
-                                }}
-                            >
-                                <GitHubIcon fontSize="large" />
+                    {/* Basic Info */}
+                    <Grid item xs={12} lg={12}>
+                        <Card
+                            sx={{
+                                p: 3,
+                                borderRadius: 3,
+                                boxShadow: 'none',
+                            }}
+                        >
+                            <CardContent>
                                 <Typography
-                                    sx={{
-                                        color: "gray",
-                                        marginLeft: "10px",
-                                        wordBreak: "break-word",  // Allow the text to break and wrap
-                                        whiteSpace: "normal",     // Ensure the text wraps
-                                        textAlign: "left",        // Align text to the left
-                                        width: '100%',            // Ensure the width takes full available space
-                                    }}
+                                    variant="h5"
+                                    fontWeight="bold"
+                                    gutterBottom
+                                    sx={{ color: Colors?.PrimaryDark }}
                                 >
-                                    {user?.github}
+                                    Basic Information
                                 </Typography>
-                            </IconButton>
-                        )}
-                    </Box>
-                    {/* About */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">About</Typography>
-                    <Typography variant="body1" sx={{ pl: 2, mt: 1 }}>{user.description}</Typography>
+                                <Grid container spacing={3}>
+                                    <Grid item xs={12} lg={6}>
+                                        <InfoItem icon={EmailIcon} text={email} color="#0a66c2" />
+                                        <InfoItem icon={PhoneIcon} text={contactNumber} color="#1e88e5" />
+                                        <InfoItem
+                                            icon={CalendarIcon}
+                                            text={dob ? new Date(dob).toDateString() : 'N/A'}
+                                            color="#43a047"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} lg={6}>
+                                        <InfoItem
+                                            icon={SchoolIcon}
+                                            text={`Experience: ${experienceYear || 'N/A'} Years`}
+                                            color="#fb8c00"
+                                        />
+                                        <InfoItem
+                                            icon={SchoolIcon}
+                                            text={`Qualification: ${qualification || 'N/A'}`}
+                                            color="#8e24aa"
+                                        />
+                                        <InfoItem
+                                            icon={SchoolIcon}
+                                            text={`Specialization: ${specialization || 'N/A'}`}
+                                            color="#00897b"
+                                        />
+                                    </Grid>
+                                </Grid>
 
-                    {/* Academic Background */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">Academic Background</Typography>
-                    {Object.entries(user.academic).map(([key, value]) => (
-                        <Box key={key} sx={{ pl: 2, mt: 1, display: 'flex', alignItems: 'center' }}>
-                            <SchoolIcon sx={{ mr: 2, color: '#1976d2' }} />
-                            <Typography>
-                                {value.name} ({key.charAt(0).toUpperCase() + key.slice(1)}) - {value.year}
-                                {value.grade && `, Grade: ${value.grade}`}
-                                {value.title && `, Thesis: "${value.title}"`}
-                            </Typography>
-                        </Box>
-                    ))}
+                                {department?.length > 0 && (
+                                    <Box sx={{ mt: 3 }}>
+                                        <Typography
+                                            variant="body1"
+                                            fontWeight="bold"
+                                            sx={{ mb: 1, color: Colors?.PrimaryDark }}
+                                        >
+                                            Departments:
+                                        </Typography>
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                            {department.map((dept, idx) => (
+                                                <Chip
+                                                    key={idx}
+                                                    label={dept?.name}
+                                                    sx={{
+                                                        backgroundColor: '#1976d2',
+                                                        color: '#fff',
+                                                        fontWeight: 600,
+                                                        boxShadow: '0 2px 10px rgba(25, 118, 210, 0.5)',
+                                                        '&:hover': {
+                                                            backgroundColor: '#1565c0',
+                                                        },
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    </Box>
+                                )}
 
-                    {/* Work Experience */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">Work Experience</Typography>
-                    {user.workExperience.map((exp, idx) => (
-                        <Paper key={idx} sx={{ mt: 2, p: 2 }}>
-                            <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
-                                <BusinessIcon sx={{ mr: 2, color: '#1976d2' }} />
-                                <Typography fontWeight="bold">{exp.jobTitle} at {exp.companyName}</Typography>
-                            </Box>
-                            <Typography variant="body2" color="text.secondary">
-                                {exp.startDate} - {exp.endDate || 'Present'}
-                            </Typography>
-                            <Typography variant="body2">{exp.description}</Typography>
-                        </Paper>
-                    ))}
+                                {/* Social Links */}
+                                <Box sx={{ mt: 4, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                                    {linkedInUrl && (
+                                        <Link
+                                            href={linkedInUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                color: '#0A66C2',
+                                                textDecoration: 'none',
+                                                fontWeight: 600,
+                                                fontSize: '1.1rem',
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: '#0A66C2',
+                                                    borderRadius: '50%',
+                                                    width: 36,
+                                                    height: 36,
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    color: '#fff',
+                                                    boxShadow: '0 4px 10px rgba(10, 102, 194, 0.5)',
+                                                    transition: 'transform 0.3s ease',
+                                                    '&:hover': {
+                                                        transform: 'scale(1.15)',
+                                                    },
+                                                }}
+                                            >
+                                                <LinkedInIcon />
+                                            </Box>
+                                            LinkedIn Profile
+                                        </Link>
+                                    )}
+                                    {gitHubUrl && (
+                                        <Link
+                                            href={gitHubUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 1,
+                                                color: '#000',
+                                                textDecoration: 'none',
+                                                fontWeight: 600,
+                                                fontSize: '1.1rem',
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: '#000',
+                                                    borderRadius: '50%',
+                                                    width: 36,
+                                                    height: 36,
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    color: '#fff',
+                                                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
+                                                    transition: 'transform 0.3s ease',
+                                                    '&:hover': {
+                                                        transform: 'scale(1.15)',
+                                                    },
+                                                }}
+                                            >
+                                                <GitHubIcon />
+                                            </Box>
+                                            GitHub Profile
+                                        </Link>
+                                    )}
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                </Grid>
 
-                    {/* Research Interests */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">Research Interests</Typography>
-                    <Box sx={{ pl: 2, mt: 1 }}>
-                        {user.researchInterests.map((interest, idx) => (
-                            <Chip key={idx} label={interest} sx={{ mr: 1, mb: 1, backgroundColor: '#e3f2fd' }} icon={<ResearchIcon />} />
-                        ))}
-                    </Box>
+                {/* About Section */}
+                <Divider sx={{ my: 6, borderColor: '#cfd8dc' }} />
+                <Card sx={{ p: 3, borderRadius: 3 ,boxShadow:"none"}}>
+                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+                        About
+                    </Typography>
+                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line', color: Colors?.PrimaryDark }}>
+                        {personalizedDescription || 'No description available.'}
+                    </Typography>
+                </Card>
 
-                    {/* Publications */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">Publications</Typography>
-                    <Box sx={{ pl: 2, mt: 1 }}>
-                        {user.publications.map((pub, idx) => (
-                            <Box key={idx} sx={{ mb: 1 }}>
-                                <Typography variant="body1">
-                                    <ArticleIcon fontSize="small" sx={{ mr: 1, verticalAlign: 'middle' }} />
-                                    <strong>{pub.title}</strong> - <em>{pub.journal}, {pub.year}</em>
-                                </Typography>
-                            </Box>
-                        ))}
-                    </Box>
+                {/* Academic Details Section */}
+                <Divider sx={{ my: 6, borderColor: '#cfd8dc',boxShadow:"none" }} />
+                <Card sx={{ p: 3, borderRadius: 3 }}>
+                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
+                        Academic Details
+                    </Typography>
 
-                    {/* Skills */}
-                    <Divider sx={{ my: 3 }} />
-                    <Typography variant="h6" fontWeight="bold">Skills</Typography>
-                    <Box sx={{ mt: 1 }}>
-                        {user.skills.map((skill, idx) => (
-                            <Chip key={idx} label={skill} sx={{ mr: 1, mb: 1, backgroundColor: '#1976d2', color: '#fff' }} />
-                        ))}
-                    </Box>
-                </Box>
-            </Container>
-        </Box>
+                    <ChipSection title="Awards" data={awards} />
+                    <ChipSection title="Subjects" data={subjects} />
+                    <ChipSection title="Skills" data={skills} />
+                    <ChipSection title="Research Papers" data={researchPapers} />
+                </Card>
+            </Box>
+        </Container>
     );
 };
 

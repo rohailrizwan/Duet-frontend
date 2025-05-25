@@ -8,7 +8,7 @@ import FacultyProfile from '../Faculty/FacultyProfile';
 
 function ProfilePage() {
     // Example user profile data
-    const type="Faculty"
+    const type="Student"
   
 
     return (

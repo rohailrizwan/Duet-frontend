@@ -1,7 +1,8 @@
+
 import { get, put } from "..";
 import Alumniroute from "./route";
 
-const studentService = {
+const AlumniService = {
     updatePost: async ({id,obj}) => {
         const result = await put(`${Alumniroute?.updateProfile}/${id}`, obj);
         return result;
@@ -13,4 +14,4 @@ const studentService = {
 
 };
 
-export default studentService;
+export default AlumniService;

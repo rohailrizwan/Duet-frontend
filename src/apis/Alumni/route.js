@@ -1,6 +1,6 @@
 const Alumniroute = {
- getProfile:"/user",
- updateProfile:"/user",
+ getProfile:"/alumni",
+ updateProfile:"/alumni",
 };
 
 export default Alumniroute;

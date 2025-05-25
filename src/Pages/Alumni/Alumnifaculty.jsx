@@ -1,57 +1,71 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { NewButton } from '../../Components/BtnComponent';
 import { Description } from '@mui/icons-material';
+import AlumniService from '../../apis/Alumni';
+import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
+import UploadServices from '../../apis/Upload';
+import { imagebaseUrl } from '../../Config/axios';
 
 const steps = ['Personal Information', 'Academic Details', 'Work Experience'];
 
 export default function AlumniProfile() {
   const [activeStep, setActiveStep] = useState(0);
+  const [data, setdata] = useState();
+  const [loading, setloading] = useState(false);
+  const [workExperience, setWorkExperience] = useState([
+    {
+      companyName: '',
+      jobTitle: '',
+      startYear: '',
+      endYear: '',
+      responsibilities: ''
+    }
+  ]);
+
 
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
     defaultValues: {
-      image: null,
+      profilePicture: null,
       name: '',
       email: '',
-      phone: '',
+      contactNumber: '',
       dob: '',
-      linkedin: '',
-      github: '',
       address: '',
-      description:"",
-      enrollment: '',
+      personalizedDescription: "",
+      linkedInUrl: '',
+      gitHubUrl: '', // step 1
+
+      enrollNumber: '',
       department: '',
       semester: '',
-      matricDetails: {
+
+      matriculationDetails: {
         schoolName: '',
         passingYear: '',
         grade: ''
       },
-      interDetails: {
+      intermediateDetails: {
         collegeName: '',
         passingYear: '',
         grade: ''
       },
-      workExperience: [{
-        companyName: '',
-        jobTitle: '',
-        startYear: '',
-        endYear: '',
-        responsibilities: ''
-      }]
+
     },
   });
 
   const next = async () => {
     let valid = false;
+    if (!watch('profilePicture')) {
+      ErrorToaster('Profile image is required')
+      return; // Don't proceed
+    }
     if (activeStep === 0) {
-      valid = await trigger(['image', 'name', 'email', 'phone', 'dob', 'address']);
+      valid = await trigger(['profilePicture', 'name', 'email', 'contactNumber', 'dob', 'address', 'gitHubUrl', 'linkedInUrl', 'personalizedDescription']);
     } else if (activeStep === 1) {
-      valid = await trigger(['enrollment', 'department', 'semester', 'matricDetails', 'interDetails']);
-    } else if (activeStep === 2) {
-      valid = await trigger(['workExperience']);
+      valid = await trigger(['enrollNumber', 'department', 'semester', 'matriculationDetails', 'intermediateDetails']);
     }
     if (valid) {
       setActiveStep((prev) => prev + 1);
@@ -62,30 +76,145 @@ export default function AlumniProfile() {
     if (activeStep > 0) setActiveStep((prev) => prev - 1);
   };
 
-  const onSubmit = (data) => {
-    console.log('Form Submitted:', data);
+  const onSubmit = async (newdata) => {
+    if (
+      !workExperience?.length || // check if array is empty
+      workExperience.every(item =>
+        !item.companyName.trim() &&
+        !item.jobTitle.trim() &&
+        !item.startYear.trim() &&
+        !item.endYear.trim() &&
+        !item.responsibilities.trim()
+      )
+    ) {
+      ErrorToaster('At least one complete work experience is required');
+      return;
+    }
+    let profilePicture = '';
+
+    if (typeof newdata?.profilePicture === 'string') {
+      // Already a URL
+      profilePicture = newdata?.profilePicture;
+    } else {
+      // File or Blob - needs to be uploaded
+      const formdata = new FormData();
+      formdata.append('document', newdata?.profilePicture);
+
+      try {
+        const response = await UploadServices?.uploadImage(formdata);
+        if (response) {
+          profilePicture = `${imagebaseUrl}/${response?.url}`;
+        } else {
+          throw new Error("Image upload failed");
+        }
+      } catch (error) {
+        ErrorToaster(error?.message || "Image Upload Error");
+        setloading(false);
+        return;
+      }
+    }
+
+    let obj={
+      ...newdata,
+      profilePicture:profilePicture,
+      department:data?.department?._id,
+      workExperience:workExperience
+    }
+    handleFormSubmit(obj)
   };
 
+  const handleFormSubmit = async (obj) => {
+    try {
+      const response = await AlumniService?.updatePost({ id: "6830cebc03414c821d034ebb", obj: obj })
+      if (response) {
+        console.log(response);
+        SuccessToaster(response?.message)
+        setloading(false)
+      }
+    } catch (error) {
+      ErrorToaster(error?.message || "Error")
+      setloading(false)
+    }
+  }
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setValue('image', file, { shouldValidate: true });
+    setValue('profilePicture', file, { shouldValidate: true });
   };
 
   const addWorkExperience = () => {
-    const workExperience = [...watch('workExperience'), {
-      companyName: '',
-      jobTitle: '',
-      startYear: '',
-      endYear: '',
-      responsibilities: ''
-    }];
-    setValue('workExperience', workExperience);
+    setWorkExperience(prev => [
+      ...prev,
+      {
+        companyName: '',
+        jobTitle: '',
+        startYear: '',
+        endYear: '',
+        responsibilities: ''
+      }
+    ]);
   };
 
+
   const removeWorkExperience = (index) => {
-    const workExperience = [...watch('workExperience')];
-    workExperience.splice(index, 1);
-    setValue('workExperience', workExperience);
+    setWorkExperience(prev => prev.filter((_, i) => i !== index));
+  };
+
+
+  const getAlumni = async () => {
+    try {
+      const response = await AlumniService?.getProfile('6830cebc03414c821d034ebb')
+      console.log(response);
+      setdata(response?.data)
+    } catch (error) {
+      ErrorToaster(error?.message || 'Error')
+    }
+  }
+
+  useEffect(() => {
+    getAlumni()
+  }, [])
+
+  useEffect(() => {
+    if (data) {
+      setValue('profilePicture', data?.profilePicture)
+      setValue('name', data?.name)
+      setValue('email', data?.email)
+      setValue('contactNumber', data?.contactNumber)
+      setValue('dob', convertToDateInputFormat(data?.dob))
+      setValue('address', data?.address)
+      setValue('personalizedDescription', data?.personalizedDescription)
+      setValue('linkedInUrl', data?.linkedInUrl)
+      setValue('gitHubUrl', data?.gitHubUrl) // step 1
+      // step 2
+      setValue('enrollNumber', data?.academicDetails?.enrollNumber)
+      setValue('department', data?.department?.name)
+      setValue('semester', data?.academicDetails?.semester)
+
+      setValue('matriculationDetails.schoolName', data?.matriculationDetails?.schoolName)
+      setValue('matriculationDetails.passingYear', data?.matriculationDetails?.passingYear)
+      setValue('matriculationDetails.grade', data?.matriculationDetails?.grade)
+
+      setValue('intermediateDetails.collegeName', data?.intermediateDetails?.collegeName)
+      setValue('intermediateDetails.passingYear', data?.intermediateDetails?.passingYear)
+      setValue('intermediateDetails.grade', data?.intermediateDetails?.grade)
+
+      setValue('workExperience', data?.workExperience)
+    }
+  }, [setValue, data])
+
+  const convertToDateInputFormat = (isoDate) => {
+    if (!isoDate) return '';
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const handleChange = (index, field, value) => {
+    const updated = [...workExperience];
+    updated[index][field] = value;
+    setWorkExperience(updated);
   };
 
   return (
@@ -94,7 +223,7 @@ export default function AlumniProfile() {
         <Typography variant="h4" fontWeight="bold" mb={4} textAlign="left" className="font_poppins colorgradient">
           Update Profile
         </Typography>
-        
+
         {/* Stepper */}
         <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
           {steps.map((label) => (
@@ -114,7 +243,13 @@ export default function AlumniProfile() {
               {/* Avatar */}
               <Box textAlign="center" mb={2}>
                 <Avatar
-                  src={watch('image') ? URL.createObjectURL(watch('image')) : ''}
+                  src={
+                    watch('profilePicture')
+                      ? typeof watch('profilePicture') === 'string'
+                        ? watch('profilePicture') // already a URL
+                        : URL.createObjectURL(watch('profilePicture')) // binary file
+                      : ''
+                  }
                   alt="Profile Preview"
                   sx={{ width: 120, height: 120, bgcolor: '#e0e0e0', fontSize: 40 }}
                 />
@@ -126,7 +261,7 @@ export default function AlumniProfile() {
                 htmlFor="upload-button"
                 sx={{
                   display: 'flex',
-                  justifyContent: "center", 
+                  justifyContent: "center",
                   p: 2,
                   border: '2px dashed #2156a8',
                   borderRadius: 2,
@@ -145,9 +280,10 @@ export default function AlumniProfile() {
                   style={{ display: 'none' }}
                 />
                 <Typography variant="body1" color="primary">
-                  {watch('image') ? watch('image')?.name : 'Click to upload'}
+                  {'Click to upload'}
                 </Typography>
               </Box>
+
 
               {/* Personal Fields */}
               <TextField
@@ -156,6 +292,7 @@ export default function AlumniProfile() {
                 error={Boolean(errors.name)}
                 helperText={errors.name?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
               <TextField
@@ -164,14 +301,17 @@ export default function AlumniProfile() {
                 error={Boolean(errors.email)}
                 helperText={errors.email?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
+                disabled
               />
               <TextField
                 label="Phone Number"
-                {...register('phone', { required: 'Phone number is required' })}
-                error={Boolean(errors.phone)}
-                helperText={errors.phone?.message}
+                {...register('contactNumber', { required: 'Phone number is required' })}
+                error={Boolean(errors.contactNumber)}
+                helperText={errors.contactNumber?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
               <TextField
@@ -190,6 +330,7 @@ export default function AlumniProfile() {
                 error={Boolean(errors.address)}
                 helperText={errors.address?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
               <TextField
@@ -197,26 +338,29 @@ export default function AlumniProfile() {
                 multiline
                 rows={4}
                 inputProps={{ maxLength: 400 }}
-                {...register('description', { required: 'Description is required' })}
-                error={Boolean(errors.description)}
-                helperText={errors.description?.message}
+                {...register('personalizedDescription', { required: 'Description is required' })}
+                error={Boolean(errors.personalizedDescription)}
+                helperText={errors.personalizedDescription?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
               <TextField
                 label="Linked In (Url)"
-                {...register('linkedin', { required: 'Url is required' })}
-                error={Boolean(errors.linkedin)}
-                helperText={errors.linkedin?.message}
+                {...register('linkedInUrl', { required: 'Linkedin url is required' })}
+                error={Boolean(errors.linkedInUrl)}
+                helperText={errors.linkedInUrl?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
               <TextField
                 label="Github (Url)"
-                {...register('github', { required: 'Github is required' })}
-                error={Boolean(errors.github)}
-                helperText={errors.github?.message}
+                {...register('gitHubUrl', { required: 'GitHub url is required' })}
+                error={Boolean(errors.gitHubUrl)}
+                helperText={errors.gitHubUrl?.message}
                 fullWidth
+                InputLabelProps={{ shrink: true }}
                 margin="normal"
               />
             </Box>
@@ -230,11 +374,12 @@ export default function AlumniProfile() {
 
               <TextField
                 label="Enrollment Number"
-                {...register('enrollment', { required: 'Enrollment number is required' })}
-                error={Boolean(errors.enrollment)}
-                helperText={errors.enrollment?.message}
+                {...register('enrollNumber', { required: 'Enroll number is required' })}
+                error={Boolean(errors.enrollNumber)}
+                helperText={errors.enrollNumber?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Department"
@@ -243,6 +388,8 @@ export default function AlumniProfile() {
                 helperText={errors.department?.message}
                 fullWidth
                 margin="normal"
+                disabled
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Semester"
@@ -251,62 +398,70 @@ export default function AlumniProfile() {
                 helperText={errors.semester?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
 
               {/* Matric Details */}
               <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>Matriculation Details</Typography>
               <TextField
                 label="School Name"
-                {...register('matricDetails.schoolName', { required: 'School name is required' })}
-                error={Boolean(errors.matricDetails?.schoolName)}
-                helperText={errors.matricDetails?.schoolName?.message}
+                {...register('matriculationDetails.schoolName', { required: 'School name is required' })}
+                error={Boolean(errors.matriculationDetails?.schoolName)}
+                helperText={errors.matriculationDetails?.schoolName?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Passing Year"
                 type="number"
-                {...register('matricDetails.passingYear', { required: 'Passing year is required' })}
-                error={Boolean(errors.matricDetails?.passingYear)}
-                helperText={errors.matricDetails?.passingYear?.message}
+                {...register('matriculationDetails.passingYear', { required: 'Passing year is required' })}
+                error={Boolean(errors.matriculationDetails?.passingYear)}
+                helperText={errors.matriculationDetails?.passingYear?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Grade"
-                {...register('matricDetails.grade', { required: 'Grade is required' })}
-                error={Boolean(errors.matricDetails?.grade)}
-                helperText={errors.matricDetails?.grade?.message}
+                {...register('matriculationDetails.grade', { required: 'Grade is required' })}
+                error={Boolean(errors.matriculationDetails?.grade)}
+                helperText={errors.matriculationDetails?.grade?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
+
               />
 
               {/* Inter Details */}
               <Typography variant="h6" fontWeight="bold" mt={3} mb={1}>Intermediate Details</Typography>
               <TextField
                 label="College Name"
-                {...register('interDetails.collegeName', { required: 'College name is required' })}
-                error={Boolean(errors.interDetails?.collegeName)}
-                helperText={errors.interDetails?.collegeName?.message}
+                {...register('intermediateDetails.collegeName', { required: 'College name is required' })}
+                error={Boolean(errors.intermediateDetails?.collegeName)}
+                helperText={errors.intermediateDetails?.collegeName?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Passing Year"
                 type="number"
-                {...register('interDetails.passingYear', { required: 'Passing year is required' })}
-                error={Boolean(errors.interDetails?.passingYear)}
-                helperText={errors.interDetails?.passingYear?.message}
+                {...register('intermediateDetails.passingYear', { required: 'Passing year is required' })}
+                error={Boolean(errors.intermediateDetails?.passingYear)}
+                helperText={errors.intermediateDetails?.passingYear?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Grade"
-                {...register('interDetails.grade', { required: 'Grade is required' })}
-                error={Boolean(errors.interDetails?.grade)}
-                helperText={errors.interDetails?.grade?.message}
+                {...register('intermediateDetails.grade', { required: 'Grade is required' })}
+                error={Boolean(errors.intermediateDetails?.grade)}
+                helperText={errors.intermediateDetails?.grade?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
               />
             </Box>
           )}
@@ -317,70 +472,60 @@ export default function AlumniProfile() {
                 Work Experience
               </Typography>
 
-              {/* Work Experience Fields */}
-              {watch('workExperience').map((work, index) => (
-                <Box key={index} sx={{ mb: 3 }}>
+              {workExperience.map((item, index) => (
+                <Box key={index} sx={{ mb: 3, p: 2, border: '1px solid #ddd', borderRadius: 2 }}>
                   <TextField
                     label="Company Name"
-                    {...register(`workExperience.${index}.companyName`, { required: 'Company name is required' })}
-                    error={Boolean(errors.workExperience?.[index]?.companyName)}
-                    helperText={errors.workExperience?.[index]?.companyName?.message}
+                    value={item.companyName}
+                    onChange={(e) => handleChange(index, 'companyName', e.target.value)}
                     fullWidth
                     margin="normal"
                   />
                   <TextField
                     label="Job Title"
-                    {...register(`workExperience.${index}.jobTitle`, { required: 'Job title is required' })}
-                    error={Boolean(errors.workExperience?.[index]?.jobTitle)}
-                    helperText={errors.workExperience?.[index]?.jobTitle?.message}
+                    value={item.jobTitle}
+                    onChange={(e) => handleChange(index, 'jobTitle', e.target.value)}
                     fullWidth
                     margin="normal"
                   />
                   <TextField
                     label="Start Year"
-                    type="number"
-                    {...register(`workExperience.${index}.startYear`, { required: 'Start year is required' })}
-                    error={Boolean(errors.workExperience?.[index]?.startYear)}
-                    helperText={errors.workExperience?.[index]?.startYear?.message}
+                    value={item.startYear}
+                    onChange={(e) => handleChange(index, 'startYear', e.target.value)}
                     fullWidth
                     margin="normal"
                   />
                   <TextField
                     label="End Year"
-                    type="number"
-                    {...register(`workExperience.${index}.endYear`, { required: 'End year is required' })}
-                    error={Boolean(errors.workExperience?.[index]?.endYear)}
-                    helperText={errors.workExperience?.[index]?.endYear?.message}
+                    value={item.endYear}
+                    onChange={(e) => handleChange(index, 'endYear', e.target.value)}
                     fullWidth
                     margin="normal"
                   />
                   <TextField
                     label="Responsibilities"
-                    {...register(`workExperience.${index}.responsibilities`, { required: 'Responsibilities are required' })}
-                    error={Boolean(errors.workExperience?.[index]?.responsibilities)}
-                    helperText={errors.workExperience?.[index]?.responsibilities?.message}
+                    multiline
+                    rows={3}
+                    value={item.responsibilities}
+                    onChange={(e) => handleChange(index, 'responsibilities', e.target.value)}
                     fullWidth
                     margin="normal"
                   />
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => removeWorkExperience(index)}
-                    sx={{ mt: 2 }}
-                  >
-                    Remove
-                  </Button>
+                  <Box textAlign="right">
+                    <Button onClick={() => removeWorkExperience(index)} color="error">
+                      Remove
+                    </Button>
+                  </Box>
                 </Box>
               ))}
-              <Button
-                variant="contained"
-                onClick={addWorkExperience}
-                sx={{ mt: 3 }}
-              >
+
+              <Button variant="outlined" onClick={addWorkExperience} sx={{ mt: 2 }}>
                 Add Work Experience
               </Button>
+
             </Box>
           )}
+
 
           {/* Buttons */}
           <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
