@@ -47,7 +47,7 @@ function ProtectedLayout({ type, user }) {
     <Box
       sx={{
         width: drawerWidth,
-        backgroundColor: '#2156a8',
+        background: `linear-gradient(to right, #1e3c72, #2a5298)`,
         color: 'white',
         height: '100%',
         display: 'flex',
@@ -114,7 +114,7 @@ function ProtectedLayout({ type, user }) {
       <AppBar
         position="fixed"
         sx={{
-          backgroundColor: '#2156a8',
+           background: `linear-gradient(to right, #1e3c72, #2a5298)`,
           zIndex: 1300,
           boxShadow: 'none',
           pl: isMobile ? 2 : `${drawerWidth}px`,

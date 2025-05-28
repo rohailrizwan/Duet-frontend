@@ -11,7 +11,7 @@ import { imagebaseUrl } from '../../Config/axios';
 
 const steps = ['Personal Information', 'Academic Details', 'Work Experience'];
 
-export default function Studentfaculty() {
+export default function Studentfaculty({userid}) {
   const [activeStep, setActiveStep] = useState(0);
   const [data, setdata] = useState();
   const [skills, setSkills] = useState(['']);
@@ -183,7 +183,7 @@ export default function Studentfaculty() {
 
   const getStudent = async () => {
     try {
-      const response = await studentService?.getProfile('682cd27dd0b25c1b3b77b793')
+      const response = await studentService?.getProfile(userid)
       console.log(response);
       setdata(response?.data)
     } catch (error) {

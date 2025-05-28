@@ -5,8 +5,11 @@ import loginimage from '../../assets/images/loginimage.jpg'
 import { NewButton } from '../../Components/BtnComponent';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import authServices from '../../apis/auth';
-import { ErrorToaster } from '../../Components/Toaster';
+import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
 import OtpComponent from '../../Components/OtpComponent';
+import { useDispatch } from 'react-redux';
+import { setLogin } from '../../redux/Slice/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 
 const LoginPage = () => {
@@ -17,7 +20,8 @@ const LoginPage = () => {
     const [otpModal, setotpModal] = useState(false);
     const [isloading, setisloading] = useState(false);
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
-
+    const dispatch=useDispatch()
+    const navigate=useNavigate()
     const handleSubmit = async () => {
         setisloading(true)
         console.log(email, password);
@@ -30,6 +34,8 @@ const LoginPage = () => {
             const response = await authServices?.postLogin(obj)
             if (response?.message) {
                 console.log(response);
+                SuccessToaster(response?.message)
+                setotpModal(true)
                 setisloading(false)
             }
             else {
@@ -37,7 +43,6 @@ const LoginPage = () => {
             }
         } catch (error) {
             console.log(error, "error");
-            setotpModal(true)
             setisloading(false)
             ErrorToaster(error || '')
         }
@@ -54,7 +59,13 @@ const LoginPage = () => {
             const response = await authServices?.verifyOtp(obj)
             if (response?.message) {
                 console.log(response);
+                SuccessToaster(response?.message || "Login Successfull")
+                dispatch(setLogin({
+                    user:response?.user,
+                    token:response?.token
+                }))
                 setotploading(false)
+                navigate('/profile/updateprofile')
             }
             else {
                 setotploading(false)

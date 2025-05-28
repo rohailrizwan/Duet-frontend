@@ -8,9 +8,12 @@ import ProtectedLayout from '../Layout/ProtectedLayout';
 import { AlumniTab, FacultyTab, StudentTab } from './Tabs';
 import FullScreenLoader from '../Components/FullScreenLoader';
 import ToasterContainer from '../Components/Toaster';
+import { useSelector } from 'react-redux';
 
 function ProtectedRoutes() {
-  const user = true
+  const user = useSelector((state)=>state?.auth?.user)
+  console.log(user,"user");
+  
   const [loading, setLoading] = useState(true); // Initial Loader
   const location = useLocation();
 
@@ -21,16 +24,16 @@ function ProtectedRoutes() {
   },[location?.pathname])
   
 
-  const type="Student"
+  const type = "Student"
   
   const isProtected = (children, path) => {
     if (!user) {
       return <Navigate to="/login" replace />;
     }
   
-    const isStudent = type == "Student" && StudentTab.some(tab => tab.path === path);
-    const isAlumni = type == "Alumni" && AlumniTab.some(tab => tab.path === path);
-    const isFaculty = type == "Faculty" && FacultyTab.some(tab => tab.path === path);
+    const isStudent = user?.role == "user" && StudentTab.some(tab => tab.path === path);
+    const isAlumni = user?.role == "alumni" && AlumniTab.some(tab => tab.path === path);
+    const isFaculty = user?.role == "faculty" && FacultyTab.some(tab => tab.path === path);
   
     if (isStudent || isFaculty || isAlumni) {
       return children;

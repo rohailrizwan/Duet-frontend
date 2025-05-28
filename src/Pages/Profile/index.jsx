@@ -2,23 +2,24 @@ import React from 'react'
 import Studentfaculty from '../Student/Studentfaculty'
 import UpdateFaculty from '../Faculty/UpdateFaculty'
 import Alumnifaculty from '../Alumni/Alumnifaculty'
+import { useSelector } from 'react-redux'
 
 function Profile() {
-  const type="Student"
+  const user=useSelector((state)=>state?.auth?.user)
   return (
     <div>
       {
-        type == "Student" ? (
-          <Studentfaculty/>
+        user?.role == "user" ? (
+          <Studentfaculty userid={user?._id}/>
         )
         :
-        type == 'Faculty' ? (
-          <UpdateFaculty/>
+         user?.role == "alumni" ? (
+          <UpdateFaculty userid={user?._id}/>
         )
         : 
-        type == "Alumni"?
+         user?.role == "faculty"?
         (
-          <Alumnifaculty/>
+          <Alumnifaculty userid={user?._id}/>
         )
         : null
 
