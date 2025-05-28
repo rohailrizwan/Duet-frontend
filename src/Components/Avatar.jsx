@@ -12,12 +12,14 @@ import Person from '@mui/icons-material/Person';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { useDispatch } from 'react-redux';
+import { clearAuth } from '../redux/Slice/authSlice';
 const AvatarComponent = ({ scrolled }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const location = useLocation();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch()
   const handleAvatarClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -38,6 +40,7 @@ const AvatarComponent = ({ scrolled }) => {
 
   const handleLogout = () => {
     console.log("Logout");
+    dispatch(clearAuth())
     handleClose();
   };
 

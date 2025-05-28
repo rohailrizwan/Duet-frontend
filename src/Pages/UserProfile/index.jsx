@@ -5,22 +5,22 @@ import Container from '../../Components/Container';
 import AlumniProfile from '../Alumni/AlumniProfile';
 import StudentProfile from '../Student/StudentProfile';
 import FacultyProfile from '../Faculty/FacultyProfile';
+import { useSelector } from 'react-redux';
 
 function ProfilePage() {
-    // Example user profile data
-    const type="Student"
   
+     const user=useSelector((state)=>state?.auth?.user)
 
     return (
         <Box  sx={{ py: 2, minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-          {type == "Alumni" ? (
-            <AlumniProfile/>
+          {user?.role == "alumni"  ? (
+            <AlumniProfile userid={user?._id}/>
           ):
-           type == "Student" ?(
-            <StudentProfile/>
+            user?.role == "user"?(
+            <StudentProfile userid={user?._id}/>
            ): 
-           type == "Faculty"? (
-              <FacultyProfile/>
+           user?.role == "faculty"? (
+              <FacultyProfile userid={user?._id}/>
            ): (
             null
            )

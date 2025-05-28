@@ -30,7 +30,20 @@ const authInstance = axios.create({
 });
 
 authInstance.interceptors.request.use((request) => {
-  const token = localStorage.getItem("token");
+  const persistRoot = localStorage.getItem("persist:root");
+  let token
+  if (persistRoot) {
+    const parsedRoot = JSON.parse(persistRoot);
+    const authString = parsedRoot.auth;
+    if (authString) {
+      const authData = JSON.parse(authString);
+       token = authData.token;
+
+      // console.log("Token:", token);
+    }
+  }
+
+
   request.headers = {
     ...request.headers,
     Accept: "application/json, text/plain, */*",
