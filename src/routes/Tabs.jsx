@@ -8,36 +8,41 @@ import WorkIcon from "@mui/icons-material/Work";
 import DescriptionIcon from "@mui/icons-material/Description";
 import FilePresentIcon from '@mui/icons-material/FilePresent';
 import HomeIcon from '@mui/icons-material/Home';
+import FeedIcon from '@mui/icons-material/Feed';
+
  const FacultyTab = [
-  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisble:true },
-  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisble:true },
-  { label: "Add Jobs", path: "/profile/addjob", icon: <PostAddIcon />,isvisble:true },
-  { label: "View Resume", path: "/profile/ViewResume", icon: <FilePresentIcon />,isvisble:false },
-  { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisble:true },
-  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
+  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisible:true },
+  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisible:true },
+  { label: "Add Jobs", path: "/profile/addjob", icon: <PostAddIcon />,isvisible:true },
+  { label: "View Resume", path: "/profile/ViewResume", icon: <FilePresentIcon />,isvisible:false },
+  { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisible:true },
+  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisible:true },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon />,isvisible:false },
   { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon />,isvisible:false },
+  { label: "My Post", path: "/profile/viewmypost", icon: <FeedIcon />,isvisible:true },
 ];
 
  const StudentTab = [
-  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisble:true },
-  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisble:true },
-  { label: "Create Resume", path: "/profile/createresume", icon: <VisibilityIcon />,isvisble:true },
-  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
-  { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisble:false },
+  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisible:true },
+  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisible:true },
+  { label: "Create Resume", path: "/profile/createresume", icon: <VisibilityIcon />,isvisible:true },
+  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisible:true },
+  { label: "My Post", path: "/profile/viewmypost", icon: <FeedIcon />,isvisible:true },
+  { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisible:false },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
   { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
 ];
 
  const AlumniTab = [
-  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisble:true },
-  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisble:true },
-  { label: "Add Jobs", path: "/profile/addjob", icon: <PostAddIcon />,isvisble:true },
-  { label: "View Resume", path: "/profile/ViewResume", icon: <FilePresentIcon />,isvisble:false },
-  { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisble:true },
-  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisble:true },
+  { label: "Home", path: "/profile", icon: <HomeIcon />,isvisible:true },
+  { label: "Upcoming Jobs", path: "/profile/viewjob", icon: <VisibilityIcon />,isvisible:true },
+  { label: "Add Jobs", path: "/profile/addjob", icon: <PostAddIcon />,isvisible:true },
+  { label: "View Resume", path: "/profile/ViewResume", icon: <FilePresentIcon />,isvisible:false },
+  { label: "My Job", path: "/profile/myjob", icon: <WorkIcon />,isvisible:true },
+  { label: "My Profile", path: "/profile/userProfile", icon: <PersonIcon />,isvisible:true },
   { label: "Profile",  path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
   { label: "Profile",  path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
+  { label: "My Post", path: "/profile/viewmypost", icon: <FeedIcon />,isvisible:true },
 ];
 
 export {FacultyTab,StudentTab,AlumniTab}

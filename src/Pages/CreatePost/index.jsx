@@ -17,11 +17,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import Imageupload from "../../Components/Uploadimage";
 import Colors from "../../assets/Style";
 import UploadServices from "../../apis/Upload";
-import { ErrorToaster } from "../../Components/Toaster";
+import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
 import { imagebaseUrl } from "../../Config/axios";
 import PostService from "../../apis/Post";
 
-const CreatePostModal = ({ open, setOpen }) => {
+const CreatePostModal = ({ open, setOpen ,callback}) => {
     const [altText, setAltText] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -29,40 +29,53 @@ const CreatePostModal = ({ open, setOpen }) => {
     const [imageUrl, setimageUrl] = useState("");
     const [loading, setloading] = useState(false);
 
-    
-    const handelRemove=()=>{
+
+    const handelRemove = () => {
         setselectedImage(null)
         setimageUrl(null)
     }
-    const handleSubmit = async() => {
-        if(!title && !altText && !description && !selectedImage){
-            return ErrorToaster('Please fill the field')
+    const handleSubmit = async () => {
+        // If nothing is provided, show an error
+        if (!title || !description || !selectedImage) {
+            return ErrorToaster('Please fill at least one field');
         }
-        setloading(true)
-        const formdata = new FormData()
-        formdata.append('document',selectedImage)
+
+        setloading(true);
+
+        let imageUrl = '';
+
         try {
-            const response=await UploadServices?.uploadImage(formdata)
-            console.log(response);
-            let obj={
-                image:`${imagebaseUrl}/${response?.url}`,
-                title:title,
-                imageDesc:altText,
-                description:description
+            // Only upload image if one is selected
+            if (selectedImage) {
+                const formdata = new FormData();
+                formdata.append('document', selectedImage);
+                const response = await UploadServices?.uploadImage(formdata);
+                imageUrl = `${imagebaseUrl}/${response?.url}`;
             }
-            handlepost(obj)
-        } 
-        catch (error) {
-            ErrorToaster("Image Failed")
-             setloading(false)
+
+            // Build post object conditionally
+            const obj = {
+                ...(imageUrl && { image: imageUrl }),
+                ...(title && { title }),
+                ...(altText && { imageDesc: altText }),
+                ...(description && { description }),
+            };
+
+            handlepost(obj);
+        } catch (error) {
+            ErrorToaster("Image upload failed");
+        } finally {
+            setloading(false);
         }
     };
 
-    const handlepost=async(obj)=>{
+
+    const handlepost = async (obj) => {
         console.log(obj);
         try {
             const response = await PostService.addpost(obj)
-            if(response){
+            if (response) {
+                SuccessToaster("Post added successfully")
                 console.log(response);
                 setloading(false)
             }
@@ -71,9 +84,11 @@ const CreatePostModal = ({ open, setOpen }) => {
             ErrorToaster(error || "Error")
             setloading(false)
         }
+        callback()
+        handleClose()
     }
 
-    const handleClose=()=>{
+    const handleClose = () => {
         setselectedImage(null)
         setAltText('')
         setDescription("")
@@ -86,7 +101,7 @@ const CreatePostModal = ({ open, setOpen }) => {
         if (e.target.value.length <= 200) {
             setDescription(e.target.value);
         }
-        else{
+        else {
             ErrorToaster('Description less than 200 words')
         }
     };
@@ -98,7 +113,7 @@ const CreatePostModal = ({ open, setOpen }) => {
                 <Grid container spacing={2}>
                     {/* Drag & Drop Zone */}
                     <Grid item xs={12}>
-                        <Imageupload selectedimage={selectedImage} setSelectedimage={setselectedImage} setimageUrl={setimageUrl} imageUrl={imageUrl} handelRemove={handelRemove}/>
+                        <Imageupload selectedimage={selectedImage} setSelectedimage={setselectedImage} setimageUrl={setimageUrl} imageUrl={imageUrl} handelRemove={handelRemove} />
                     </Grid>
 
                     {/* Title */}
@@ -113,7 +128,7 @@ const CreatePostModal = ({ open, setOpen }) => {
                     </Grid>
 
                     {/* Alt Text */}
-                    <Grid item xs={12}>
+                    {/* <Grid item xs={12}>
                         <TextField
                             label="Image Description (alt text)"
                             fullWidth
@@ -121,7 +136,7 @@ const CreatePostModal = ({ open, setOpen }) => {
                             onChange={e => setAltText(e.target.value)}
                             helperText="For accessibility; optional"
                         />
-                    </Grid>
+                    </Grid> */}
 
                     {/* Description */}
                     <Grid item xs={12}>
@@ -137,17 +152,17 @@ const CreatePostModal = ({ open, setOpen }) => {
                     </Grid>
                 </Grid>
             </DialogContent>
-            <DialogActions sx={{marginRight:"10px"}}>
-                <Button onClick={handleClose} sx={{color:"lightgray"}}>
+            <DialogActions sx={{ marginRight: "10px" }}>
+                <Button onClick={handleClose} sx={{ color: "lightgray" }}>
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="contained"
-                    sx={{ borderRadius: 2 ,background:Colors?.PrimaryBlue}}
+                    sx={{ borderRadius: 2, background: Colors?.PrimaryBlue }}
                     disabled={loading}
                 >
-                    {loading?<CircularProgress size={12} color="white"/>:'Submit'}
+                    {loading ? <CircularProgress size={12} color="white" /> : 'Submit'}
                 </Button>
             </DialogActions>
         </Dialog>

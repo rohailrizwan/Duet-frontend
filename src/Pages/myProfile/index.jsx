@@ -16,6 +16,7 @@ import Headertext from "../../Components/Headertext";
 import Dashboardservice from "../../apis/Dashboard";
 import { useSelector } from "react-redux";
 import UpdateProfileHeader from "../../Components/ProfileHeader";
+import { Empty } from "antd";
 
 const MyProfile = () => {
   const [posts, setPosts] = useState([]); // Dynamic posts from API
@@ -91,20 +92,17 @@ const MyProfile = () => {
             }}
           />
           <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 600,
-                color: '#1a3c5e',
-              }}
-            >
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#1a3c5e' }}>
               {user?.name || 'N/A'}
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{ color: '#4b5e7a' }}
-            >
-              {user?.role == "user" ? "Student" : user?.role == "alumni" ? "Alumni" : user?.role == "faculty" ? "Faculty" : ""}
+            <Typography variant="body2" sx={{ color: '#4b5e7a' }}>
+              {user?.role === "user"
+                ? "Student"
+                : user?.role === "alumni"
+                  ? "Alumni"
+                  : user?.role === "faculty"
+                    ? "Faculty"
+                    : ""}
             </Typography>
           </Box>
         </Box>
@@ -124,6 +122,7 @@ const MyProfile = () => {
 
       <Divider sx={{ my: 2, borderColor: '#e0e0e0' }} />
       <UpdateProfileHeader text={"Social Feed"} />
+
       <Grid container spacing={2}>
         {/* Posts Column */}
         <Grid item xs={12} md={8}>
@@ -138,6 +137,20 @@ const MyProfile = () => {
             >
               <CircularProgress sx={{ color: '#0a66c2' }} />
             </Box>
+          ) : posts?.length === 0 ? (
+            <Box
+              sx={{
+                height: '40vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                // bgcolor: '#fff',
+                borderRadius: 1,
+                border: '1px solid #e0e0e0',
+              }}
+            >
+             <Empty/>
+            </Box>
           ) : (
             <>
               {posts.slice(0, visiblePosts).map((post, i) => (
@@ -150,13 +163,7 @@ const MyProfile = () => {
                 </Box>
               ))}
               {loading && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    py: 2,
-                  }}
-                >
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
                   <CircularProgress sx={{ color: '#0a66c2' }} />
                 </Box>
               )}
@@ -180,20 +187,31 @@ const MyProfile = () => {
               title="Latest Jobs"
               sx={{ color: '#1a3c5e', fontWeight: 600, mb: 2 }}
             />
-            {jobList.slice(0, 2).map((job) => (
+            {jobList?.length === 0 ? (
               <Box
-                key={job.id}
                 sx={{
-                  mb: 2,
-                  border: '1px solid #e0e0e0',
-                  borderRadius: 1,
-                  p: 1,
-                  bgcolor: '#fff',
+                  py: 4,
+                  textAlign: 'center',
                 }}
               >
-                <JobCard job={job} truncate={true} maxlength={40} istruncate={false} />
+                <Empty/>
               </Box>
-            ))}
+            ) : (
+              jobList.slice(0, 2).map((job) => (
+                <Box
+                  key={job.id}
+                  sx={{
+                    mb: 2,
+                    // border: '1px solid #e0e0e0',
+                    borderRadius: 1,
+                    p: 1,
+                    bgcolor: '#fff',
+                  }}
+                >
+                  <JobCard job={job} truncate={true} maxlength={40} istruncate={false} />
+                </Box>
+              ))
+            )}
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <NewButton2
                 title="View Jobs"
@@ -211,6 +229,7 @@ const MyProfile = () => {
         </Grid>
       </Grid>
     </Box>
+
   );
 };
 

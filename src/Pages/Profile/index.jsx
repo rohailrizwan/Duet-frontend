@@ -13,11 +13,11 @@ function Profile() {
           <Studentfaculty userid={user?._id}/>
         )
         :
-         user?.role == "alumni" ? (
+         user?.role == "faculty" ? (
           <UpdateFaculty userid={user?._id}/>
         )
         : 
-         user?.role == "faculty"?
+         user?.role == "alumni"?
         (
           <Alumnifaculty userid={user?._id}/>
         )

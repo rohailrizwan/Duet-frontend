@@ -22,9 +22,10 @@ import AvatarComponent from '../../Components/Avatar';
 import Collapse from '@mui/material/Collapse';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationModal from '../../Pages/Notification';
+import { useSelector } from 'react-redux';
 const drawerWidth = 240;
 
-function ProtectedLayout({ type, user }) {
+function ProtectedLayout({user }) {
   const [activeTab, setActiveTab] = useState([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -33,11 +34,12 @@ function ProtectedLayout({ type, user }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate()
+  
   useEffect(() => {
-    if (type === 'Faculty') setActiveTab(FacultyTab);
-    else if (type === 'Student') setActiveTab(StudentTab);
-    else if (type === 'Alumni') setActiveTab(AlumniTab);
-  }, [type]);
+    if (user?.role === 'faculty') setActiveTab(FacultyTab);
+    else if (user?.role === 'user') setActiveTab(StudentTab);
+    else if (user?.role === 'alumni') setActiveTab(AlumniTab);
+  }, [user]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -58,11 +60,11 @@ function ProtectedLayout({ type, user }) {
     >
       <Box>
         <Typography variant="h6" sx={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }} className="font_poppins">
-          {type} Space
+          {user?.role == "user"?"Student":user?.role == "faculty"?"Faculty":user?.role == "alumni"?"Alumni":''} Space
         </Typography>
         <List>
           {activeTab.map((item) => (
-            item?.isvisble && (
+            item?.isvisible && (
               <ListItem
                 button
                 key={item.label}
@@ -135,7 +137,7 @@ function ProtectedLayout({ type, user }) {
 
           {/* Left Title */}
           <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-            {type} Space
+            {user?.role == "user"?"Student":user?.role == "faculty"?"Faculty":user?.role == "alumni"?"Alumni":''} Space
           </Typography>
 
           {/* Right Side Icons */}

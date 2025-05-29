@@ -56,11 +56,11 @@ const PostCard = ({ post }) => {
                     </Typography>
                 }
                 subheader={
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption"  color="text.secondary">
                         {new Date(post?.createdAt).toDateString()}
                     </Typography>
                 }
-                sx={{ pb: 0 }}
+                sx={{ pb: 1 }}
             />
 
             <Divider />

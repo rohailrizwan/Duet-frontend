@@ -8,6 +8,7 @@ import CreateResume from "../Pages/Student/CreateResume"
 import CandidateResume from "../Pages/Student/ResumeForm/CandidateResume"
 import UserProfile from "../Pages/UserProfile"
 import ViewJob from "../Pages/ViewJob"
+import Viewmypost from "../Pages/Viewpost"
 import ViewResume from "../Pages/ViewResume"
 
 
@@ -15,7 +16,7 @@ import ViewResume from "../Pages/ViewResume"
 const ProtectedLinks=[
     {
         path: "/profile", //Dashboard
-        component: <MyProfile />,
+        component: <MyProfile/>,
     },
     {
         path: "/profile/ChangePassword", //change password
@@ -52,6 +53,10 @@ const ProtectedLinks=[
     {
     path: "/profile/candidateResume", //userjobseeker
         component: <CandidateResume />,
+    },
+    {
+    path: "/profile/viewmypost", //userjobseeker
+        component: <Viewmypost />,
     },
     
 ]

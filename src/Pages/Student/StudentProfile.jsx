@@ -16,7 +16,7 @@ import {
 import Container from '../../Components/Container';
 import Colors from '../../assets/Style';
 import studentService from '../../apis/Student';
-import 'tailwindcss/tailwind.css';
+
 
 // InfoItem component with enhanced styling
 const InfoItem = ({ icon: Icon, text, color }) => (

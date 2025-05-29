@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import Navbar from './Navbar'
 import Footer from './Footer'
 import { Box } from '@mui/material';
+import { useSelector } from 'react-redux';
 
 function PublicLayout() {
   const container =
@@ -12,7 +13,7 @@ function PublicLayout() {
   useEffect(() => {
     scrolltop.current.scrollIntoView({ behavior: "smooth" });
   }, [location.pathname]);
-  const user=true
+  const user=useSelector((state)=>state?.auth?.user)
   return (
     <div>
       <Navbar user={user}/>

@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
-import cardlogo from '../../assets/images/dashboardLogo.webp'
+import cardlogo from '../../assets/images/duetLogo.png'
 import { styled } from "@mui/system";
 import AvatarComponent from "../../Components/Avatar";
 export default function Navbar({user}) {
@@ -163,7 +163,7 @@ export default function Navbar({user}) {
                             overflow: "hidden",  
                         }}
                         
-                        // onClick={props?.handleFunction}
+                        onClick={()=>navigate("/login")}
                     >
                         {"Get Started"} <ArrowForwardIcon/>
                     </Button>

@@ -15,6 +15,10 @@ const PostService = {
         const result = await gettoken(postRoutes?.getpost + `?page=${page}&limit=${limit}`);
         return result;
     },
+    getpostbyid: async (page,limit) => {
+        const result = await gettoken(postRoutes?.getpostbyid + `?page=${page}&limit=${limit}`);
+        return result;
+    },
     deletePost: async (id) => {
         const result = await deletedtoken(postRoutes?.deletepost + `/${id}`);
         return result;

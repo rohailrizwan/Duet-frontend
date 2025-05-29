@@ -24,7 +24,6 @@ function ProtectedRoutes() {
   },[location?.pathname])
   
 
-  const type = "Student"
   
   const isProtected = (children, path) => {
     if (!user) {
@@ -57,7 +56,7 @@ function ProtectedRoutes() {
             ))}
           </Route>
 
-          <Route path="/profile" element={< ProtectedLayout type={type} user={user}/>}>
+          <Route path="/profile" element={< ProtectedLayout user={user}/>}>
             {ProtectedLinks?.map((route) => (
               <Route key={route.path} path={route.path} element={isProtected(route.component, route?.path)} />
             ))}
