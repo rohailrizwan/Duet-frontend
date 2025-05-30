@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import {
   useTheme,
   useMediaQuery,
@@ -12,185 +13,310 @@ import {
   Typography,
   AppBar,
   Toolbar,
+  InputBase,
+  Badge,
+  Collapse,
+  CssBaseline,
+  Divider,
+  ListItemButton,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Settings, ExpandLess, ExpandMore, Home, Lock, } from '@mui/icons-material';
-import Person2Icon from '@mui/icons-material/Person2';
+import SearchIcon from '@mui/icons-material/Search';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import ChatIcon from '@mui/icons-material/Chat';
+import AvatarComponent from '../../Components/Avatar';
+import { Settings, ExpandLess, ExpandMore, Home, Work, Person, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { FacultyTab, StudentTab, AlumniTab } from '../../routes/Tabs';
 import { Outlet, useNavigate } from 'react-router-dom';
-import AvatarComponent from '../../Components/Avatar';
-import Collapse from '@mui/material/Collapse';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import NotificationModal from '../../Pages/Notification';
-import { useSelector } from 'react-redux';
-const drawerWidth = 240;
+import logo from '../../assets/images/duetlogo.png'
+const drawerWidth = 260;
 
-function ProtectedLayout({user }) {
-  const [activeTab, setActiveTab] = useState([]);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
+function ResponsiveDrawer(props) {
+  const { window } = props;
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [isClosing, setIsClosing] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
+  const [selectedItem, setSelectedItem] = React.useState('Home');
+  const [activeTab, setActiveTab] = React.useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate();
+
+  const user = { role: 'user' }; // Replace with actual user data
+
   useEffect(() => {
     if (user?.role === 'faculty') setActiveTab(FacultyTab);
     else if (user?.role === 'user') setActiveTab(StudentTab);
     else if (user?.role === 'alumni') setActiveTab(AlumniTab);
   }, [user]);
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setMobileOpen(false);
   };
 
-  const drawerContent = (
-    <Box
-      sx={{
-        width: drawerWidth,
-        background: `linear-gradient(to right, #1e3c72, #2a5298)`,
-        color: 'white',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        padding: '10px 0',
-      }}
-    >
-      <Box>
-        <Typography variant="h6" sx={{ padding: '10px', textAlign: 'center', fontWeight: 'bold' }} className="font_poppins">
-          {user?.role == "user"?"Student":user?.role == "faculty"?"Faculty":user?.role == "alumni"?"Alumni":''} Space
-        </Typography>
-        <List>
-          {activeTab.map((item) => (
-            item?.isvisible && (
-              <ListItem
-                button
-                key={item.label}
-                onClick={() => navigate(item.path)}
-                sx={{ '&:hover': { backgroundColor: '#1f4692', cursor: "pointer" } }}
-                className="font_poppins"
-              >
-                <ListItemIcon sx={{ color: 'white' }}>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} sx={{ color: 'white' }} />
-              </ListItem>
-            )
-          ))}
-        </List>
+  const handleDrawerTransitionEnd = () => {
+    setIsClosing(false);
+  };
+
+  const handleDrawerToggle = () => {
+    if (!isClosing) {
+      setMobileOpen(!mobileOpen);
+    }
+  };
+
+  const handleItemClick = (item, path) => {
+    setSelectedItem(item);
+    navigate(path);
+  };
+
+  const drawer = (
+    <div>
+      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2,display:"flex",justifyContent:"center" }}>
+        <Box
+          component="img"
+          src={logo} // Replace with your logo path
+          alt="Logo"
+          sx={{ height: '100px', width: '100px' }}
+        />
       </Box>
-      <Box sx={{ padding: '10px', borderTop: '1px solid #ffffff50' }}>
-        <List>
-          <ListItem button onClick={() => setSettingsOpen(!settingsOpen)}>
-            <ListItemIcon sx={{ color: 'white' }}>
+      <Divider />
+      <List sx={{ pt: 2 }}>
+        {activeTab.map((item) => (
+          item?.isvisible && (
+            <ListItem
+              key={item.label}
+              disablePadding
+              onClick={() => handleItemClick(item.label, item.path)}
+            >
+              <ListItemButton
+                sx={{
+                  '&:hover': { backgroundColor: '#f0f2f5' },
+                  backgroundColor: selectedItem === item.label ? '#e7f3ff' : 'transparent',
+                  borderRadius: '8px',
+                  margin: '4px 8px',
+                  padding: '12px',
+                  transition: 'background-color 0.3s ease',
+                }}
+              >
+                <ListItemIcon sx={{ color: selectedItem === item.label ? '#1877f2' : '#1a3c34', minWidth: '40px' }}>
+                  {item.icon || <Home />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.label}
+                  sx={{
+                    color: selectedItem === item.label ? '#1877f2' : '#1a3c34',
+                    '& .MuiTypography-root': { fontSize: '1rem', fontWeight: 500 },
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )
+        ))}
+      </List>
+      <Divider />
+      <List sx={{ pt: 2 }}>
+        <ListItem
+          disablePadding
+          onClick={() => setSettingsOpen(!settingsOpen)}
+        >
+          <ListItemButton
+            sx={{
+              '&:hover': { backgroundColor: '#f0f2f5' },
+              backgroundColor: selectedItem === 'Settings' ? '#e7f3ff' : 'transparent',
+              borderRadius: '8px',
+              margin: '4px 8px',
+              padding: '12px',
+              transition: 'background-color 0.3s ease',
+            }}
+          >
+            <ListItemIcon sx={{ color: selectedItem === 'Settings' ? '#1877f2' : '#1a3c34', minWidth: '40px' }}>
               <Settings />
             </ListItemIcon>
-            <ListItemText primary="Settings" sx={{ color: 'white' }} />
-            {settingsOpen ? <ExpandLess sx={{ color: 'white' }} /> : <ExpandMore sx={{ color: 'white' }} />}
-          </ListItem>
-
-          <Collapse in={settingsOpen} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button sx={{ pl: 4, cursor: "pointer" }} onClick={() => navigate('/profile/ChangePassword')}>
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <Lock />
+            <ListItemText
+              primary="Settings"
+              sx={{
+                color: selectedItem === 'Settings' ? '#1877f2' : '#1a3c34',
+                '& .MuiTypography-root': { fontSize: '1rem', fontWeight: 500 },
+              }}
+            />
+            {settingsOpen ? (
+              <ExpandLess sx={{ color: selectedItem === 'Settings' ? '#1877f2' : '#1a3c34' }} />
+            ) : (
+              <ExpandMore sx={{ color: selectedItem === 'Settings' ? '#1877f2' : '#1a3c34' }} />
+            )}
+          </ListItemButton>
+        </ListItem>
+        <Collapse in={settingsOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItem
+              disablePadding
+              onClick={() => handleItemClick('Change Password', '/profile/ChangePassword')}
+            >
+              <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: '#f0f2f5' }, borderRadius: '8px', margin: '4px 8px', transition: 'background-color 0.3s ease' }}>
+                <ListItemIcon sx={{ color: '#1a3c34', minWidth: '40px' }}>
+                  <Work />
                 </ListItemIcon>
-                <ListItemText primary="Change Password" className="font_poppins" sx={{ color: 'white' }} />
-              </ListItem>
-              <ListItem button sx={{ pl: 4, cursor: "pointer" }} onClick={() => navigate('/profile/updateprofile')}>
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <Person2Icon />
+                <ListItemText
+                  primary="Change Password"
+                  sx={{ color: '#1a3c34', '& .MuiTypography-root': { fontSize: '0.95rem', fontWeight: 400 } }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem
+              disablePadding
+              onClick={() => handleItemClick('Update Profile', '/profile/updateprofile')}
+            >
+              <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: '#f0f2f5' }, borderRadius: '8px', margin: '4px 8px', transition: 'background-color 0.3s ease' }}>
+                <ListItemIcon sx={{ color: '#1a3c34', minWidth: '40px' }}>
+                  <Person />
                 </ListItemIcon>
-                <ListItemText primary="Update Profile" className="font_poppins" sx={{ color: 'white' }} />
-              </ListItem>
-            </List>
-          </Collapse>
-        </List>
-      </Box>
-    </Box>
+                <ListItemText
+                  primary="Update Profile"
+                  sx={{ color: '#1a3c34', '& .MuiTypography-root': { fontSize: '0.95rem', fontWeight: 400 } }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Collapse>
+      </List>
+    </div>
   );
 
+  const container = window !== undefined ? () => window().document.body : undefined;
+
   return (
-    <Box sx={{ display: 'flex', width: '100%', overflowX: 'hidden' }}>
-      {/* Header */}
+    <Box sx={{ display: 'flex', backgroundColor: '#f0f2f5' }}>
+      <CssBaseline />
       <AppBar
         position="fixed"
         sx={{
-           background: `linear-gradient(to right, #1e3c72, #2a5298)`,
-          zIndex: 1300,
-          boxShadow: 'none',
-          pl: isMobile ? 2 : `${drawerWidth}px`,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          background: '#ffffff',
+          color: '#1a3c34',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         }}
       >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', minHeight: '64px' }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
 
-          {/* Left Title */}
-          <Typography variant="h6" noWrap sx={{ fontWeight: 600 }}>
-            {user?.role == "user"?"Student":user?.role == "faculty"?"Faculty":user?.role == "alumni"?"Alumni":''} Space
-          </Typography>
+          {/* Space Name and Search */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Typography variant="h6" noWrap sx={{ fontWeight: 600, color: '#1a3c34', fontFamily: '"Roboto", sans-serif' }}>
+              {user?.role === 'user' ? 'Student' : user?.role === 'faculty' ? 'Faculty' : user?.role === 'alumni' ? 'Alumni' : ''} Space
+            </Typography>
+          </Box>
 
           {/* Right Side Icons */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton color="inherit" onClick={() => {
-              setAnchorEl(event.currentTarget);
-              setOpen(true)
-            }}>
-              <NotificationsIcon sx={{ color: 'white' }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <IconButton
+              color="inherit"
+              sx={{
+                '&:hover': { backgroundColor: '#f0f2f5', transform: 'scale(1.1)' },
+                transition: 'transform 0.2s ease, background-color 0.3s ease',
+              }}
+            >
+              <Badge badgeContent={4} color="error">
+                <ChatIcon sx={{ color: '#1a3c34' }} />
+              </Badge>
             </IconButton>
-            <AvatarComponent user={true} />
+            <IconButton
+              color="inherit"
+              sx={{
+                '&:hover': { backgroundColor: '#f0f2f5', transform: 'scale(1.1)' },
+                transition: 'transform 0.2s ease, background-color 0.3s ease',
+              }}
+            >
+              <Badge badgeContent={2} color="error">
+                <NotificationsIcon sx={{ color: '#1a3c34' }} />
+              </Badge>
+            </IconButton>
+            <Box
+              sx={{
+                '&:hover': { transform: 'scale(1.1)' },
+                transition: 'transform 0.2s ease',
+              }}
+            >
+              <AvatarComponent user={true} />
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
-
-
-      {/* Side Drawer */}
-      <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={isMobile ? mobileOpen : true}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            overflowX: 'hidden',
-            boxSizing: 'border-box',
-            display: isMobile ? 'block' : 'flex',
-          },
-        }}
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="navigation menu"
       >
-        {drawerContent}
-      </Drawer>
-
-      {/* Main Content */}
+        <Drawer
+          container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onTransitionEnd={handleDrawerTransitionEnd}
+          onClose={handleDrawerClose}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              background: '#ffffff',
+              boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+            },
+          }}
+          slotProps={{
+            root: {
+              keepMounted: true,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              background: '#ffffff',
+              boxShadow: '2px 0 8px rgba(0,0,0,0.05)',
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          padding: '100px 20px 20px 20px',
-          backgroundColor: '#f5f5f5',
+          p: { xs: 2, sm: 3 },
+          pt:0,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          backgroundColor: 'white',
           minHeight: '100vh',
-          width: '100%',
-          overflowY: 'auto'
+          // borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+          mt: { xs: 8, sm: 7 },
         }}
       >
         <Outlet />
       </Box>
-      <NotificationModal open={open} setOpen={setOpen} anchorEl={anchorEl}/>
     </Box>
   );
 }
 
-export default ProtectedLayout;
+ResponsiveDrawer.propTypes = {
+  window: PropTypes.func,
+};
+
+export default ResponsiveDrawer;

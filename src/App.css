@@ -208,3 +208,19 @@
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Add shadow on focus */
 }
 
+/* Add custom styles if needed */
+.post-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.post-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.job-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.job-card:hover {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}

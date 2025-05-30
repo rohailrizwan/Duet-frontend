@@ -247,7 +247,7 @@ export default function Studentfaculty({ userid }) {
 
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 0 }}>
+    <Box sx={{ minHeight: '100vh', py: 0 }}>
 
       <Box sx={{ px: 4, py: 2, maxWidth: 1200, mx: 'auto', }}>
         <UpdateProfileHeader text={"Update Profile"} />

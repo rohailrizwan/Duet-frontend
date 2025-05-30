@@ -12,8 +12,8 @@ import {
     Grid,
     CircularProgress
 } from "@mui/material";
-import { useDropzone } from "react-dropzone";
-import CloseIcon from "@mui/icons-material/Close";
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions'; // MUI emoji icon
+import Picker from 'emoji-picker-react'; // Emoji picker library
 import Imageupload from "../../Components/Uploadimage";
 import Colors from "../../assets/Style";
 import UploadServices from "../../apis/Upload";
@@ -21,21 +21,22 @@ import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
 import { imagebaseUrl } from "../../Config/axios";
 import PostService from "../../apis/Post";
 
-const CreatePostModal = ({ open, setOpen ,callback}) => {
+const CreatePostModal = ({ open, setOpen, callback }) => {
     const [altText, setAltText] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [selectedImage, setselectedImage] = useState("");
     const [imageUrl, setimageUrl] = useState("");
     const [loading, setloading] = useState(false);
-
+    const [showTitleEmojiPicker, setShowTitleEmojiPicker] = useState(false); // Toggle for title emoji picker
+    const [showDescEmojiPicker, setShowDescEmojiPicker] = useState(false); // Toggle for description emoji picker
 
     const handelRemove = () => {
-        setselectedImage(null)
-        setimageUrl(null)
-    }
+        setselectedImage(null);
+        setimageUrl(null);
+    };
+
     const handleSubmit = async () => {
-        // If nothing is provided, show an error
         if (!title || !description || !selectedImage) {
             return ErrorToaster('Please fill at least one field');
         }
@@ -45,7 +46,6 @@ const CreatePostModal = ({ open, setOpen ,callback}) => {
         let imageUrl = '';
 
         try {
-            // Only upload image if one is selected
             if (selectedImage) {
                 const formdata = new FormData();
                 formdata.append('document', selectedImage);
@@ -53,7 +53,6 @@ const CreatePostModal = ({ open, setOpen ,callback}) => {
                 imageUrl = `${imagebaseUrl}/${response?.url}`;
             }
 
-            // Build post object conditionally
             const obj = {
                 ...(imageUrl && { image: imageUrl }),
                 ...(title && { title }),
@@ -69,41 +68,58 @@ const CreatePostModal = ({ open, setOpen ,callback}) => {
         }
     };
 
-
     const handlepost = async (obj) => {
         console.log(obj);
         try {
-            const response = await PostService.addpost(obj)
+            const response = await PostService.addpost(obj);
             if (response) {
-                SuccessToaster("Post added successfully")
+                SuccessToaster("Post added successfully");
                 console.log(response);
-                setloading(false)
+                setloading(false);
             }
         } catch (error) {
             console.log(error);
-            ErrorToaster(error || "Error")
-            setloading(false)
+            ErrorToaster(error || "Error");
+            setloading(false);
         }
-        callback()
-        handleClose()
-    }
+        callback();
+        handleClose();
+    };
 
     const handleClose = () => {
-        setselectedImage(null)
-        setAltText('')
-        setDescription("")
-        setimageUrl(null)
-        setTitle('')
-        setOpen(false)
-    }
+        setselectedImage(null);
+        setAltText('');
+        setDescription("");
+        setimageUrl(null);
+        setTitle('');
+        setShowTitleEmojiPicker(false);
+        setShowDescEmojiPicker(false);
+        setOpen(false);
+    };
+
     // Description limit
     const handleDescriptionChange = e => {
         if (e.target.value.length <= 200) {
             setDescription(e.target.value);
+        } else {
+            ErrorToaster('Description less than 200 words');
         }
-        else {
-            ErrorToaster('Description less than 200 words')
+    };
+
+    // Handle emoji selection for title
+    const onEmojiClickTitle = (emojiObject) => {
+        setTitle((prev) => prev + emojiObject.emoji);
+        setShowTitleEmojiPicker(false);
+    };
+
+    // Handle emoji selection for description
+    const onEmojiClickDesc = (emojiObject) => {
+        if ((description + emojiObject.emoji).length <= 200) {
+            setDescription((prev) => prev + emojiObject.emoji);
+        } else {
+            ErrorToaster('Description less than 200 words');
         }
+        setShowDescEmojiPicker(false);
     };
 
     return (
@@ -113,42 +129,71 @@ const CreatePostModal = ({ open, setOpen ,callback}) => {
                 <Grid container spacing={2}>
                     {/* Drag & Drop Zone */}
                     <Grid item xs={12}>
-                        <Imageupload selectedimage={selectedImage} setSelectedimage={setselectedImage} setimageUrl={setimageUrl} imageUrl={imageUrl} handelRemove={handelRemove} />
+                        <Imageupload
+                            selectedimage={selectedImage}
+                            setSelectedimage={setselectedImage}
+                            setimageUrl={setimageUrl}
+                            imageUrl={imageUrl}
+                            handelRemove={handelRemove}
+                        />
                     </Grid>
 
                     {/* Title */}
                     <Grid item xs={12}>
-                        <TextField
-                            label="Title"
-                            fullWidth
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            required
-                        />
+                        <Box sx={{ position: 'relative' }}>
+                            <TextField
+                                label="Title"
+                                fullWidth
+                                value={title}
+                                onChange={e => setTitle(e.target.value)}
+                                required
+                                InputProps={{
+                                    endAdornment: (
+                                        <IconButton
+                                            onClick={() => setShowTitleEmojiPicker(!showTitleEmojiPicker)}
+                                            sx={{ color: '#ff9800' }}
+                                        >
+                                            <EmojiEmotionsIcon />
+                                        </IconButton>
+                                    ),
+                                }}
+                            />
+                            {showTitleEmojiPicker && (
+                                <Box sx={{ position: 'absolute', zIndex: 10, right: 0, mt: 1 }}>
+                                    <Picker onEmojiClick={onEmojiClickTitle} />
+                                </Box>
+                            )}
+                        </Box>
                     </Grid>
-
-                    {/* Alt Text */}
-                    {/* <Grid item xs={12}>
-                        <TextField
-                            label="Image Description (alt text)"
-                            fullWidth
-                            value={altText}
-                            onChange={e => setAltText(e.target.value)}
-                            helperText="For accessibility; optional"
-                        />
-                    </Grid> */}
 
                     {/* Description */}
                     <Grid item xs={12}>
-                        <TextField
-                            label={`Description (${description.length}/200)`}
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={description}
-                            onChange={handleDescriptionChange}
-                            required
-                        />
+                        <Box sx={{ position: 'relative' }}>
+                            <TextField
+                                label={`Description (${description.length}/200)`}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                value={description}
+                                onChange={handleDescriptionChange}
+                                required
+                                InputProps={{
+                                    endAdornment: (
+                                        <IconButton
+                                            onClick={() => setShowDescEmojiPicker(!showDescEmojiPicker)}
+                                            sx={{ color: '#ff9800' }}
+                                        >
+                                            <EmojiEmotionsIcon />
+                                        </IconButton>
+                                    ),
+                                }}
+                            />
+                            {showDescEmojiPicker && (
+                                <Box sx={{ position: 'absolute', zIndex: 10, right: 0, mt: 1 }}>
+                                    <Picker onEmojiClick={onEmojiClickDesc} />
+                                </Box>
+                            )}
+                        </Box>
                     </Grid>
                 </Grid>
             </DialogContent>
