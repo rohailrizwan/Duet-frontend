@@ -1,63 +1,119 @@
-import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Skeleton, IconButton } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Skeleton, IconButton, TablePagination } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import WorkIcon from '@mui/icons-material/Work';
+import BusinessIcon from '@mui/icons-material/Business';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import DescriptionIcon from '@mui/icons-material/Description';
 import Headertext from '../../Components/Headertext';
 import Container from '../../Components/Container';
 import { NewButton2 } from '../../Components/BtnComponent';
 import { useNavigate } from 'react-router-dom';
+import JobService from '../../apis/Job';
+import DeleteModal from '../../Components/DeleteModal';
+import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
 
 function MyJob() {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const navigate=useNavigate()
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [totalItems, setTotalItems] = useState(0);
+    const [deleteloading, setdeleteloading] = useState(false);
+    const [deletemodal, setdeletemodal] = useState(false);
+    const [jobid, setjobid] = useState();
+    const navigate = useNavigate();
+
     useEffect(() => {
-        // Simulate API call or loading
-        setTimeout(() => {
-            const fetchedJobs = [
-                // Uncomment this array to test with data
-                { jobName: 'Frontend Developer', companyName: 'Tech Corp', location: 'Karachi' },
-                { jobName: 'Backend Engineer', companyName: 'InnovateX', location: 'Lahore' },
-                { jobName: 'UI/UX Designer', companyName: 'Designify', location: 'Islamabad' },
-            ];
+        fetchJob(page + 1, rowsPerPage);
+    }, [page, rowsPerPage]);
 
-            setJobs(fetchedJobs);
+    const fetchJob = async (page, limit) => {
+        try {
+            setLoading(true);
+            const response = await JobService?.getjob(page, limit);
+            setJobs(response?.data || []);
+            setTotalItems(response?.totalItems || 0);
+        } catch (error) {
+            console.error('Error fetching jobs:', error);
+            setJobs([]);
+            setTotalItems(0);
+        } finally {
             setLoading(false);
-        }, 1000); // 1 second loading
-    }, []);
-
-    const handleEdit = (job) => {
-        console.log('Edit clicked:', job);
-        // Navigate or open modal for editing
+        }
     };
 
-    const handleDelete = (job) => {
-        console.log('Delete clicked:', job);
-        // Confirmation dialog and delete logic
+    const handleEdit = (job) => {
+        navigate(`/profile/addjob`,{state:job});
+    };
+
+    const handleDelete = async () => {
+        setdeleteloading(true)
+        try {
+            const response = await JobService.deletejob(jobid);
+            if (response) {
+                SuccessToaster(response?.message, "Job deleted successfully")
+                setLoading(false)
+                setdeleteloading(false)
+                handleCreateCallback()
+            }
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            ErrorToaster(error || "Error")
+            setdeleteloading(false)
+        }
+        setdeletemodal(false)
+    };
+   
+
+    const handleCreateCallback = () => {
+        setJobs([]);
+        // setPage(1);
+        fetchJob(1,rowsPerPage);
+    };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
     };
 
     return (
-        <Box sx={{ py: 0, minHeight: '100vh' }}>
+        <Box sx={{ py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', borderRadius: 4 }}>
             <Container>
-                <Headertext title={"Job Listings"} />
+                <Headertext title="My Job Listings" />
 
-                <TableContainer component={Paper} sx={{ borderRadius: 3 }}>
+                <TableContainer
+                    component={Paper}
+                    sx={{
+                        borderRadius: 3,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                        backgroundColor: '#ffffff',
+                        maxWidth: 1200,
+                        mx: 'auto',
+                        mt: 3
+                    }}
+                >
                     <Table>
                         <TableHead>
-                            <TableRow>
-                                <TableCell><strong>S.No</strong></TableCell>
-                                <TableCell><strong>Job Name</strong></TableCell>
-                                <TableCell><strong>Company Name</strong></TableCell>
-                                <TableCell><strong>Location</strong></TableCell>
-                                <TableCell><strong>Resume</strong></TableCell>
-                                <TableCell><strong>Action</strong></TableCell>
+                            <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><WorkIcon sx={{ mr: 1, verticalAlign: 'middle' }} />S.No</TableCell>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><WorkIcon sx={{ mr: 1, verticalAlign: 'middle' }} />Job Name</TableCell>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><BusinessIcon sx={{ mr: 1, verticalAlign: 'middle' }} />Company</TableCell>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><LocationOnIcon sx={{ mr: 1, verticalAlign: 'middle' }} />Location</TableCell>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><DescriptionIcon sx={{ mr: 1, verticalAlign: 'middle' }} />Resume</TableCell>
+                                <TableCell sx={{ color: '#ffffff', fontWeight: 600 }}><Typography>Actions</Typography></TableCell>
                             </TableRow>
                         </TableHead>
 
                         <TableBody>
                             {loading ? (
-                                Array.from({ length: 3 }).map((_, index) => (
-                                    <TableRow key={index}>
+                                Array.from({ length: rowsPerPage }).map((_, index) => (
+                                    <TableRow key={index} className="hover:bg-gray-50 transition-colors">
                                         <TableCell><Skeleton height={30} /></TableCell>
                                         <TableCell><Skeleton height={30} /></TableCell>
                                         <TableCell><Skeleton height={30} /></TableCell>
@@ -68,46 +124,61 @@ function MyJob() {
                                 ))
                             ) : jobs.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} align="center">
-                                        No Data Found
+                                    <TableCell colSpan={6} align="center">
+                                        <Typography variant="h6" color="textSecondary" className="py-4">
+                                            No Jobs Found
+                                        </Typography>
                                     </TableCell>
                                 </TableRow>
                             ) : (
                                 jobs.map((job, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell>{index + 1}</TableCell>
-                                        <TableCell>{job.jobName}</TableCell>
-                                        <TableCell>{job.companyName}</TableCell>
+                                    <TableRow
+                                        key={job.id}
+                                        className="hover:bg-gray-50 transition-colors"
+                                        sx={{ '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' } }}
+                                    >
+                                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                        <TableCell>{job.name}</TableCell>
+                                        <TableCell>{job.companyname}</TableCell>
                                         <TableCell>{job.location}</TableCell>
                                         <TableCell>
-                                            <NewButton2 title='View Resume' fontsize={"12px"} handleFunction={()=>navigate('/profile/ViewResume')}/>
+                                            <NewButton2
+                                                title="View Resume"
+                                                fontsize="12px"
+                                                handleFunction={() => navigate('/profile/ViewResume')}
+                                                className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-1 px-3 rounded-full transform transition-transform hover:scale-105"
+                                            />
                                         </TableCell>
                                         <TableCell>
                                             <Box sx={{ display: 'flex', gap: 1 }}>
                                                 <IconButton
                                                     onClick={() => handleEdit(job)}
                                                     sx={{
-                                                        backgroundColor: '#ffffff',
-                                                        color: '#1976d2',
+                                                        backgroundColor: '#1976d2',
+                                                        color: '#ffffff',
                                                         borderRadius: '50%',
-                                                        boxShadow: 1,
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                                                         '&:hover': {
-                                                            backgroundColor: '#f0f0f0',
+                                                            backgroundColor: '#1565c0',
+                                                            transform: 'scale(1.1)',
                                                         },
                                                     }}
                                                 >
                                                     <EditIcon />
                                                 </IconButton>
-
                                                 <IconButton
-                                                    onClick={() => handleDelete(job)}
+                                                    onClick={() => {
+                                                        setdeletemodal(true)
+                                                        setjobid(job?._id)
+                                                    }}
                                                     sx={{
-                                                        backgroundColor: '#ffffff',
-                                                        color: 'red',
+                                                        backgroundColor: '#d32f2f',
+                                                        color: '#ffffff',
                                                         borderRadius: '50%',
-                                                        boxShadow: 1,
+                                                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                                                         '&:hover': {
-                                                            backgroundColor: '#f0f0f0',
+                                                            backgroundColor: '#b71c1c',
+                                                            transform: 'scale(1.1)',
                                                         },
                                                     }}
                                                 >
@@ -120,8 +191,32 @@ function MyJob() {
                             )}
                         </TableBody>
                     </Table>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25]}
+                        component="div"
+                        count={totalItems}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                        sx={{
+                            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+                                fontWeight: 500,
+                                color: '#333',
+                            },
+                            '& .MuiTablePagination-actions button': {
+                                backgroundColor: '#1976d2',
+                                color: '#ffffff',
+                                borderRadius: '8px',
+                                '&:hover': {
+                                    backgroundColor: '#1565c0',
+                                },
+                            },
+                        }}
+                    />
                 </TableContainer>
             </Container>
+            {deletemodal && <DeleteModal open={deletemodal} setOpen={setdeletemodal} handleOk={handleDelete} title="Job" loading={deleteloading}/>}
         </Box>
     );
 }

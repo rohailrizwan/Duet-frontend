@@ -12,7 +12,7 @@ function ProfilePage() {
      const user=useSelector((state)=>state?.auth?.user)
 
     return (
-        <Box  sx={{ py: 2, minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+        <Box  sx={{ py: 2, minHeight: '100vh' }}>
           {user?.role == "alumni"  ? (
             <AlumniProfile userid={user?._id}/>
           ):

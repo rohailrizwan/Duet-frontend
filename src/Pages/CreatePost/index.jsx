@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
     Dialog,
     DialogTitle,
@@ -21,7 +21,7 @@ import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
 import { imagebaseUrl } from "../../Config/axios";
 import PostService from "../../apis/Post";
 
-const CreatePostModal = ({ open, setOpen, callback }) => {
+const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedit,setselectedpost}) => {
     const [altText, setAltText] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -37,24 +37,24 @@ const CreatePostModal = ({ open, setOpen, callback }) => {
     };
 
     const handleSubmit = async () => {
-        if (!title || !description || !selectedImage) {
+        if ((!title || !description) || (!selectedImage && !imageUrl)) {
             return ErrorToaster('Please fill at least one field');
         }
 
         setloading(true);
 
-        let imageUrl = '';
+        let imageUrls = imageUrl || '';
 
         try {
             if (selectedImage) {
                 const formdata = new FormData();
                 formdata.append('document', selectedImage);
                 const response = await UploadServices?.uploadImage(formdata);
-                imageUrl = `${imagebaseUrl}/${response?.url}`;
+                imageUrls =  `${imagebaseUrl}/${response?.url}`;
             }
 
             const obj = {
-                ...(imageUrl && { image: imageUrl }),
+                ...(imageUrls && { image: imageUrls }),
                 ...(title && { title }),
                 ...(altText && { imageDesc: altText }),
                 ...(description && { description }),
@@ -71,9 +71,15 @@ const CreatePostModal = ({ open, setOpen, callback }) => {
     const handlepost = async (obj) => {
         console.log(obj);
         try {
-            const response = await PostService.addpost(obj);
+            let response
+            if (isedit){
+                response = await PostService?.updatePost({id:selectedPost?.id,obj:obj})
+            }
+            else{
+                response = await PostService.addpost(obj);
+            }
             if (response) {
-                SuccessToaster("Post added successfully");
+                SuccessToaster(`Post ${isedit?'updated':"add"} successfully`);
                 console.log(response);
                 setloading(false);
             }
@@ -122,8 +128,23 @@ const CreatePostModal = ({ open, setOpen, callback }) => {
         setShowDescEmojiPicker(false);
     };
 
+    useEffect(()=>{
+        if(isedit){
+            setimageUrl(selectedPost?.image)
+            console.log(selectedPost,"selectedpost");
+            setTitle(selectedPost?.title)
+            setDescription(selectedPost?.description)
+        }
+    },[isedit,selectedPost])
+
+    console.log(imageUrl);
+    const handleclose=()=>{
+        setOpen(false)
+        setisedit(null)
+        setselectedpost(null)
+    }
     return (
-        <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={handleclose} maxWidth="sm" fullWidth>
             <DialogTitle className="font_poppins colorgradient font-bold">Create New Post</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>

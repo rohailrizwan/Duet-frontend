@@ -23,8 +23,6 @@ function ImageUpload({ selectedimage, setSelectedimage, setimageUrl,imageUrl,han
                 setimageUrl(reader.result);
             };
             reader.readAsDataURL(selectedimage);
-        } else {
-            setimageUrl(null);
         }
     }, [selectedimage, setimageUrl]);
 

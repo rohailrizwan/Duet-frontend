@@ -29,6 +29,7 @@ import { Settings, ExpandLess, ExpandMore, Home, Work, Person, ExpandMore as Exp
 import { FacultyTab, StudentTab, AlumniTab } from '../../routes/Tabs';
 import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/duetlogo.png'
+import { useSelector } from 'react-redux';
 const drawerWidth = 260;
 
 function ResponsiveDrawer(props) {
@@ -42,9 +43,11 @@ function ResponsiveDrawer(props) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
 
-  const user = { role: 'user' }; // Replace with actual user data
+  const user=useSelector((state)=>state?.auth?.user)
 
   useEffect(() => {
+    console.log(user,"user");
+    
     if (user?.role === 'faculty') setActiveTab(FacultyTab);
     else if (user?.role === 'user') setActiveTab(StudentTab);
     else if (user?.role === 'alumni') setActiveTab(AlumniTab);

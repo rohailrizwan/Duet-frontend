@@ -12,6 +12,8 @@ import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import SchoolIcon from "@mui/icons-material/School";
 import WorkIcon from "@mui/icons-material/Work";
 import EmojiPeopleIcon from "@mui/icons-material/EmojiPeople";
+import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
+import DeleteModal from "../../Components/DeleteModal";
 // PostCard Component (unchanged)
 const PostCard = ({ post, onEdit, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
@@ -72,6 +74,8 @@ const PostCard = ({ post, onEdit, onDelete }) => {
           <MenuItem
             onClick={() => {
               handleMenuClose();
+              console.log(post, "post");
+
               onDelete(post.id);
             }}
           >
@@ -108,88 +112,20 @@ const PostCard = ({ post, onEdit, onDelete }) => {
   );
 };
 
-// EditPostModal Component (unchanged)
-const EditPostModal = ({ open, setOpen, post, onSave }) => {
-  const [title, setTitle] = useState(post?.title || "");
-  const [description, setDescription] = useState(post?.description || "");
-  const [image, setImage] = useState(post?.image || "");
-
-  const handleSave = () => {
-    onSave({ ...post, title, description, image });
-    setOpen(false);
-  };
-
-  return (
-    <Modal open={open} onClose={() => setOpen(false)}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          bgcolor: "white",
-          p: 4,
-          borderRadius: 2,
-          width: { xs: "90%", sm: 400 },
-          boxShadow: 24,
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 2, color: "#1e3a8a" }}>
-          Edit Post
-        </Typography>
-        <TextField
-          label="Title"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          label="Description"
-          fullWidth
-          multiline
-          rows={4}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          label="Image URL"
-          fullWidth
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          sx={{ mb: 2 }}
-        />
-        <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-          <Button
-            variant="outlined"
-            onClick={() => setOpen(false)}
-            sx={{ color: "#1e3a8a", borderColor: "#1e3a8a" }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSave}
-            sx={{ background: "linear-gradient(to right, #ec4899, #f97316)" }}
-          >
-            Save
-          </Button>
-        </Box>
-      </Box>
-    </Modal>
-  );
-};
-
 // Main Viewmypost Component
+
 const Viewmypost = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [deleteloading, setdeleteloading] = useState(false);
+  const [deletemodal, setdeletemodal] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
+  const [isedit, setisedit] = useState(null);
+  const [postid, setpostid] = useState(null);
   const [showFullDesc, setShowFullDesc] = useState(false);
   const user = useSelector((state) => state?.auth?.user);
 
@@ -200,7 +136,7 @@ const Viewmypost = () => {
       console.log(response, "res");
       if (response?.data?.length) {
         const newPosts = response.data.map((post) => ({
-          id: post.id || Math.random().toString(),
+          id: post._id,
           username: post.username || user?.name || "Anonymous",
           userProfile: post.userProfile || user?.profilePicture,
           createdAt: post.createdAt || new Date().toISOString(),
@@ -233,27 +169,33 @@ const Viewmypost = () => {
 
   const handleEdit = (post) => {
     setSelectedPost(post);
-    setEditModalOpen(true);
+    setisedit(true)
+    setCreateModalOpen(true)
   };
 
-  const handleSaveEdit = async (updatedPost) => {
-    try {
-      await PostService.updatePost(updatedPost.id, updatedPost);
-      setPosts((prev) =>
-        prev.map((p) => (p.id === updatedPost.id ? updatedPost : p))
-      );
-    } catch (error) {
-      console.error("Error updating post:", error);
-    }
-  };
+  const handleDelete = async () => {
+    console.log(postid);
 
-  const handleDelete = async (postId) => {
+    setdeleteloading(true)
     try {
-      await PostService.deletePost(postId);
-      setPosts((prev) => prev.filter((p) => p.id !== postId));
+      const response = await PostService.deletePost(postid);
+      if (response) {
+        SuccessToaster(response?.message, "Post deleted successfully")
+        setLoading(false)
+        setdeleteloading(false)
+        handleCreateCallback()
+      }
     } catch (error) {
       console.error("Error deleting post:", error);
+      ErrorToaster(error || "Error")
+      setdeleteloading(false)
     }
+    setdeletemodal(false)
+  };
+  const handleDeleteModal = async (id) => {
+    setdeletemodal(true)
+    console.log(id);
+    setpostid(id)
   };
 
   const handleCreateCallback = () => {
@@ -301,9 +243,9 @@ const Viewmypost = () => {
 
   const roleInfo = getRoleChip(user?.role);
   const handleopen = () => {
-    console.log("hello");
-    
-    setCreateModalOpen((open)=>!open)
+    setisedit(false)
+    setSelectedPost(null)
+    setCreateModalOpen((open) => !open)
   }
   return (
     <Box sx={{ minHeight: "100vh", p: { xs: 1, md: 2 } }}>
@@ -360,7 +302,7 @@ const Viewmypost = () => {
               borderRadius: "12px",
               p: 2,
               mt: 2,
-              cursor:'pointer'
+              cursor: 'pointer'
             }}
             onClick={handleopen}
           >
@@ -441,7 +383,7 @@ const Viewmypost = () => {
               <PostCard
                 post={post}
                 onEdit={handleEdit}
-                onDelete={handleDelete}
+                onDelete={handleDeleteModal}
               />
             )}
             loadMore={
@@ -468,8 +410,11 @@ const Viewmypost = () => {
         </Box>
 
         {createModalOpen && (
-          <CreatePostModal open={createModalOpen} setOpen={setCreateModalOpen} callback={fetchPosts}/>
+          <CreatePostModal open={createModalOpen} setOpen={setCreateModalOpen} callback={handleCreateCallback} isedit={isedit} setisedit={setisedit} selectedPost={selectedPost} />
         )}
+        {/* delete post */}
+        {deletemodal && <DeleteModal open={deletemodal} setOpen={setdeletemodal} loading={deleteloading} title="Post" handleOk={handleDelete} />}
+
       </Container>
     </Box>
   );

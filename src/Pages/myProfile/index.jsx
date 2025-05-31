@@ -23,6 +23,7 @@ import { Empty } from "antd";
 
 const MyProfile = () => {
   const [posts, setPosts] = useState([]); // Dynamic posts from API
+  const [job, setjob] = useState([]); // Dynamic posts from API
   const [visiblePosts, setVisiblePosts] = useState(5);
   const [loading, setLoading] = useState(false);
   const [loader, setLoader] = useState(true);
@@ -54,6 +55,7 @@ const MyProfile = () => {
       const response = await Dashboardservice?.getdashboard();
       if (response) {
         setPosts(response?.posts || []);
+        setjob(response?.jobs)
         setLoader(false);
       } else {
         setLoader(false);
@@ -261,14 +263,14 @@ const MyProfile = () => {
               title="Job Opportunities"
               sx={{ color: '#1a3c5e', fontWeight: 600, mb: 2 }}
             />
-            {jobList?.length === 0 ? (
+            {job?.length === 0 ? (
               <Box sx={{ py: 4, textAlign: 'center' }}>
                 <Empty description="No jobs available" />
               </Box>
             ) : (
-              jobList.slice(0, 2).map((job) => (
+              job?.slice(0, 2).map((job) => (
                 <Box
-                  key={job.id}
+                  key={job._id}
                   sx={{
                     mb: 2,
                     borderRadius: 1,

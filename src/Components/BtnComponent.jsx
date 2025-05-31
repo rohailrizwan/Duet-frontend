@@ -65,6 +65,7 @@ const NewButton2 = ({
   endicon,
   fontsize,
   sx = {},
+  loading,
   ...rest
 }) => {
   return (
@@ -89,7 +90,7 @@ const NewButton2 = ({
       }}
       {...rest}
     >
-      {title}
+      {loading?<CircularProgress size={12} color='white'/>:title}
     </Button>
   );
 };

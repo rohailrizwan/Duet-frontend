@@ -1,14 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar, MenuItem, Select, InputLabel, FormControl, FormHelperText, OutlinedInput, CircularProgress } from '@mui/material';
+import { Box, Button, Stepper, Step, StepLabel, TextField, Typography, Divider, Avatar, MenuItem, Select, InputLabel, FormControl, FormHelperText, OutlinedInput, CircularProgress, InputAdornment, Fade } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { NewButton } from '../../Components/BtnComponent';
 import Facultyservice from '../../apis/Faculty';
 import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
-import InputAdornment from '@mui/material/InputAdornment';
-import AddIcon from '@mui/icons-material/Add';
 import UploadServices from '../../apis/Upload';
 import { imagebaseUrl } from '../../Config/axios';
-const steps = ['Personal Information', 'Academic Details'];
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import HomeIcon from '@mui/icons-material/Home';
+import DescriptionIcon from '@mui/icons-material/Description';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import SchoolIcon from '@mui/icons-material/School';
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
+import BusinessIcon from '@mui/icons-material/Business';
+import AddIcon from '@mui/icons-material/Add';
+import UpdateProfileHeader from '../../Components/ProfileHeader';
+import WorkIcon from '@mui/icons-material/Work';
+const steps = [
+  { label: 'PERSONAL INFORMATION', subLabel: 'Basic personal details', icon: <PersonIcon /> },
+  { label: 'ACADEMIC DETAILS', subLabel: 'Educational background', icon: <SchoolIcon /> },
+];
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 const MenuProps = {
@@ -18,22 +33,24 @@ const MenuProps = {
       width: 250,
     },
   },
-}
-export default function UpdateFaculty() {
+};
+
+export default function UpdateFaculty({ userid }) {
   const [activeStep, setActiveStep] = useState(0);
   const [skillsList, setSkillsList] = useState([]);
   const [awardsList, setAwardsList] = useState([]);
   const [researchList, setResearchList] = useState([]);
   const [subjectsList, setSubjectsList] = useState([]);
-  const [selectDepartment, setselectDepartment] = useState([]);
-  const [departments, setdepartments] = useState([]);
-  const [designations, setdesignations] = useState('');
-  const [data, setdata] = useState();
-  const [loading, setloading] = useState(false);
+  const [selectDepartment, setSelectDepartment] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [designation, setDesignation] = useState('');
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(false);
   const subjectRef = useRef();
   const awardRef = useRef();
   const researchRef = useRef();
-  const skillref = useRef();
+  const skillRef = useRef();
+
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
     defaultValues: {
@@ -43,25 +60,40 @@ export default function UpdateFaculty() {
       contactNumber: '',
       dob: '',
       address: '',
-      gitHubUrl: "",
-      linkedInUrl: "",
-      personalizedDescription: "", // step 1
-      designation: ""
+      personalizedDescription: '',
+      gitHubUrl: '',
+      linkedInUrl: '',
+      academicDetails: {
+        department: [],
+        qualification: '',
+        designation: '',
+        specialization: '',
+        experienceYear: '',
+        subjects: [],
+        skills: [],
+        awards: [],
+        researchPapers: [],
+      },
     },
-
   });
-  const designationsArray = ["Professor", "Lecturer"];
+
+  const designationsArray = ['Professor', 'Lecturer'];
+
   const next = async () => {
     let valid = false;
     if (!watch('profilePicture')) {
-      ErrorToaster('Profile image is required')
-      return; // Don't proceed
+      ErrorToaster('Profile image is required');
+      return;
     }
     if (activeStep === 0) {
       valid = await trigger(['profilePicture', 'name', 'email', 'contactNumber', 'gitHubUrl', 'personalizedDescription', 'dob', 'address', 'linkedInUrl']);
     }
     if (activeStep === 1) {
-      valid = await trigger(['specialization', 'experienceYear', 'qualification']);
+      valid = await trigger(['specialization', 'experienceYear', 'qualification', 'designation']);
+      if (selectDepartment.length === 0) {
+        ErrorToaster('Department is required');
+        return;
+      }
     }
     if (valid) {
       setActiveStep((prev) => prev + 1);
@@ -73,35 +105,32 @@ export default function UpdateFaculty() {
   };
 
   const onSubmit = async (newdata) => {
-    console.log(newdata, selectDepartment, awardsList, skillsList, subjectsList, researchList);
-    if (selectDepartment?.length == 0) {
-      return ErrorToaster('department is required')
+    if (selectDepartment.length === 0) {
+      ErrorToaster('Department is required');
+      return;
     }
     let profilePicture = '';
-    setloading(true)
+    setLoading(true);
     if (typeof newdata?.profilePicture === 'string') {
-      // Already a URL
       profilePicture = newdata?.profilePicture;
     } else {
-      // File or Blob - needs to be uploaded
       const formdata = new FormData();
       formdata.append('document', newdata?.profilePicture);
-
       try {
         const response = await UploadServices?.uploadImage(formdata);
         if (response) {
           profilePicture = `${imagebaseUrl}/${response?.url}`;
         } else {
-          throw new Error("Image upload failed");
+          throw new Error('Image upload failed');
         }
       } catch (error) {
-        ErrorToaster(error?.message || "Image Upload Error");
-        setloading(false);
+        ErrorToaster(error?.message || 'Image Upload Error');
+        setLoading(false);
         return;
       }
     }
-    let obj = {
-      profilePicture: profilePicture,
+    const obj = {
+      profilePicture,
       name: newdata?.name,
       contactNumber: newdata?.contactNumber,
       dob: newdata?.dob,
@@ -119,88 +148,87 @@ export default function UpdateFaculty() {
         researchPapers: researchList,
         awards: awardsList,
         skills: skillsList,
-      }
-    }
-
-    handleFormSubmit(obj)
+      },
+    };
+    handleFormSubmit(obj);
   };
 
   const handleFormSubmit = async (obj) => {
     try {
-      const response = await Facultyservice?.updatePost({ id: "6830cf1403414c821d034ef6", obj: obj })
+      const response = await Facultyservice?.updatePost({ id: userid, obj });
       if (response) {
-        console.log(response);
-        SuccessToaster(response?.message)
-        setloading(false)
+        SuccessToaster(response?.message);
       }
     } catch (error) {
-      ErrorToaster(error?.message || "Error")
-      setloading(false)
+      ErrorToaster(error?.message || 'Error');
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     setValue('profilePicture', file, { shouldValidate: true });
   };
 
-
-
-  const addToList = (list, setList, key, value) => {
+  const addToList = (list, setList, value) => {
     if (value && !list.includes(value)) {
-      const updated = [...list, value];
-      setList(updated);
-      // setValue(key, updated);
+      setList([...list, value]);
     }
   };
 
-  const removeFromList = (list, setList, key, index) => {
+  const removeFromList = (list, setList, index) => {
     const updated = [...list];
     updated.splice(index, 1);
     setList(updated);
-    // setValue(key, updated);
   };
 
   const getFaculty = async () => {
     try {
-      const response = await Facultyservice?.getProfile('6830cf1403414c821d034ef6')
-      console.log(response);
-      setdata(response?.data)
+      const response = await Facultyservice?.getProfile(userid);
+      setData(response?.data);
     } catch (error) {
-      ErrorToaster(error?.message || 'Error')
+      ErrorToaster(error?.message || 'Error');
     }
-  }
+  };
+
+  const getDepartments = async () => {
+    try {
+      const response = await Facultyservice.getDepartment();
+      setDepartments(response?.data || []);
+    } catch (error) {
+      ErrorToaster(error?.message || 'Error');
+    }
+  };
 
   useEffect(() => {
-    getFaculty()
-    getDepartments()
-  }, [])
+    getFaculty();
+    getDepartments();
+  }, []);
 
   useEffect(() => {
     if (data) {
-      setValue('profilePicture', data?.profilePicture) // step 1 ok
-      setValue('name', data?.name) // step 1 ok
-      setValue('email', data?.email) // step 1 ok
-      setValue('personalizedDescription', data?.personalizedDescription) // step 1 ok
-      setValue('contactNumber', data?.contactNumber) // step 1 ok
-      setValue('dob', convertToDateInputFormat(data?.dob)) // step 1
-      setValue('address', data?.address) // step 1
-      setValue('linkedInUrl', data?.linkedInUrl) // step 1
-      setValue('gitHubUrl', data?.gitHubUrl) // step 1
-
-
-      setValue('experienceYear', data?.academicDetails?.experienceYear) // step 1
-      setValue('specialization', data?.academicDetails?.specialization) // step 1
-      setValue('qualification', data?.academicDetails?.qualification) // step 1
-      setdesignations(data.academicDetails.designation); // step 1
-      setselectDepartment(data?.academicDetails?.department?.map((item) => item?._id))
-      setSubjectsList(data?.academicDetails?.subjects)
-      setAwardsList(data?.academicDetails?.awards) // ok
-      setResearchList(data?.academicDetails?.researchPapers) // ok
-      setSkillsList(data?.academicDetails?.skills) // ok
-
+      setValue('profilePicture', data?.profilePicture);
+      setValue('name', data?.name);
+      setValue('email', data?.email);
+      setValue('personalizedDescription', data?.personalizedDescription);
+      setValue('contactNumber', data?.contactNumber);
+      setValue('dob', convertToDateInputFormat(data?.dob));
+      setValue('address', data?.address);
+      setValue('linkedInUrl', data?.linkedInUrl);
+      setValue('gitHubUrl', data?.gitHubUrl);
+      setValue('experienceYear', data?.academicDetails?.experienceYear);
+      setValue('specialization', data?.academicDetails?.specialization);
+      setValue('qualification', data?.academicDetails?.qualification);
+      setValue('designation', data?.academicDetails?.designation);
+      setDesignation(data?.academicDetails?.designation);
+      setSelectDepartment(data?.academicDetails?.department?.map((item) => item?._id) || []);
+      setSubjectsList(data?.academicDetails?.subjects || []);
+      setAwardsList(data?.academicDetails?.awards || []);
+      setResearchList(data?.academicDetails?.researchPapers || []);
+      setSkillsList(data?.academicDetails?.skills || []);
     }
-  }, [setValue, data])
+  }, [data, setValue]);
 
   const convertToDateInputFormat = (isoDate) => {
     if (!isoDate) return '';
@@ -211,75 +239,131 @@ export default function UpdateFaculty() {
     return `${year}-${month}-${day}`;
   };
 
-  const getDepartments = async () => {
-    try {
-      const response = await Facultyservice.getDepartment();
-      console.log(response?.data);
-      setdepartments(response?.data || [])
-    }
-    catch (error) {
-      ErrorToaster(error)
-    }
-  }
   const handleChangeDepartment = (event) => {
     const value = event.target.value;
-    setselectDepartment(Array.isArray(value) ? value : []);
+    setSelectDepartment(Array.isArray(value) ? value : []);
   };
 
-
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 0 }}>
+    <Box sx={{ minHeight: '100vh', py: 4 }}>
+      <Box sx={{ px: { xs: 2, sm: 4 }, py: 2, maxWidth: 1200, mx: 'auto', backgroundColor: '#ffffff', borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+        <UpdateProfileHeader text={"Update Profile"} />
 
-      <Box sx={{ px: 4, py: 2, maxWidth: 1200, mx: 'auto', }}>
-        <Typography variant="h4" fontWeight="bold" mb={4} textAlign="left" className="font_poppins colorgradient">
-          Update Profile
-        </Typography>
-        {/* Stepper */}
-        <Stepper activeStep={activeStep} alternativeLabel sx={{ mb: 4 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>
-                <Typography variant="subtitle1" fontWeight={600}>
-                  {label}
-                </Typography>
-              </StepLabel>
-            </Step>
-          ))}
-        </Stepper>
+        <Fade in timeout={1000}>
+          <Box
+            sx={{
+              width: '100%',
+              mb: 4,
+              background: 'linear-gradient(to right, #1e3c72, #2a5298, #4f79c6)', // Updated gradient
+              borderRadius: '10px',
+              padding: '16px',
+              overflowX: 'auto',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)', // Added subtle shadow for depth
+            }}
+          >
+            {/* Step and Percentage Header */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography variant="body2" sx={{ color: '#e0e7ff' }}>
+                Step {activeStep + 1} of {steps?.length}
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  border: '1px solid',
+                  borderColor: '#a3bffa',
+                  borderRadius: '20px',
+                  px: 2,
+                  py: 0.5,
+                  color: 'white',
+                }}
+              >
+                {Math.round(((activeStep + 1) / steps.length) * 100)}% Complete
+              </Typography>
+            </Box>
+
+            {/* Stepper Component */}
+            <Stepper
+              activeStep={activeStep}
+              alternativeLabel
+              sx={{
+                mb: 4,
+                '& .MuiStepLabel-label': { color: '#e0e7ff' }, // Label color
+                '& .MuiStepLabel-label.Mui-active': { color: '#ffffff' }, // Active label color
+                '& .MuiStepLabel-label.Mui-completed': { color: '#c7d2fe' }, // Completed label color
+                // '& .MuiStepConnector-line': {
+                //   borderColor: index <= activeStep ? '#a3bffa' : '#bdbdbd', // Connector line color
+                // },
+              }}
+            >
+              {steps?.map((step, index) => (
+                <Step key={step.label}>
+                  <StepLabel
+                    icon={
+                      <Box
+                        sx={{
+                          backgroundColor: index <= activeStep ? '#3b82f6' : 'grey.500',
+                          borderRadius: '50%',
+                          width: 40,
+                          height: 40,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          border: '2px solid',
+                          borderColor: index <= activeStep ? '#3b5998' : 'grey.600',
+                        }}
+                      >
+                        {step.icon}
+                      </Box>
+                    }
+                  >
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      {step.label}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#c7d2fe' }}>
+                      {step.subLabel}
+                    </Typography>
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+          </Box>
+        </Fade>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           {activeStep === 0 && (
-            <Box>
-              {/* Avatar */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               <Box textAlign="center" mb={2}>
                 <Avatar
                   src={
                     watch('profilePicture')
                       ? typeof watch('profilePicture') === 'string'
-                        ? watch('profilePicture') // already a URL
-                        : URL.createObjectURL(watch('profilePicture')) // binary file
+                        ? watch('profilePicture')
+                        : URL.createObjectURL(watch('profilePicture'))
                       : ''
                   }
                   alt="Profile Preview"
-                  sx={{ width: 120, height: 120, bgcolor: '#e0e0e0', fontSize: 40 }}
+                  sx={{ width: 120, height: 120, bgcolor: '#e0e0e0', fontSize: 40, mx: 'auto', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
                 />
               </Box>
 
-              {/* Upload Button */}
               <Box
                 component="label"
                 htmlFor="upload-button"
                 sx={{
                   display: 'flex',
-                  justifyContent: "center",
+                  justifyContent: 'center',
                   p: 2,
-                  border: '2px dashed #2156a8',
+                  border: '2px dashed #1976d2',
                   borderRadius: 2,
                   cursor: 'pointer',
                   bgcolor: '#f9f9f9',
-                  textAlign: 'start',
+                  textAlign: 'center',
                   mb: 3,
-                  width: "200px"
+                  width: 'fit-content',
+                  mx: 'auto',
+                  transition: 'all 0.3s ease',
+                  '&:hover': { borderColor: '#1565c0', bgcolor: 'rgba(25, 118, 210, 0.04)' },
                 }}
               >
                 <input
@@ -289,61 +373,99 @@ export default function UpdateFaculty() {
                   onChange={handleImageChange}
                   style={{ display: 'none' }}
                 />
-                <Typography variant="body1" color="primary">
-                  {'Click to upload'}
+                <Typography variant="body1" color="primary" sx={{ fontWeight: 500 }}>
+                  Click to upload profile picture
                 </Typography>
               </Box>
 
-
-
-
-              {/* Personal Fields */}
               <TextField
                 label="Full Name"
                 {...register('name', { required: 'Name is required' })}
-                error={Boolean(errors.name)}
+                error={!!errors.name}
                 helperText={errors.name?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
                 label="Email"
                 {...register('email', { required: 'Email is required' })}
-                error={Boolean(errors.email)}
+                error={!!errors.email}
                 helperText={errors.email?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
                 disabled
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <EmailIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
                 label="Phone Number"
-                {...register('contactNumber', { required: 'Phone number is required' })}
-                error={Boolean(errors.contactNumber)}
+                {...register('contactNumber', {
+                  required: 'Phone number is required',
+                })}
+                error={!!errors.contactNumber}
                 helperText={errors.contactNumber?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
                 label="Date of Birth"
                 type="date"
                 {...register('dob', { required: 'Date of birth is required' })}
-                InputLabelProps={{ shrink: true }}
-                error={Boolean(errors.dob)}
+                error={!!errors.dob}
                 helperText={errors.dob?.message}
                 fullWidth
                 margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <CalendarTodayIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
                 label="Address"
                 {...register('address', { required: 'Address is required' })}
-                error={Boolean(errors.address)}
+                error={!!errors.address}
                 helperText={errors.address?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <HomeIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
                 label="Description (max 400 characters)"
@@ -351,45 +473,84 @@ export default function UpdateFaculty() {
                 rows={4}
                 inputProps={{ maxLength: 400 }}
                 {...register('personalizedDescription', { required: 'Description is required' })}
-                error={Boolean(errors.personalizedDescription)}
+                error={!!errors.personalizedDescription}
                 helperText={errors.personalizedDescription?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
-
               <TextField
-                label="Linked In (Url)"
-                {...register('linkedInUrl', { required: 'Linkedin url is required' })}
-                error={Boolean(errors.linkedInUrl)}
+                label="LinkedIn URL"
+                {...register('linkedInUrl', {
+                  required: 'LinkedIn URL is required',
+                  // pattern: {
+                  //   value: /^(https?:\/\/)?(www\.)?linkedin\.com\/.*$/,
+                  //   message: 'Enter a valid LinkedIn URL',
+                  // },
+                })}
+                error={!!errors.linkedInUrl}
                 helperText={errors.linkedInUrl?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LinkedInIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               <TextField
-                label="Github (Url)"
-                {...register('gitHubUrl', { required: 'GitHubUrl is required' })}
-                error={Boolean(errors.gitHubUrl)}
+                label="Social URL"
+                {...register('gitHubUrl', {
+                  required: 'Social URL is required',
+                  // pattern: {
+                  //   value: /^(https?:\/\/)?(www\.)?github\.com\/.*$/,
+                  //   message: 'Enter a valid GitHub URL',
+                  // },
+                })}
+                error={!!errors.gitHubUrl}
                 helperText={errors.gitHubUrl?.message}
                 fullWidth
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <GitHubIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
             </Box>
           )}
 
           {activeStep === 1 && (
-            <Box>
-              <FormControl fullWidth sx={{marginBottom:"15px"}}>
-                <InputLabel>Department</InputLabel>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <FormControl fullWidth sx={{ mb: 2 }}>
+                <InputLabel shrink>Department</InputLabel>
                 <Select
                   multiple
-                  name="department"
                   value={selectDepartment || []}
                   onChange={handleChangeDepartment}
                   input={<OutlinedInput label="Department" />}
                   MenuProps={MenuProps}
+                  renderValue={(selected) =>
+                    selected
+                      .map((id) => departments.find((dep) => dep._id === id)?.name)
+                      .join(', ')
+                  }
                 >
                   {Array.isArray(departments) && departments.length > 0 ? (
                     departments.map((department) => (
@@ -401,39 +562,104 @@ export default function UpdateFaculty() {
                     <MenuItem disabled>No departments available</MenuItem>
                   )}
                 </Select>
+                <FormHelperText error={selectDepartment.length === 0 && activeStep === 1}>
+                  {selectDepartment.length === 0 && activeStep === 1 ? 'Department is required' : ''}
+                </FormHelperText>
               </FormControl>
 
-              <FormControl fullWidth >
-                <InputLabel>Designation</InputLabel>
-                <Select
-                  label="Designation"
-                  name="designation"
-                  defaultValue=""
-                  required
-                  value={designations}
-                  onChange={(e) => setdesignations(e.target.value)}
-                >
-                  {designationsArray.map((designation) => (
-                    <MenuItem key={designation} value={designation}>
-                      {designation}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <TextField
+                label="Designation"
+                {...register('designation', { required: 'Designation is required' })}
+                error={!!errors.designation}
+                helperText={errors.designation?.message}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <WorkIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
+              <TextField
+                label="Designation"
+                {...register('designation', { required: 'Designation is required' })}
+                error={!!errors.designation}
+                helperText={errors.designation?.message}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <WorkIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
 
 
-
-
-              <TextField label="Qualification" {...register('qualification', { required: 'Qualification is required' })}
-                error={!!errors.qualification} helperText={errors.qualification?.message} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
-
-              <TextField label="Experience (in years)" {...register('experienceYear', { required: 'Experience is required' })}
-                error={!!errors.experienceYear} helperText={errors.experienceYear?.message} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
-
-              <TextField label="Specializations" multiline rows={2} {...register('specialization', { required: 'Specialization is required' })}
-                error={!!errors.specialization} helperText={errors.specialization?.message} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
-
-
+              <TextField
+                label="Qualification"
+                {...register('qualification', { required: 'Qualification is required' })}
+                error={!!errors.qualification}
+                helperText={errors.qualification?.message}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SchoolIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
+              <TextField
+                label="Experience (in years)"
+                type="number"
+                {...register('experienceYear', {
+                  required: 'Experience is required',
+                  min: { value: 0, message: 'Experience cannot be negative' },
+                })}
+                error={!!errors.experienceYear}
+                helperText={errors.experienceYear?.message}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <WorkHistoryIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
+              <TextField
+                label="Specializations"
+                multiline
+                rows={2}
+                {...register('specialization', { required: 'Specialization is required' })}
+                error={!!errors.specialization}
+                helperText={errors.specialization?.message}
+                fullWidth
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BusinessIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+              />
 
               <TextField
                 inputRef={subjectRef}
@@ -441,22 +667,28 @@ export default function UpdateFaculty() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addToList(subjectsList, setSubjectsList, 'subjects', e.target.value);
-                    e.target.value = '';
+                    const value = subjectRef.current.value.trim();
+                    addToList(subjectsList, setSubjectsList, value);
+                    subjectRef.current.value = '';
                   }
                 }}
                 fullWidth
                 margin="normal"
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SchoolIcon color="primary" />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <AddIcon
-                        color="action"
-                        style={{ cursor: 'pointer' }}
+                        color="primary"
+                        sx={{ cursor: 'pointer' }}
                         onClick={() => {
                           const value = subjectRef.current.value.trim();
                           if (value) {
-                            addToList(subjectsList, setSubjectsList, 'subjects', value);
+                            addToList(subjectsList, setSubjectsList, value);
                             subjectRef.current.value = '';
                           }
                         }}
@@ -464,11 +696,19 @@ export default function UpdateFaculty() {
                     </InputAdornment>
                   ),
                 }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               {subjectsList.map((item, idx) => (
-                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Typography sx={{ mr: 2 }}>{idx + 1}. {item}</Typography>
-                  <Button color="error" onClick={() => removeFromList(subjectsList, setSubjectsList, 'subjects', idx)}>Remove</Button>
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1, pl: 2 }}>
+                  <Typography sx={{ mr: 2, flexGrow: 1 }}>{idx + 1}. {item}</Typography>
+                  <Button
+                    color="error"
+                    size="small"
+                    onClick={() => removeFromList(subjectsList, setSubjectsList, idx)}
+                    className="hover:bg-red-50"
+                  >
+                    Remove
+                  </Button>
                 </Box>
               ))}
 
@@ -478,22 +718,28 @@ export default function UpdateFaculty() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addToList(researchList, setResearchList, 'researchPapers', e.target.value);
-                    e.target.value = '';
+                    const value = researchRef.current.value.trim();
+                    addToList(researchList, setResearchList, value);
+                    researchRef.current.value = '';
                   }
                 }}
                 fullWidth
                 margin="normal"
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="primary" />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <AddIcon
-                        color="action"
-                        style={{ cursor: 'pointer' }}
+                        color="primary"
+                        sx={{ cursor: 'pointer' }}
                         onClick={() => {
                           const value = researchRef.current.value.trim();
                           if (value) {
-                            addToList(researchList, setResearchList, 'researchPapers', value);
+                            addToList(researchList, setResearchList, value);
                             researchRef.current.value = '';
                           }
                         }}
@@ -501,11 +747,19 @@ export default function UpdateFaculty() {
                     </InputAdornment>
                   ),
                 }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               {researchList.map((item, idx) => (
-                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Typography sx={{ mr: 2 }}>{idx + 1}. {item}</Typography>
-                  <Button color="error" onClick={() => removeFromList(researchList, setResearchList, 'researchPapers', idx)}>Remove</Button>
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1, pl: 2 }}>
+                  <Typography sx={{ mr: 2, flexGrow: 1 }}>{idx + 1}. {item}</Typography>
+                  <Button
+                    color="error"
+                    size="small"
+                    onClick={() => removeFromList(researchList, setResearchList, idx)}
+                    className="hover:bg-red-50"
+                  >
+                    Remove
+                  </Button>
                 </Box>
               ))}
 
@@ -515,22 +769,28 @@ export default function UpdateFaculty() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addToList(awardsList, setAwardsList, 'awards', e.target.value);
-                    e.target.value = '';
+                    const value = awardRef.current.value.trim();
+                    addToList(awardsList, setAwardsList, value);
+                    awardRef.current.value = '';
                   }
                 }}
                 fullWidth
                 margin="normal"
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="primary" />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <AddIcon
-                        color="action"
-                        style={{ cursor: 'pointer' }}
+                        color="primary"
+                        sx={{ cursor: 'pointer' }}
                         onClick={() => {
                           const value = awardRef.current.value.trim();
                           if (value) {
-                            addToList(awardsList, setAwardsList, 'awards', value);
+                            addToList(awardsList, setAwardsList, value);
                             awardRef.current.value = '';
                           }
                         }}
@@ -538,81 +798,121 @@ export default function UpdateFaculty() {
                     </InputAdornment>
                   ),
                 }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               {awardsList.map((item, idx) => (
-                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Typography sx={{ mr: 2 }}>{idx + 1}. {item}</Typography>
-                  <Button color="error" onClick={() => removeFromList(awardsList, setAwardsList, 'awards', idx)}>Remove</Button>
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1, pl: 2 }}>
+                  <Typography sx={{ mr: 2, flexGrow: 1 }}>{idx + 1}. {item}</Typography>
+                  <Button
+                    color="error"
+                    size="small"
+                    onClick={() => removeFromList(awardsList, setAwardsList, idx)}
+                    className="hover:bg-red-50"
+                  >
+                    Remove
+                  </Button>
                 </Box>
               ))}
 
               <TextField
-                inputRef={skillref}
+                inputRef={skillRef}
                 label="Add Skill (Optional)"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    addToList(skillsList, setSkillsList, 'skills', e.target.value);
-                    e.target.value = '';
+                    const value = skillRef.current.value.trim();
+                    addToList(skillsList, setSkillsList, value);
+                    skillRef.current.value = '';
                   }
                 }}
                 fullWidth
                 margin="normal"
                 InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DescriptionIcon color="primary" />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <AddIcon
-                        color="action"
-                        style={{ cursor: 'pointer' }}
+                        color="primary"
+                        sx={{ cursor: 'pointer' }}
                         onClick={() => {
-                          const value = skillref.current.value.trim();
+                          const value = skillRef.current.value.trim();
                           if (value) {
-                            addToList(skillsList, setSkillsList, 'skills', value);
-                            skillref.current.value = '';
+                            addToList(skillsList, setSkillsList, value);
+                            skillRef.current.value = '';
                           }
                         }}
                       />
                     </InputAdornment>
                   ),
                 }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
               />
               {skillsList.map((item, idx) => (
-                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Typography sx={{ mr: 2 }}>{idx + 1}. {item}</Typography>
-                  <Button color="error" onClick={() => removeFromList(skillsList, setSkillsList, 'skills', idx)}>Remove</Button>
+                <Box key={idx} sx={{ display: 'flex', alignItems: 'center', mb: 1, pl: 2 }}>
+                  <Typography sx={{ mr: 2, flexGrow: 1 }}>{idx + 1}. {item}</Typography>
+                  <Button
+                    color="error"
+                    size="small"
+                    onClick={() => removeFromList(skillsList, setSkillsList, idx)}
+                    className="hover:bg-red-50"
+                  >
+                    Remove
+                  </Button>
                 </Box>
               ))}
-
-
             </Box>
           )}
 
-
-
-          {/* Buttons */}
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'space-between', gap: 2 }}>
             <Button
               variant="outlined"
               onClick={back}
               disabled={activeStep === 0}
               sx={{
-                borderColor: '#2156a8',
-                color: '#2156a8',
-                '&:hover': { borderColor: '#19499b', color: '#19499b' },
+                borderColor: '#1976d2',
+                color: '#1976d2',
+                borderRadius: '12px',
+                px: 3,
+                py: 1,
+                fontWeight: 500,
+                '&:hover': { borderColor: '#1565c0', color: '#1565c0', backgroundColor: 'rgba(25, 118, 210, 0.04)' },
               }}
             >
               Back
             </Button>
 
             {activeStep < steps.length - 1 ? (
-              <NewButton title='Next' handleFunction={next} />
+              <NewButton
+                title="Next"
+                handleFunction={next}
+                sx={{
+                  borderRadius: '12px',
+                  px: 3,
+                  py: 1,
+                  fontWeight: 500,
+                  background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)',
+                  '&:hover': { background: 'linear-gradient(90deg, #1565c0 0%, #0b3d91 100%)' },
+                }}
+              />
             ) : (
               <Button
                 variant="contained"
                 type="submit"
-                sx={{ bgcolor: '#2156a8', '&:hover': { background: "linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)", } }}
+                disabled={loading}
+                sx={{
+                  borderRadius: '12px',
+                  px: 3,
+                  py: 1,
+                  fontWeight: 500,
+                  background: 'linear-gradient(90deg, #1976d2 0%, #0d47a1 100%)',
+                  '&:hover': { background: 'linear-gradient(90deg, #1565c0 0%, #0b3d91 100%)' },
+                }}
               >
-                {loading ? <CircularProgress size={12} color='white' /> : "Submit"}
+                {loading ? <CircularProgress size={24} sx={{ color: '#ffffff' }} /> : 'Submit'}
               </Button>
             )}
           </Box>
