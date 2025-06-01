@@ -16,7 +16,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
-import cardlogo from '../../assets/images/duetLogo.png'
+import cardlogo from '../../assets/images/duet2logo.png'
 import { styled } from "@mui/system";
 import AvatarComponent from "../../Components/Avatar";
 export default function Navbar({user}) {
@@ -101,8 +101,8 @@ export default function Navbar({user}) {
                         src={cardlogo}
                         alt="Logo"
                         sx={{
-                            height: "70px",
-                            width: "70px",
+                            height: "100px",
+                            width: "100px",
                             borderRadius: "50%",
                             display: { xs: "none", md: "block" }
                         }}

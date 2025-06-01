@@ -10,6 +10,7 @@ import {
     CardContent,
     CircularProgress,
     Link,
+    Fade,
 } from '@mui/material';
 import {
     Email as EmailIcon,
@@ -23,41 +24,62 @@ import FacultyService from '../../apis/Faculty';
 import Colors from '../../assets/Style';
 import { ErrorToaster } from '../../Components/Toaster';
 import Container from '../../Components/Container';
+import 'tailwindcss/tailwind.css';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 const InfoItem = ({ icon: Icon, text, color }) => (
-    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <Box
-            sx={{
-                mr: 1,
-                backgroundColor: color || Colors?.PrimaryBlue,
-                borderRadius: '50%',
-                width: 32,
-                height: 32,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                color: '#fff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-            }}
-        >
-            <Icon fontSize="small" />
+    <Fade in timeout={600}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, transition: 'all 0.3s ease' }}>
+            <Box
+                sx={{
+                    mr: 1.5,
+                    backgroundColor: color || Colors?.PrimaryBlue,
+                    borderRadius: '50%',
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': {
+                        transform: 'scale(1.1)',
+                    },
+                }}
+            >
+                <Icon fontSize="medium" />
+            </Box>
+            <Typography
+                variant="body1"
+                sx={{
+                    fontWeight: 500,
+                    color: Colors?.PrimaryDark,
+                    fontSize: '1.1rem',
+                    fontFamily: "'Inter', sans-serif",
+                }}
+            >
+                {text}
+            </Typography>
         </Box>
-        <Typography variant="body1" sx={{ fontWeight: 500, color: Colors?.PrimaryDark }}>
-            {text}
-        </Typography>
-    </Box>
+    </Fade>
 );
 
 const ChipSection = ({ title, data }) => (
-    <>
+    <Box sx={{ mb: 4 }}>
         <Typography
             variant="h6"
             fontWeight="bold"
-            sx={{ mt: 4, mb: 2, color: Colors?.PrimaryDark }}
+            sx={{
+                mb: 2,
+                color: Colors?.PrimaryDark,
+                fontFamily: "'Inter', sans-serif",
+                letterSpacing: '0.5px',
+            }}
         >
             {title}
         </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5 }}>
             {data?.length > 0 ? (
                 data.map((item, idx) => (
                     <Chip
@@ -67,33 +89,43 @@ const ChipSection = ({ title, data }) => (
                             background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
                             color: '#fff',
                             fontWeight: '600',
-                            boxShadow: '0 4px 8px rgba(101, 41, 255, 0.4)',
+                            fontSize: '0.9rem',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            boxShadow: '0 4px 12px rgba(101, 41, 255, 0.3)',
                             cursor: 'pointer',
-                            transition: 'transform 0.3s ease',
+                            transition: 'all 0.3s ease',
                             '&:hover': {
-                                transform: 'scale(1.1)',
-                                boxShadow: '0 6px 12px rgba(101, 41, 255, 0.6)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 6px 16px rgba(101, 41, 255, 0.5)',
                             },
                         }}
                     />
                 ))
             ) : (
-                <Typography variant="body2" sx={{ color: 'gray' }}>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        color: 'gray',
+                        fontStyle: 'italic',
+                        fontFamily: "'Inter', sans-serif",
+                    }}
+                >
                     No {title} Found
                 </Typography>
             )}
         </Box>
-    </>
+    </Box>
 );
 
-const FacultyProfile = () => {
+const FacultyProfile = ({ userid }) => {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const getFaculty = async () => {
             try {
-                const res = await FacultyService.getProfile('6830cf1403414c821d034ef6');
+                const res = await FacultyService.getProfile(userid);
                 setData(res?.data);
                 setLoading(false);
             } catch (err) {
@@ -102,20 +134,26 @@ const FacultyProfile = () => {
             }
         };
         getFaculty();
-    }, []);
+    }, [userid]);
 
     if (loading) {
         return (
             <Box
                 sx={{
-                    height: '70vh',
+                    minHeight: '100vh',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    background: 'linear-gradient(120deg, #f0f4ff, #dbe9ff)',
+                    background: 'linear-gradient(135deg, #e6f0fa, #ffffff)',
                 }}
             >
-                <CircularProgress sx={{ color: Colors?.PrimaryBlue }} />
+                <CircularProgress
+                    sx={{
+                        color: Colors?.PrimaryBlue,
+                        size: 60,
+                        thickness: 5,
+                    }}
+                />
             </Box>
         );
     }
@@ -145,243 +183,385 @@ const FacultyProfile = () => {
     } = academicDetails || {};
 
     return (
-        <Container sx={{ backgroundColor: '#f5f8ff', borderRadius: 3, py: 5 }}>
-            <Box sx={{ px: { xs: 2, md: 4 } }}>
-                <Grid container spacing={{ xs: 3, md: 4 }}>
-                    {/* Profile Card */}
-                    <Grid item xs={12} lg={12}>
-                        <Card
-                            sx={{
-                                p: 4,
-                                textAlign: 'center',
-                                borderRadius: 3,
-                                boxShadow: 'none',
-                                backgroundColor:'none', // Removed gradient, simple white bg
-                                color: Colors?.PrimaryDark,
-                                display: 'flex',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                gap: "10px"
-                            }}
-                        >
-                            <Avatar
-                                src={profilePicture || 'https://via.placeholder.com/150'}
-                                alt={'name'}
+        <Container
+            sx={{
+                background: 'linear-gradient(135deg, #ffffff, #f0f4ff)',
+                borderRadius: 4,
+                py: 6,
+                px: { xs: 3, md: 5 },
+                minHeight: '100vh',
+            }}
+        >
+            <Fade in timeout={800}>
+                <Box>
+                    <Grid container spacing={4}>
+                        {/* Profile Header */}
+                        <Grid item xs={12}>
+                            <Card
                                 sx={{
-                                    width: 140,
-                                    height: 140,
-                                    mb: 3,
-                                    border: '4px solid rgba(37, 117, 252, 0.2)',
-                                    boxShadow: '0 8px 20px rgba(37, 117, 252, 0.15)',
+                                    p: 4,
+                                    borderRadius: 4,
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                                    background: 'white',
+                                    display: 'flex',
+                                    flexDirection: { xs: 'column', md: 'row' },
+                                    alignItems: 'center',
+                                    gap: 3,
+                                    transition: 'all 0.3s ease',
                                 }}
-                            />
-                            <Box sx={{display:"flex",flexDirection:"column",alignItems:"start"}}>
-                                <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                    {name}
-                                </Typography>
-                                <Typography variant="subtitle1" sx={{ opacity: 0.8, mb: 1 }}>
-                                    {designation}
-                                </Typography>
-                                <Chip
-                                    label="Faculty"
+                            >
+                                <Avatar
+                                    src={profilePicture || 'https://via.placeholder.com/150'}
+                                    alt={name}
                                     sx={{
-                                        backgroundColor: 'rgba(37, 117, 252, 0.15)',
-                                        color: Colors?.PrimaryBlue,
-                                        fontWeight: 'bold',
-                                        letterSpacing: 1.2,
-                                        mb: 1,
-                                        px: 2,
-                                        py: 0.5,
-                                        borderRadius: 2,
-                                        boxShadow: 'none',
+                                        width: { xs: 120, md: 160 },
+                                        height: { xs: 120, md: 160 },
+                                        border: '5px solid rgba(37, 117, 252, 0.15)',
+                                        boxShadow: '0 8px 20px rgba(37, 117, 252, 0.2)',
+                                        transition: 'transform 0.3s ease',
+                                        '&:hover': {
+                                            transform: 'scale(1.05)',
+                                        },
                                     }}
                                 />
-                            </Box>
-                        </Card>
-                    </Grid>
+                                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                                    <Typography
+                                        variant="h4"
+                                        fontWeight="bold"
+                                        sx={{
+                                            color: Colors?.PrimaryDark,
+                                            fontFamily: "'Inter', sans-serif",
+                                            mb: 1,
+                                        }}
+                                    >
+                                        {name}
+                                    </Typography>
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{
+                                            color: Colors?.PrimaryDark,
+                                            opacity: 0.7,
+                                            fontFamily: "'Inter', sans-serif",
+                                            mb: 2,
+                                        }}
+                                    >
+                                        {designation}
+                                    </Typography>
+                                    <Chip
+                                        label="Faculty"
+                                        sx={{
+                                            backgroundColor: 'rgba(37, 117, 252, 0.1)',
+                                            color: Colors?.PrimaryBlue,
+                                            fontWeight: 'bold',
+                                            fontSize: '0.9rem',
+                                            px: 2,
+                                            py: 0.5,
+                                            borderRadius: '16px',
+                                            boxShadow: '0 2px 8px rgba(37, 117, 252, 0.2)',
+                                        }}
+                                    />
+                                </Box>
+                            </Card>
+                        </Grid>
 
-                    {/* Basic Info */}
-                    <Grid item xs={12} lg={12}>
-                        <Card
-                            sx={{
-                                p: 3,
-                                borderRadius: 3,
-                                boxShadow: 'none',
-                            }}
-                        >
-                            <CardContent>
+                        {/* Basic Information */}
+                        <Grid item xs={12}>
+                            <Card
+                                sx={{
+                                    p: 3,
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
+                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                    },
+                                }}
+                            >
+                                <CardContent>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            mb: 2.5,
+                                            fontWeight: 700,
+                                            color: '#1a237e',
+                                            fontFamily: "'Inter', sans-serif",
+                                            letterSpacing: '-0.02em',
+                                        }}
+                                    >
+                                        Profile Information
+                                    </Typography>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} md={6}>
+                                            <InfoItem
+                                                icon={EmailIcon}
+                                                text={email}
+                                                color="#2563eb"
+                                                sx={{ mb: 2 }}
+                                            />
+                                            <InfoItem
+                                                icon={PhoneIcon}
+                                                text={contactNumber}
+                                                color="#0284c7"
+                                                sx={{ mb: 2 }}
+                                            />
+                                            <InfoItem
+                                                icon={CalendarIcon}
+                                                text={
+                                                    dob
+                                                        ? new Date(dob).toLocaleDateString('en-US', {
+                                                            year: 'numeric',
+                                                            month: 'long',
+                                                            day: 'numeric',
+                                                        })
+                                                        : 'N/A'
+                                                }
+                                                color="#16a34a"
+                                                sx={{ mb: 2 }}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} md={6}>
+                                            <InfoItem
+                                                icon={SchoolIcon}
+                                                text={`Experience: ${experienceYear || 'N/A'} Years`}
+                                                color="#d97706"
+                                                sx={{ mb: 2 }}
+                                            />
+                                            <InfoItem
+                                                icon={SchoolIcon}
+                                                text={`Qualification: ${qualification || 'N/A'}`}
+                                                color="#7c3aed"
+                                                sx={{ mb: 2 }}
+                                            />
+                                            {/* <InfoItem
+                                                icon={SchoolIcon}
+                                                text={`Specialization: ${specialization || 'N/A'}`}
+                                                color="#0d9488"
+                                                sx={{ mb: 2 }}
+                                            /> */}
+                                        </Grid>
+                                    </Grid>
+
+                                    {department?.length > 0 && (
+                                        <Box sx={{ mt: 3 }}>
+                                            <Typography
+                                                variant="h6"
+                                                sx={{
+                                                    mb: 1.5,
+                                                    fontWeight: 600,
+                                                    color: '#1a237e',
+                                                    fontFamily: "'Inter', sans-serif",
+                                                }}
+                                            >
+                                                Departments
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                                                {department.map((dept, idx) => (
+                                                    <Chip
+                                                        key={idx}
+                                                        label={dept?.name}
+                                                        sx={{
+                                                            background: 'linear-gradient(45deg, #3b82f6, #60a5fa)',
+                                                            color: 'white',
+                                                            fontWeight: 500,
+                                                            fontSize: '0.85rem',
+                                                            borderRadius: '12px',
+                                                            px: 1,
+                                                            py: 0.5,
+                                                            transition: 'all 0.2s ease',
+                                                            '&:hover': {
+                                                                background: 'linear-gradient(45deg, #2563eb, #3b82f6)',
+                                                                transform: 'translateY(-1px)',
+                                                            },
+                                                        }}
+                                                    />
+                                                ))}
+                                            </Box>
+                                        </Box>
+                                    )}
+
+                                    <Box sx={{ mt: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                        {linkedInUrl && (
+                                            <Link
+                                                href={linkedInUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    color: '#1e40af',
+                                                    textDecoration: 'none',
+                                                    fontWeight: 500,
+                                                    fontSize: '0.95rem',
+                                                    fontFamily: "'Inter', sans-serif",
+                                                    p: 1,
+                                                    borderRadius: 2,
+                                                    transition: 'background 0.2s ease',
+                                                    '&:hover': {
+                                                        background: '#dbeafe',
+                                                    },
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        background: 'linear-gradient(45deg, #1e40af, #3b82f6)',
+                                                        borderRadius: '8px',
+                                                        width: 36,
+                                                        height: 36,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        color: '#fff',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            transform: 'scale(1.1)',
+                                                        },
+                                                    }}
+                                                >
+                                                    <LinkedInIcon fontSize="small" />
+                                                </Box>
+                                                LinkedIn
+                                            </Link>
+                                        )}
+                                        {gitHubUrl && (
+                                            <Link
+                                                href={gitHubUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    color: '#111827',
+                                                    textDecoration: 'none',
+                                                    fontWeight: 500,
+                                                    fontSize: '0.95rem',
+                                                    fontFamily: "'Inter', sans-serif",
+                                                    p: 1,
+                                                    borderRadius: 2,
+                                                    transition: 'background 0.2s ease',
+                                                    '&:hover': {
+                                                        background: '#f3f4f6',
+                                                    },
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        background: 'linear-gradient(45deg, #111827, #374151)',
+                                                        borderRadius: '8px',
+                                                        width: 36,
+                                                        height: 36,
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        color: '#fff',
+                                                        transition: 'all 0.3s ease',
+                                                        '&:hover': {
+                                                            transform: 'scale(1.1)',
+                                                        },
+                                                    }}
+                                                >
+                                                    <GitHubIcon fontSize="small" />
+                                                </Box>
+                                                GitHub
+                                            </Link>
+                                        )}
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+
+                        {/* About Section */}
+                        <Grid item xs={12}>
+                            <Card
+                                sx={{
+                                    p: 3,
+                                    borderRadius: 3,
+                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    background: 'linear-gradient(145deg, #ffffff, #f8fafc)',
+                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                                    },
+                                }}
+                            >
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2.5 }}>
+                                    <DescriptionIcon sx={{ mr: 1, color: '#1a237e', fontSize: '1.5rem' }} />
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            fontWeight: 700,
+                                            color: '#1a237e',
+                                            fontFamily: "'Inter', sans-serif",
+                                            letterSpacing: '-0.02em',
+                                        }}
+                                    >
+                                        About
+                                    </Typography>
+                                </Box>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        whiteSpace: 'pre-line',
+                                        color: '#1a237e',
+                                        lineHeight: 1.8,
+                                        fontFamily: "'Inter', sans-serif",
+                                        mb: specialization ? 3 : 0,
+                                    }}
+                                >
+                                    {personalizedDescription || 'No description available.'}
+                                </Typography>
+                                {specialization && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
+                                        <SchoolIcon sx={{ mr: 1, color: '#0d9488', fontSize: '1.5rem' }} />
+                                        <Typography
+                                            variant="body1"
+                                            sx={{
+                                                fontWeight: 500,
+                                                color: '#0d9488',
+                                                fontFamily: "'Inter', sans-serif",
+                                                lineHeight: 1.6,
+                                            }}
+                                        >
+                                            <strong>Specialization:</strong> {specialization}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Card>
+                        </Grid>
+                        {/* Academic Details Section */}
+                        <Grid item xs={12}>
+                            <Card
+                                sx={{
+                                    p: 4,
+                                    borderRadius: 4,
+                                    boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
+                                    background: 'white',
+                                }}
+                            >
                                 <Typography
                                     variant="h5"
                                     fontWeight="bold"
-                                    gutterBottom
-                                    sx={{ color: Colors?.PrimaryDark }}
+                                    sx={{
+                                        mb: 3,
+                                        color: Colors?.PrimaryDark,
+                                        fontFamily: "'Inter', sans-serif",
+                                    }}
                                 >
-                                    Basic Information
+                                    Academic Details
                                 </Typography>
-                                <Grid container spacing={3}>
-                                    <Grid item xs={12} lg={6}>
-                                        <InfoItem icon={EmailIcon} text={email} color="#0a66c2" />
-                                        <InfoItem icon={PhoneIcon} text={contactNumber} color="#1e88e5" />
-                                        <InfoItem
-                                            icon={CalendarIcon}
-                                            text={dob ? new Date(dob).toDateString() : 'N/A'}
-                                            color="#43a047"
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} lg={6}>
-                                        <InfoItem
-                                            icon={SchoolIcon}
-                                            text={`Experience: ${experienceYear || 'N/A'} Years`}
-                                            color="#fb8c00"
-                                        />
-                                        <InfoItem
-                                            icon={SchoolIcon}
-                                            text={`Qualification: ${qualification || 'N/A'}`}
-                                            color="#8e24aa"
-                                        />
-                                        <InfoItem
-                                            icon={SchoolIcon}
-                                            text={`Specialization: ${specialization || 'N/A'}`}
-                                            color="#00897b"
-                                        />
-                                    </Grid>
-                                </Grid>
-
-                                {department?.length > 0 && (
-                                    <Box sx={{ mt: 3 }}>
-                                        <Typography
-                                            variant="body1"
-                                            fontWeight="bold"
-                                            sx={{ mb: 1, color: Colors?.PrimaryDark }}
-                                        >
-                                            Departments:
-                                        </Typography>
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                            {department.map((dept, idx) => (
-                                                <Chip
-                                                    key={idx}
-                                                    label={dept?.name}
-                                                    sx={{
-                                                        backgroundColor: '#1976d2',
-                                                        color: '#fff',
-                                                        fontWeight: 600,
-                                                        boxShadow: '0 2px 10px rgba(25, 118, 210, 0.5)',
-                                                        '&:hover': {
-                                                            backgroundColor: '#1565c0',
-                                                        },
-                                                    }}
-                                                />
-                                            ))}
-                                        </Box>
-                                    </Box>
-                                )}
-
-                                {/* Social Links */}
-                                <Box sx={{ mt: 4, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                                    {linkedInUrl && (
-                                        <Link
-                                            href={linkedInUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1,
-                                                color: '#0A66C2',
-                                                textDecoration: 'none',
-                                                fontWeight: 600,
-                                                fontSize: '1.1rem',
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    backgroundColor: '#0A66C2',
-                                                    borderRadius: '50%',
-                                                    width: 36,
-                                                    height: 36,
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    color: '#fff',
-                                                    boxShadow: '0 4px 10px rgba(10, 102, 194, 0.5)',
-                                                    transition: 'transform 0.3s ease',
-                                                    '&:hover': {
-                                                        transform: 'scale(1.15)',
-                                                    },
-                                                }}
-                                            >
-                                                <LinkedInIcon />
-                                            </Box>
-                                            LinkedIn Profile
-                                        </Link>
-                                    )}
-                                    {gitHubUrl && (
-                                        <Link
-                                            href={gitHubUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            sx={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: 1,
-                                                color: '#000',
-                                                textDecoration: 'none',
-                                                fontWeight: 600,
-                                                fontSize: '1.1rem',
-                                            }}
-                                        >
-                                            <Box
-                                                sx={{
-                                                    backgroundColor: '#000',
-                                                    borderRadius: '50%',
-                                                    width: 36,
-                                                    height: 36,
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    color: '#fff',
-                                                    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',
-                                                    transition: 'transform 0.3s ease',
-                                                    '&:hover': {
-                                                        transform: 'scale(1.15)',
-                                                    },
-                                                }}
-                                            >
-                                                <GitHubIcon />
-                                            </Box>
-                                            GitHub Profile
-                                        </Link>
-                                    )}
-                                </Box>
-                            </CardContent>
-                        </Card>
+                                <ChipSection title="Awards" data={awards} />
+                                <ChipSection title="Subjects" data={subjects} />
+                                <ChipSection title="Skills" data={skills} />
+                                <ChipSection title="Research Papers" data={researchPapers} />
+                            </Card>
+                        </Grid>
                     </Grid>
-                </Grid>
-
-                {/* About Section */}
-                <Divider sx={{ my: 6, borderColor: '#cfd8dc' }} />
-                <Card sx={{ p: 3, borderRadius: 3 ,boxShadow:"none"}}>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-                        About
-                    </Typography>
-                    <Typography variant="body1" sx={{ whiteSpace: 'pre-line', color: Colors?.PrimaryDark }}>
-                        {personalizedDescription || 'No description available.'}
-                    </Typography>
-                </Card>
-
-                {/* Academic Details Section */}
-                <Divider sx={{ my: 6, borderColor: '#cfd8dc',boxShadow:"none" }} />
-                <Card sx={{ p: 3, borderRadius: 3 }}>
-                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-                        Academic Details
-                    </Typography>
-
-                    <ChipSection title="Awards" data={awards} />
-                    <ChipSection title="Subjects" data={subjects} />
-                    <ChipSection title="Skills" data={skills} />
-                    <ChipSection title="Research Papers" data={researchPapers} />
-                </Card>
-            </Box>
+                </Box>
+            </Fade>
         </Container>
     );
 };

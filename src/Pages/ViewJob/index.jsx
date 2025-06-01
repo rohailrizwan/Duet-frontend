@@ -27,7 +27,7 @@ const ViewJob = () => {
   const fetchJob = async (page, limit) => {
     try {
       setLoading(true);
-      const response = await JobService?.getjob(page, limit);
+      const response = await JobService?.getalljob(page, limit);
       console.log(response);
       
       const fetchedJobs = response?.data || [];

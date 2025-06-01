@@ -20,6 +20,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import AddIcon from '@mui/icons-material/Add';
 import UpdateProfileHeader from '../../Components/ProfileHeader';
 import WorkIcon from '@mui/icons-material/Work';
+import { useNavigate } from 'react-router-dom';
 const steps = [
   { label: 'PERSONAL INFORMATION', subLabel: 'Basic personal details', icon: <PersonIcon /> },
   { label: 'ACADEMIC DETAILS', subLabel: 'Educational background', icon: <SchoolIcon /> },
@@ -50,7 +51,7 @@ export default function UpdateFaculty({ userid }) {
   const awardRef = useRef();
   const researchRef = useRef();
   const skillRef = useRef();
-
+  const navigate=useNavigate()
   const { register, handleSubmit, trigger, watch, setValue, formState: { errors } } = useForm({
     mode: 'all',
     defaultValues: {
@@ -77,7 +78,7 @@ export default function UpdateFaculty({ userid }) {
     },
   });
 
-  const designationsArray = ['Professor', 'Lecturer'];
+
 
   const next = async () => {
     let valid = false;
@@ -158,6 +159,7 @@ export default function UpdateFaculty({ userid }) {
       const response = await Facultyservice?.updatePost({ id: userid, obj });
       if (response) {
         SuccessToaster(response?.message);
+        navigate('/profile/userProfile')
       }
     } catch (error) {
       ErrorToaster(error?.message || 'Error');
@@ -221,7 +223,6 @@ export default function UpdateFaculty({ userid }) {
       setValue('specialization', data?.academicDetails?.specialization);
       setValue('qualification', data?.academicDetails?.qualification);
       setValue('designation', data?.academicDetails?.designation);
-      setDesignation(data?.academicDetails?.designation);
       setSelectDepartment(data?.academicDetails?.department?.map((item) => item?._id) || []);
       setSubjectsList(data?.academicDetails?.subjects || []);
       setAwardsList(data?.academicDetails?.awards || []);
@@ -567,23 +568,6 @@ export default function UpdateFaculty({ userid }) {
                 </FormHelperText>
               </FormControl>
 
-              <TextField
-                label="Designation"
-                {...register('designation', { required: 'Designation is required' })}
-                error={!!errors.designation}
-                helperText={errors.designation?.message}
-                fullWidth
-                margin="normal"
-                InputLabelProps={{ shrink: true }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <WorkIcon color="primary" />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
-              />
               <TextField
                 label="Designation"
                 {...register('designation', { required: 'Designation is required' })}

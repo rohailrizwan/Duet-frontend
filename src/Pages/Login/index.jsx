@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Card, TextField, Typography, Grid, InputAdornment, IconButton } from '@mui/material';
 import loginimage from '../../assets/images/loginimage.jpg'
 import { NewButton } from '../../Components/BtnComponent';
@@ -7,7 +7,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import authServices from '../../apis/auth';
 import { ErrorToaster, SuccessToaster } from '../../Components/Toaster';
 import OtpComponent from '../../Components/OtpComponent';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setLogin } from '../../redux/Slice/authSlice';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +20,7 @@ const LoginPage = () => {
     const [otpModal, setotpModal] = useState(false);
     const [isloading, setisloading] = useState(false);
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
+    const user=useSelector((state)=>state?.auth?.user)
     const dispatch=useDispatch()
     const navigate=useNavigate()
     const handleSubmit = async () => {
@@ -77,6 +78,11 @@ const LoginPage = () => {
             ErrorToaster(error || '')
         }
     }
+    useEffect(()=>{
+        if(user){
+            navigate('/profile')
+        }
+    },[])
     return (
         <Box
             sx={{
