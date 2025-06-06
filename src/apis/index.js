@@ -53,7 +53,7 @@ export const deleted = async (endPoint) => {
 export const gettoken = async (endPoint, param) => {
   try {
     const result = await authInstance.get(endPoint, { params: param });
-    if (result.status == 200) return result.data;
+    if (result.status == 200 || result?.status == 201) return result.data;
     else throw result
   } catch (e) {
     throw ErrorHandler(e)

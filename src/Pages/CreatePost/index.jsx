@@ -37,7 +37,7 @@ const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedi
     };
 
     const handleSubmit = async () => {
-        if ((!title || !description) || (!selectedImage && !imageUrl)) {
+        if (!title && !description && !selectedImage && !imageUrl) {
             return ErrorToaster('Please fill at least one field');
         }
 
@@ -101,6 +101,8 @@ const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedi
         setShowTitleEmojiPicker(false);
         setShowDescEmojiPicker(false);
         setOpen(false);
+        setselectedpost(null)
+        setisedit(null)
     };
 
     // Description limit
@@ -138,13 +140,9 @@ const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedi
     },[isedit,selectedPost])
 
     console.log(imageUrl);
-    const handleclose=()=>{
-        setOpen(false)
-        setisedit(null)
-        setselectedpost(null)
-    }
+
     return (
-        <Dialog open={open} onClose={handleclose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle className="font_poppins colorgradient font-bold">Create New Post</DialogTitle>
             <DialogContent>
                 <Grid container spacing={2}>

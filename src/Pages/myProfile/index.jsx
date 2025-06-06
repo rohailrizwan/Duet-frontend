@@ -85,7 +85,7 @@ const MyProfile = () => {
         alignItems: 'center',
       }}
     >
-      <CreatePostModal open={open} setOpen={setOpen} />
+      <CreatePostModal open={open} setOpen={setOpen} callback={fetchPost}/>
 
       {/* What's on your mind? Section at the Top */}
      <Box

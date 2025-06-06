@@ -16,6 +16,10 @@ const Facultyservice = {
         const result = await get(`${Facultyroute?.getDepartment}` );
         return result;
     },
+    getallfaculty:async (page,limit)=>{
+        const result = await get(`${Facultyroute?.getallfaculty}`+ `?page=${page}&limit=${limit}` );
+        return result;
+    }
     
 
 };
