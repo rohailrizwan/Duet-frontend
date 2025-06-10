@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+
+
+import { useState, useEffect } from "react"
+import { useForm, useFieldArray } from "react-hook-form"
 import {
     Box,
     Container,
@@ -23,7 +25,7 @@ import {
     LinearProgress,
     Chip,
     CircularProgress,
-} from "@mui/material";
+} from "@mui/material"
 import {
     Person,
     Email,
@@ -36,7 +38,6 @@ import {
     MenuBook,
     AccountBalance,
     Work,
-    EmojiEvents,
     Add,
     Delete,
     ChevronLeft,
@@ -44,164 +45,318 @@ import {
     Save,
     Upload,
     Psychology,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+} from "@mui/icons-material"
+import { useNavigate } from "react-router-dom"
 // Import React PDF Renderer
-import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer";
-import UploadServices from "../../apis/Upload";
-import { imagebaseUrl } from "../../Config/axios";
-import resumeService from "../../apis/Studentresume";
-import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
-
-
-
-
+import { Document, Page, Text, View, StyleSheet, pdf, Image } from "@react-pdf/renderer"
+import UploadServices from "../../apis/Upload"
+import { imagebaseUrl } from "../../Config/axios"
+import resumeService from "../../apis/Studentresume"
+import { ErrorToaster, SuccessToaster } from "../../Components/Toaster"
 
 const styles = StyleSheet.create({
     page: {
-        padding: 20,
-        fontFamily: 'Helvetica',
-        backgroundColor: '#f5f5f5',
+        padding: 30,
+        fontFamily: "Helvetica",
+        backgroundColor: "#ffffff",
+        fontSize: 10,
     },
     header: {
-        backgroundColor: '#34495e',
-        padding: 15,
-        marginBottom: 15,
-        color: '#ffffff',
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginBottom: 25,
+        paddingBottom: 20,
+        borderBottomWidth: 2,
+        borderBottomColor: "#2156a8",
+    },
+    profileImageContainer: {
+        marginRight: 25,
+        alignItems: "center",
     },
     profileImage: {
         width: 80,
         height: 80,
         borderRadius: 40,
-        borderWidth: 2,
-        borderColor: '#ffffff',
-        marginRight: 15,
+        borderWidth: 3,
+        borderColor: "#2156a8",
     },
-    headerText: {
-        fontSize: 20,
-        fontWeight: 'bold',
+    headerInfo: {
+        flex: 1,
     },
-    headerSubText: {
-        fontSize: 10,
-        color: '#ecf0f1',
+    name: {
+        fontSize: 26,
+        fontWeight: "bold",
+        color: "#2156a8",
+        marginBottom: 6,
     },
-    container: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    title: {
+        fontSize: 13,
+        color: "#666666",
+        marginBottom: 12,
+        fontWeight: "normal",
     },
-    column: {
-        width: '48%',
+    contactRow: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        marginBottom: 4,
+    },
+    contactLabel: {
+        fontSize: 9,
+        color: "#2156a8",
+        fontWeight: "bold",
+        marginRight: 4,
+        minWidth: 35,
+    },
+    contactValue: {
+        fontSize: 9,
+        color: "#666666",
+        marginRight: 20,
+    },
+    mainContent: {
+        flexDirection: "row",
+        gap: 25,
+    },
+    leftColumn: {
+        width: "65%",
+    },
+    rightColumn: {
+        width: "35%",
     },
     section: {
-        backgroundColor: '#ffffff',
-        padding: 10,
-        marginBottom: 10,
-        borderRadius: 5,
+        marginBottom: 22,
     },
     sectionTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#34495e',
-        marginBottom: 5,
-        borderBottomWidth: 1,
-        borderBottomColor: '#bdc3c7',
-    },
-    subSectionTitle: {
         fontSize: 12,
-        fontWeight: 'bold',
-        color: '#34495e',
-        marginBottom: 3,
+        fontWeight: "bold",
+        color: "#2156a8",
+        marginBottom: 12,
+        paddingBottom: 4,
+        borderBottomWidth: 1,
+        borderBottomColor: "#e0e0e0",
+        textTransform: "uppercase",
+        letterSpacing: 0.5,
+    },
+    summaryText: {
+        fontSize: 11,
+        lineHeight: 1.5,
+        color: "#333333",
+        textAlign: "justify",
+    },
+    experienceItem: {
+        marginBottom: 18,
+        paddingBottom: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: "#f0f0f0",
+    },
+    companyName: {
+        fontSize: 13,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 2,
+    },
+    jobTitle: {
+        fontSize: 12,
+        color: "#2156a8",
+        marginBottom: 4,
+        fontWeight: "bold",
+    },
+    duration: {
+        fontSize: 10,
+        color: "#666666",
+        marginBottom: 8,
+        fontStyle: "italic",
+    },
+    responsibilities: {
+        fontSize: 10,
+        color: "#333333",
+        lineHeight: 1.4,
+        textAlign: "justify",
+    },
+    educationItem: {
+        marginBottom: 15,
+        paddingBottom: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: "#f0f0f0",
+    },
+    degree: {
+        fontSize: 12,
+        fontWeight: "bold",
+        color: "#333333",
+        marginBottom: 2,
+    },
+    institution: {
+        fontSize: 11,
+        color: "#2156a8",
+        marginBottom: 4,
+        fontWeight: "bold",
+    },
+    educationDetails: {
+        fontSize: 9,
+        color: "#666666",
+    },
+    skillsContainer: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        gap: 6,
+    },
+    skillChip: {
+        backgroundColor: "#f8f9ff",
+        borderWidth: 1,
+        borderColor: "#2156a8",
+        borderRadius: 15,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        marginBottom: 6,
+        marginRight: 4,
+    },
+    skillText: {
+        fontSize: 9,
+        color: "#2156a8",
+        fontWeight: "bold",
     },
     listItem: {
         fontSize: 10,
-        color: '#7f8c8d',
-        marginBottom: 2,
+        color: "#333333",
+        marginBottom: 4,
+        lineHeight: 1.3,
+        flexDirection: "row",
+        alignItems: "flex-start",
     },
-});
+    bulletPoint: {
+        fontSize: 12,
+        color: "#2156a8",
+        fontWeight: "bold",
+        marginRight: 6,
+    },
+})
 
-const ResumePDF = ({ data, imageUrl }) => (
+const ResumePDF = ({ data }) => (
     <Document>
         <Page size="A4" style={styles.page}>
-            {/* Header with Image */}
+            {/* Header Section */}
             <View style={styles.header}>
-                <View>
-                    {data.personalInfo.image && imageUrl && (
+                {data.personalInfo.image && imageUrl && (
+                    <View style={styles.profileImageContainer}>
                         <Image
                             src={imageUrl || "/placeholder.svg"}
                             style={styles.profileImage}
-                            onError={() => console.log('Image failed to load')}
+                            onError={() => console.log("Image failed to load")}
                         />
-                    )}
-                </View>
-                <View>
-                    <Text style={styles.headerText}>{data.personalInfo.fullname}</Text>
-                    <Text style={styles.headerSubText}>{data.personalInfo.email} | {data.personalInfo.phoneNum}</Text>
-                    <Text style={styles.headerSubText}>{data.personalInfo.address}</Text>
-                    <Text style={styles.headerSubText}>
-                        LinkedIn: {data.personalInfo.linkedInUrl} | GitHub: {data.personalInfo.gitHubUrl}
+                    </View>
+                )}
+                <View style={styles.headerInfo}>
+                    <Text style={styles.name}>{data.personalInfo.fullname}</Text>
+                    <Text style={styles.title}>
+                        {data.educationalBackground.academicDetails.department} |{" "}
+                        {data.educationalBackground.academicDetails.semester} Semester
                     </Text>
+
+                    <View style={styles.contactRow}>
+                        <Text style={styles.contactLabel}>Email:</Text>
+                        <Text style={styles.contactValue}>{data.personalInfo.email}</Text>
+                        <Text style={styles.contactLabel}>Phone:</Text>
+                        <Text style={styles.contactValue}>{data.personalInfo.phoneNum}</Text>
+                    </View>
+
+                    <View style={styles.contactRow}>
+                        <Text style={styles.contactLabel}>Address:</Text>
+                        <Text style={styles.contactValue}>{data.personalInfo.address}</Text>
+                    </View>
+
+                    <View style={styles.contactRow}>
+                        <Text style={styles.contactLabel}>LinkedIn:</Text>
+                        <Text style={styles.contactValue}>{data.personalInfo.linkedInUrl}</Text>
+                    </View>
+
+                    <View style={styles.contactRow}>
+                        <Text style={styles.contactLabel}>GitHub:</Text>
+                        <Text style={styles.contactValue}>{data.personalInfo.gitHubUrl}</Text>
+                    </View>
                 </View>
             </View>
 
-            {/* Two-column layout */}
-            <View style={styles.container}>
+            {/* Rest of the component remains the same */}
+            <View style={styles.mainContent}>
                 {/* Left Column */}
-                <View style={styles.column}>
+                <View style={styles.leftColumn}>
+                    {/* Professional Summary */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Professional Summary</Text>
-                        <Text style={styles.listItem}>{data.personalInfo.description}</Text>
+                        <Text style={styles.summaryText}>{data.personalInfo.description}</Text>
                     </View>
+
+                    {/* Work Experience */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Work Experience</Text>
                         {data.workExperience.map((exp, index) => (
-                            <View key={index} style={styles.subSectionTitle}>
-                                <Text>{exp.companyName} - {exp.jobTitle}</Text>
-                                <Text style={styles.listItem}>Duration: {exp.startDate} to {exp.endDate}</Text>
-                                <Text style={styles.listItem}>Responsibilities: {exp.responsibilities}</Text>
+                            <View key={index} style={styles.experienceItem}>
+                                <Text style={styles.companyName}>{exp.companyName}</Text>
+                                <Text style={styles.jobTitle}>{exp.jobTitle}</Text>
+                                <Text style={styles.duration}>
+                                    {exp.startDate} - {exp.endDate || "Present"}
+                                </Text>
+                                <Text style={styles.responsibilities}>{exp.responsibilities}</Text>
                             </View>
                         ))}
                     </View>
+
+                    {/* Education */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Education</Text>
-                        <View>
-                            <Text style={styles.subSectionTitle}>{data.educationalBackground.academicDetails.department}</Text>
-                            <Text style={styles.listItem}>Enrollment: {data.educationalBackground.academicDetails.enrollNumber}</Text>
-                            <Text style={styles.listItem}>Semester: {data.educationalBackground.academicDetails.semester}</Text>
+
+                        {/* University Education */}
+                        <View style={styles.educationItem}>
+                            <Text style={styles.degree}>Bachelor's Degree</Text>
+                            <Text style={styles.institution}>{data.educationalBackground.academicDetails.department}</Text>
+                            <Text style={styles.educationDetails}>
+                                Enrollment: {data.educationalBackground.academicDetails.enrollNumber} | Semester:{" "}
+                                {data.educationalBackground.academicDetails.semester}
+                            </Text>
                         </View>
-                        <View>
-                            <Text style={styles.subSectionTitle}>{data.educationalBackground.intermediateDetails.collegeName}</Text>
-                            <Text style={styles.listItem}>Grade: {data.educationalBackground.intermediateDetails.grade}</Text>
-                            <Text style={styles.listItem}>Passing Year: {data.educationalBackground.intermediateDetails.passingYear}</Text>
+
+                        {/* Intermediate */}
+                        <View style={styles.educationItem}>
+                            <Text style={styles.degree}>Intermediate</Text>
+                            <Text style={styles.institution}>{data.educationalBackground.intermediateDetails.collegeName}</Text>
+                            <Text style={styles.educationDetails}>
+                                Grade: {data.educationalBackground.intermediateDetails.grade} | Year:{" "}
+                                {data.educationalBackground.intermediateDetails.passingYear}
+                            </Text>
                         </View>
-                        <View>
-                            <Text style={styles.subSectionTitle}>{data.educationalBackground.matriculationDetails.schoolName}</Text>
-                            <Text style={styles.listItem}>Grade: {data.educationalBackground.matriculationDetails.grade}</Text>
-                            <Text style={styles.listItem}>Passing Year: {data.educationalBackground.matriculationDetails.passingYear}</Text>
+
+                        {/* Matriculation */}
+                        <View style={styles.educationItem}>
+                            <Text style={styles.degree}>Matriculation</Text>
+                            <Text style={styles.institution}>{data.educationalBackground.matriculationDetails.schoolName}</Text>
+                            <Text style={styles.educationDetails}>
+                                Grade: {data.educationalBackground.matriculationDetails.grade} | Year:{" "}
+                                {data.educationalBackground.matriculationDetails.passingYear}
+                            </Text>
                         </View>
                     </View>
                 </View>
 
                 {/* Right Column */}
-                <View style={styles.column}>
+                <View style={styles.rightColumn}>
+                    {/* Skills */}
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Skills</Text>
-                        {data.educationalBackground.skills.map((skill, index) => (
-                            <Text key={index} style={styles.listItem}>• {skill}</Text>
-                        ))}
+                        <View style={styles.skillsContainer}>
+                            {data.educationalBackground.skills.map((skill, index) => (
+                                <View key={index} style={styles.skillChip}>
+                                    <Text style={styles.skillText}>{skill}</Text>
+                                </View>
+                            ))}
+                        </View>
                     </View>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Co-curricular Activities</Text>
-                        {data.workExperience.map((exp, index) => (
-                            <Text key={index} style={styles.listItem}>{exp.companyName}</Text>
-                        ))}
-                    </View>
+
+                    {/* Co-curricular Activities */}
+                   
                 </View>
             </View>
         </Page>
     </Document>
-);
+)
 // Create a custom theme with blue color scheme
 const theme = createTheme({
     palette: {
@@ -238,22 +393,22 @@ const theme = createTheme({
             },
         },
     },
-});
+})
 
 // Steps for the resume builder
-const steps = ["Personal Info", "Social Links", "Academic Detail", "Work Experience", "Co Activities"];
+const steps = ["Personal Info", "Social Links", "Academic Detail", "Work Experience", "Co Activities"]
 
 function CreateResume() {
-    const [activeStep, setActiveStep] = useState(0);
-    const [image, setImage] = useState(null);
-    const [progress, setProgress] = useState(20);
-    const [newSkill, setNewSkill] = useState("");
-    const [skills, setSkills] = useState([]);
-    const [loader, setloader] = useState(false);
-    const [resumeData, setresumeData] = useState();
-    const [formData, setFormData] = useState(null); // State to hold form data for PDF rendering
-    const [pdfUrl, setPdfUrl] = useState(null); // State to hold the generated PDF URL
-    const navigate = useNavigate();
+    const [activeStep, setActiveStep] = useState(0)
+    // const [image, setImage] = useState(null)
+    const [progress, setProgress] = useState(20)
+    const [newSkill, setNewSkill] = useState("")
+    const [skills, setSkills] = useState([])
+    const [loader, setloader] = useState(false)
+    const [resumeData, setresumeData] = useState()
+    const [formData, setFormData] = useState(null) // State to hold form data for PDF rendering
+    const [pdfUrl, setPdfUrl] = useState(null) // State to hold the generated PDF URL
+    const navigate = useNavigate()
 
     // Initialize react-hook-form
     const {
@@ -304,7 +459,7 @@ function CreateResume() {
                 },
             ],
         },
-    });
+    })
 
     const getData = async () => {
         try {
@@ -313,86 +468,114 @@ function CreateResume() {
                 setresumeData(response?.data)
             }
         } catch (error) {
-            console.log(error);
-
+            console.log(error)
         }
     }
     useEffect(() => {
         getData()
-    }, []);
+    }, [])
 
     useEffect(() => {
-        console.log(resumeData);
+        console.log(resumeData)
         if (resumeData) {
-            setValue('personalInfo.fullname', resumeData?.personalInfo?.fullname)
-            setValue('personalInfo.email', resumeData?.personalInfo?.email)
-            setValue('personalInfo.phoneNum', resumeData?.personalInfo?.phoneNum)
-            setValue('personalInfo.linkedInUrl', resumeData?.personalInfo?.linkedInUrl)
-            setValue('personalInfo.gitHubUrl', resumeData?.personalInfo?.gitHubUrl)
-            setValue('personalInfo.dob', convertToDateInputFormat(resumeData?.personalInfo?.dob))
-            setValue('personalInfo.description', resumeData?.personalInfo?.description)
-            setValue('personalInfo.address', resumeData?.personalInfo?.address)
-            setValue('personalInfo.image', resumeData?.personalInfo?.image)
-            setValue('educationalBackground.academicDetails.enrollNumber', resumeData?.educationalBackground?.academicDetails?.enrollNumber)
-            setValue('educationalBackground.academicDetails.department', resumeData?.educationalBackground?.academicDetails?.department)
-            setValue('educationalBackground.academicDetails.semester', resumeData?.educationalBackground?.academicDetails?.semester)
-            setValue('educationalBackground.intermediateDetails.collegeName', resumeData?.educationalBackground?.intermediateDetails?.collegeName)
-            setValue('educationalBackground.intermediateDetails.grade', resumeData?.educationalBackground?.intermediateDetails?.grade)
-            setValue('educationalBackground.intermediateDetails.passingYear', resumeData?.educationalBackground?.intermediateDetails?.passingYear?.slice(0, 4))
-            setValue('educationalBackground.matriculationDetails.schoolName', resumeData?.educationalBackground?.matriculationDetails?.schoolName)
-            setValue('educationalBackground.matriculationDetails.passingYear', resumeData?.educationalBackground?.matriculationDetails?.passingYear?.slice(0, 4))
-            setValue('educationalBackground.matriculationDetails.grade', resumeData?.educationalBackground?.matriculationDetails?.grade)
-            setValue('educationalBackground.skills', resumeData?.educationalBackground?.skills)
+            setValue("personalInfo.fullname", resumeData?.personalInfo?.fullname)
+            setValue("personalInfo.email", resumeData?.personalInfo?.email)
+            setValue("personalInfo.phoneNum", resumeData?.personalInfo?.phoneNum)
+            setValue("personalInfo.linkedInUrl", resumeData?.personalInfo?.linkedInUrl)
+            setValue("personalInfo.gitHubUrl", resumeData?.personalInfo?.gitHubUrl)
+            setValue("personalInfo.dob", convertToDateInputFormat(resumeData?.personalInfo?.dob))
+            setValue("personalInfo.description", resumeData?.personalInfo?.description)
+            setValue("personalInfo.address", resumeData?.personalInfo?.address)
+            // setValue("personalInfo.image", resumeData?.personalInfo?.image)
+            setValue(
+                "educationalBackground.academicDetails.enrollNumber",
+                resumeData?.educationalBackground?.academicDetails?.enrollNumber,
+            )
+            setValue(
+                "educationalBackground.academicDetails.department",
+                resumeData?.educationalBackground?.academicDetails?.department,
+            )
+            setValue(
+                "educationalBackground.academicDetails.semester",
+                resumeData?.educationalBackground?.academicDetails?.semester,
+            )
+            setValue(
+                "educationalBackground.intermediateDetails.collegeName",
+                resumeData?.educationalBackground?.intermediateDetails?.collegeName,
+            )
+            setValue(
+                "educationalBackground.intermediateDetails.grade",
+                resumeData?.educationalBackground?.intermediateDetails?.grade,
+            )
+            setValue(
+                "educationalBackground.intermediateDetails.passingYear",
+                resumeData?.educationalBackground?.intermediateDetails?.passingYear?.slice(0, 4),
+            )
+            setValue(
+                "educationalBackground.matriculationDetails.schoolName",
+                resumeData?.educationalBackground?.matriculationDetails?.schoolName,
+            )
+            setValue(
+                "educationalBackground.matriculationDetails.passingYear",
+                resumeData?.educationalBackground?.matriculationDetails?.passingYear?.slice(0, 4),
+            )
+            setValue(
+                "educationalBackground.matriculationDetails.grade",
+                resumeData?.educationalBackground?.matriculationDetails?.grade,
+            )
+            setValue("educationalBackground.skills", resumeData?.educationalBackground?.skills)
             setSkills(resumeData?.educationalBackground.skills)
-            setImage(resumeData?.personalInfo?.image)
-
+            // setImage(resumeData?.personalInfo?.image)
         }
-    }, [resumeData, setValue]);
+    }, [resumeData, setValue])
 
     useEffect(() => {
         if (resumeData?.workExperience) {
             const formattedWorkExperience = resumeData.workExperience.map((exp) => ({
                 ...exp,
-                startDate: exp.startDate ? formatToYYYYMMDD(exp.startDate) : '',
-                endDate: exp.endDate ? formatToYYYYMMDD(exp.endDate) : '',
-            }));
+                startDate: exp.startDate ? formatToYYYYMMDD(exp.startDate) : "",
+                endDate: exp.endDate ? formatToYYYYMMDD(exp.endDate) : "",
+            }))
 
-            setValue('workExperience', formattedWorkExperience);
+            setValue("workExperience", formattedWorkExperience)
         }
-    }, [resumeData, setValue]);
+    }, [resumeData, setValue])
+
+    // Sync skills with form
+    useEffect(() => {
+        setValue("educationalBackground.skills", skills)
+    }, [skills, setValue])
 
     const formatToYYYYMMDD = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0'); // 0-indexed
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
-
+        const date = new Date(dateString)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, "0") // 0-indexed
+        const day = String(date.getDate()).padStart(2, "0")
+        return `${year}-${month}-${day}`
+    }
 
     // Field array for work experience
     const { fields, append, remove } = useFieldArray({
         control,
         name: "workExperience",
-    });
+    })
 
     // Handle image upload
-    const handleImageChange = (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-            setValue("personalInfo.image", file);
-        }
-    };
+    // const handleImageChange = (e) => {
+    //     const file = e.target.files?.[0]
+    //     if (file) {
+    //         const reader = new FileReader()
+    //         reader.onloadend = () => {
+    //             setImage(reader.result)
+    //         }
+    //         reader.readAsDataURL(file)
+    //         setValue("personalInfo.image", file)
+    //     }
+    // }
 
     // Handle next button click with validation
     const handleNext = async () => {
-        let isValid = true;
+        let isValid = true
 
         if (activeStep === 0) {
             isValid = await trigger([
@@ -402,13 +585,13 @@ function CreateResume() {
                 "personalInfo.dob",
                 "personalInfo.address",
                 "personalInfo.description",
-            ]);
-            if (!image) {
-                ErrorToaster("Image is required");
-                isValid = false;
-            }
+            ])
+            // if (!image) {
+            //     ErrorToaster("Image is required")
+            //     isValid = false
+            // }
         } else if (activeStep === 1) {
-            isValid = await trigger(["personalInfo.linkedInUrl", "personalInfo.gitHubUrl"]);
+            isValid = await trigger(["personalInfo.linkedInUrl", "personalInfo.gitHubUrl"])
         } else if (activeStep === 2) {
             isValid = await trigger([
                 "educationalBackground.academicDetails.enrollNumber",
@@ -420,7 +603,7 @@ function CreateResume() {
                 "educationalBackground.intermediateDetails.collegeName",
                 "educationalBackground.intermediateDetails.passingYear",
                 "educationalBackground.intermediateDetails.grade",
-            ]);
+            ])
         } else if (activeStep === 3) {
             for (let i = 0; i < fields.length; i++) {
                 isValid = await trigger([
@@ -429,98 +612,116 @@ function CreateResume() {
                     `workExperience.${i}.startDate`,
                     // `workExperience.${i}.endDate`,
                     `workExperience.${i}.responsibilities`,
-                ]);
-                if (!isValid) break;
+                ])
+                if (!isValid) break
             }
         } else if (activeStep === 4) {
-            isValid = await trigger(["educationalBackground.skills"]);
+            // Sync skills before validation
+            setValue("educationalBackground.skills", skills)
+            isValid = await trigger(["educationalBackground.skills"])
             if (skills.length === 0) {
-                ErrorToaster("At least one skill is required");
-                isValid = false;
+                ErrorToaster("At least one skill is required")
+                isValid = false
             }
         }
 
         if (isValid) {
-            setActiveStep((prevStep) => prevStep + 1);
-            setProgress((activeStep + 2) * 20);
+            setActiveStep((prevStep) => prevStep + 1)
+            setProgress((activeStep + 2) * 20)
         }
-    };
+    }
 
     // Handle back button click
     const handleBack = () => {
-        setActiveStep((prevStep) => prevStep - 1);
-        setProgress(activeStep * 20);
-    };
-
+        setActiveStep((prevStep) => prevStep - 1)
+        setProgress(activeStep * 20)
+    }
 
     const onSubmit = async (data) => {
-        console.log(data);
+        console.log(data)
 
-        setloader(true);
+        // Ensure skills are synced
+        const updatedData = {
+            ...data,
+            educationalBackground: {
+                ...data.educationalBackground,
+                skills: skills,
+            },
+        }
+
+        setloader(true)
         try {
-            setFormData(data);
+            setFormData(updatedData)
+            // let processedImage = image
+
+            // if (image && typeof image === "string" && image) {
+            //     processedImage = await convertImageToBase64(image)
+            //     console.log(processedImage);
+
+            // }
 
             // 1. Generate PDF blob
-            const pdfDoc = <ResumePDF data={data} imageUrl={image} />;
-            const blob = await pdf(pdfDoc).toBlob();
+            const pdfDoc = <ResumePDF data={updatedData} />
+            const blob = await pdf(pdfDoc).toBlob()
 
-
-            const file = new File([blob], "resume.pdf", { type: "application/pdf" });
+            const file = new File([blob], "resume.pdf", { type: "application/pdf" })
 
             // 4. Prepare FormData for upload
-            const formDataImage = new FormData();
-            typeof data?.personalInfo?.image !== 'string' && formDataImage.append("document", data?.personalInfo?.image);
-            formDataImage.append("resume", file); // 👈 Send as File, not Blob
+            const formDataImage = new FormData()
+            // if (typeof updatedData?.personalInfo?.image !== "string" && updatedData?.personalInfo?.image) {
+            //     formDataImage.append("document", updatedData?.personalInfo?.image)
+            // }
+            formDataImage.append("resume", file)
 
             // 5. Upload file
-            const responseImage = await UploadServices?.uploadImage(formDataImage);
+            const responseImage = await UploadServices?.uploadImage(formDataImage)
 
-            let imageUrl = '';
-            let resume = '';
+            // let imageUrl = ""
+            let resume = ""
             if (responseImage) {
-                imageUrl = responseImage?.url ? `${imagebaseUrl}/${responseImage?.url}` : data?.personalInfo?.image;
-                resume = `${imagebaseUrl}/${responseImage.resumeUrl}`; // Get full URL from backend
+                // imageUrl = responseImage?.url ? `${imagebaseUrl}/${responseImage?.url}` : updatedData?.personalInfo?.image
+                resume = `${imagebaseUrl}/${responseImage.resumeUrl}`
             }
             setPdfUrl(resume)
-            // 6. Create updated payload
-            const updatedData = {
-                ...data,
-                personalInfo: {
-                    ...data.personalInfo,
-                    image: imageUrl || data.personalInfo.image,
-                },
-                resumeUrl: resume, // ✅ This now holds the uploaded PDF URL
-            };
 
-            // 7. Final API call
-            const response = await resumeService?.createResume(updatedData);
-            if (response) {
-                SuccessToaster(response?.message || "Resume created successfully");
+            // 6. Create final payload
+            const finalData = {
+                ...updatedData,
+                personalInfo: {
+                    ...updatedData.personalInfo,
+                    // image: imageUrl || updatedData.personalInfo.image,
+                },
+                resumeUrl: resume,
             }
 
-            setloader(false);
+            // 7. Final API call
+            const response = await resumeService?.createResume(finalData)
+            if (response) {
+                SuccessToaster(response?.message || "Resume created successfully")
+            }
+
+            setloader(false)
         } catch (error) {
-            console.error("Error generating PDF:", error);
-            ErrorToaster("Failed to generate PDF. Please try again.");
-            setloader(false);
+            console.error("Error generating PDF:", error)
+            ErrorToaster("Failed to generate PDF. Please try again.")
+            setloader(false)
         }
-    };
+    }
 
     const handleKeyDown = (e) => {
-        if (e.key === 'Enter' && activeStep !== steps.length - 1) {
-            e.preventDefault();
-            handleNext();
-        } else if (e.key === 'Enter' && activeStep === steps.length - 1) {
-            e.preventDefault();
+        if (e.key === "Enter" && activeStep !== steps.length - 1) {
+            e.preventDefault()
+            handleNext()
+        } else if (e.key === "Enter" && activeStep === steps.length - 1) {
+            e.preventDefault()
             // Don't auto-submit, user must click the button
         }
-    };
-
+    }
 
     // Personal Info Form
     const renderPersonalInfoForm = () => (
         <Box sx={{ py: 2 }}>
-            <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 4 }}>
+            {/* <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 4 }}>
                 <Avatar
                     src={image}
                     sx={{
@@ -551,7 +752,7 @@ function CreateResume() {
                     Upload Photo
                     <input type="file" hidden accept="image/*" onChange={handleImageChange} />
                 </Button>
-            </Box>
+            </Box> */}
 
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
@@ -680,7 +881,7 @@ function CreateResume() {
                 </Grid>
             </Grid>
         </Box>
-    );
+    )
 
     // Social Links Form
     const renderSocialLinksForm = () => (
@@ -753,7 +954,7 @@ function CreateResume() {
                 </Typography>
             </Paper>
         </Box>
-    );
+    )
 
     // Academic Details Form
     const renderAcademicDetailsForm = () => (
@@ -932,7 +1133,7 @@ function CreateResume() {
                 </Grid>
             </Box>
         </Box>
-    );
+    )
 
     // Work Experience Form
     const renderWorkExperienceForm = () => (
@@ -1071,27 +1272,27 @@ function CreateResume() {
                 Add Another Experience
             </Button>
         </Box>
-    );
+    )
 
     // Activities and Skills Form
     const renderActivitiesAndSkillsForm = () => {
         const addSkill = () => {
             if (newSkill.trim() !== "") {
-                setSkills([...skills, newSkill.trim()]);
-                setNewSkill("");
+                setSkills([...skills, newSkill.trim()])
+                setNewSkill("")
             }
-        };
+        }
 
         const removeSkill = (indexToRemove) => {
-            setSkills(skills.filter((_, index) => index !== indexToRemove));
-        };
+            setSkills(skills.filter((_, index) => index !== indexToRemove))
+        }
 
         const handleKeyPress = (e) => {
             if (e.key === "Enter") {
-                e.preventDefault();
-                addSkill();
+                e.preventDefault()
+                addSkill()
             }
-        };
+        }
 
         return (
             <Box sx={{ py: 2 }}>
@@ -1166,35 +1367,35 @@ function CreateResume() {
                     />
                 </Box>
             </Box>
-        );
-    };
+        )
+    }
 
     // Render the current step content
     const getStepContent = (step) => {
         switch (step) {
             case 0:
-                return renderPersonalInfoForm();
+                return renderPersonalInfoForm()
             case 1:
-                return renderSocialLinksForm();
+                return renderSocialLinksForm()
             case 2:
-                return renderAcademicDetailsForm();
+                return renderAcademicDetailsForm()
             case 3:
-                return renderWorkExperienceForm();
+                return renderWorkExperienceForm()
             case 4:
-                return renderActivitiesAndSkillsForm();
+                return renderActivitiesAndSkillsForm()
             default:
-                return "Unknown step";
+                return "Unknown step"
         }
-    };
+    }
 
     const convertToDateInputFormat = (isoDate) => {
-        if (!isoDate) return '';
-        const date = new Date(isoDate);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
+        if (!isoDate) return ""
+        const date = new Date(isoDate)
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, "0")
+        const day = String(date.getDate()).padStart(2, "0")
+        return `${year}-${month}-${day}`
+    }
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -1310,7 +1511,7 @@ function CreateResume() {
                                             endIcon={<Save />}
                                             fullWidth={window.innerWidth < 600}
                                         >
-                                            {loader ? <CircularProgress color="white" size={12} /> : 'Submit Resume'}
+                                            {loader ? <CircularProgress color="white" size={12} /> : "Submit Resume"}
                                         </Button>
                                     ) : (
                                         <Button
@@ -1330,7 +1531,7 @@ function CreateResume() {
                 </Container>
             </Box>
         </ThemeProvider>
-    );
+    )
 }
 
-export default CreateResume;
+export default CreateResume
