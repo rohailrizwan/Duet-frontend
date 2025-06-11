@@ -68,7 +68,7 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
                 padding: "100px 0px",
             }}
         >
-            <Container>
+            {/* <Container> */}
                 <Typography
                     variant="h3"
                     component="h2"
@@ -158,7 +158,7 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
                         No data found.
                     </Typography>
                 )}
-            </Container>
+            {/* </Container> */}
         </Box>
     );
 };

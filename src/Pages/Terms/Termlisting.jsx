@@ -76,7 +76,7 @@ function Termlisting() {
         padding: '100px 0px',
       }}
     >
-      <Container>
+      {/* <Container> */}
         <Typography
           variant="h4"
           sx={{
@@ -130,7 +130,7 @@ function Termlisting() {
       {data?.length > 0 && (
         <CustomPagination page={page} count={totalPages} onChange={handleChange} />
       )}
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 }

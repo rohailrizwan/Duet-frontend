@@ -15,9 +15,9 @@ function Homesection1({title,description,aboutimg}) {
                 padding: "100px 0px"
             }}
         >
-            <Container>
-                <Grid container spacing={4} alignItems="center">
-                    <Grid item xs={12} md={6}>
+            {/* <Container> */}
+                <Grid container spacing={4} alignItems="center" justifyContent={"center"} sx={{px:2}}>
+                    <Grid item xs={12} md={5}>
                         <Typography
                             variant="h3"
                             component="h2"
@@ -33,7 +33,7 @@ function Homesection1({title,description,aboutimg}) {
                     </Grid>
 
                     {/* Right side - Image */}
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={5}>
                         <Box
                             component={motion.div}
                             initial={{ opacity: 0, x: 100 }}
@@ -66,7 +66,7 @@ function Homesection1({title,description,aboutimg}) {
 
                     </Grid>
                 </Grid>
-            </Container>
+            {/* </Container> */}
         </Box>
     );
 }

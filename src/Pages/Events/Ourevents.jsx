@@ -24,10 +24,10 @@ function Ourevents({ events = [], isLoading = false }) {
       viewport={{ once: false, amount: 0.1 }}
       sx={{
         backgroundColor: '#f9f9f9',
-        padding: '100px 0px',
+        padding: '100px 20px',
       }}
     >
-      <Container>
+      {/* <Container> */}
         <Typography
           variant="h3"
           component="h2"
@@ -116,7 +116,7 @@ function Ourevents({ events = [], isLoading = false }) {
             })}
           </Grid>
         )}
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 }

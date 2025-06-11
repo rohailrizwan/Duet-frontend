@@ -17,8 +17,8 @@ function ConnectWithUs() {
                 padding: "100px 0px",
             }}
         >
-            <Container>
-                <Grid container spacing={4} alignItems="center">
+            {/* <Container> */}
+                <Grid container spacing={4} alignItems="center" justifyContent={"center"} sx={{px:2}}>
                     <Grid item xs={12} md={8}>
                         <Typography variant="h3"
                             component="h2"
@@ -35,7 +35,7 @@ function ConnectWithUs() {
                       <NewButton title='Join the Community' endicon={<ArrowForwardIcon/>}/>
                     </Grid>
                 </Grid>
-            </Container>
+            {/* </Container> */}
         </Box>
     );
 }
