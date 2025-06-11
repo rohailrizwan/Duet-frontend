@@ -12,7 +12,7 @@ import JobCard from '../myProfile/Jobcard';
 import Headertext from '../../Components/Headertext';
 import JobService from '../../apis/Job';
 
-const ViewJob = () => {
+const   ViewJob = () => {
   const [jobs, setJobs] = useState([]);
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ const ViewJob = () => {
   const pageCount = Math.ceil(totalItems / rowsPerPage);
 
   return (
-    <Box sx={{ py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',borderRadius:4 }}>
+    <Box sx={{ px:3,py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',borderRadius:4 }}>
       <Container>
         <Headertext title="Career Pathway" />
 
