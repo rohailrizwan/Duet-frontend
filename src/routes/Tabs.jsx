@@ -20,6 +20,7 @@ import FeedIcon from '@mui/icons-material/Feed';
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon />,isvisible:false },
   { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon />,isvisible:false },
   { label: "My Post", path: "/profile/viewmypost", icon: <FeedIcon />,isvisible:true },
+  { label: "My Chat", path: "/profile/chat", icon: <FeedIcon />,isvisible:false },
 ];
 
  const StudentTab = [
@@ -31,6 +32,7 @@ import FeedIcon from '@mui/icons-material/Feed';
   { label: "View Resume", path: "/profile/candidateResume", icon: <VisibilityIcon />,isvisible:false },
   { label: "Profile", path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
   { label: "Profile", path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
+   { label: "My Chat", path: "/profile/chat", icon: <FeedIcon />,isvisible:false },
 ];
 
  const AlumniTab = [
@@ -43,6 +45,7 @@ import FeedIcon from '@mui/icons-material/Feed';
   { label: "Profile",  path: "/profile/updateprofile", icon: <PersonIcon /> ,isvisible:false},
   { label: "Profile",  path: "/profile/ChangePassword", icon: <PersonIcon /> ,isvisible:false},
   { label: "My Post", path: "/profile/viewmypost", icon: <FeedIcon />,isvisible:true },
+   { label: "My Chat", path: "/profile/chat", icon: <FeedIcon />,isvisible:false },
 ];
 
 export {FacultyTab,StudentTab,AlumniTab}

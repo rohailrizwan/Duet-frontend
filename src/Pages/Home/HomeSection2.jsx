@@ -17,8 +17,8 @@ function Homesection2({ title2, description2 ,aboutimg}) {
                 padding: "100px 0px"
             }}
         >
-            {/* <Container> */}
-                <Grid container spacing={4} alignItems="center" justifyContent={"center"} sx={{px:2}}>
+            <Container>
+                <Grid container spacing={4} alignItems="center" justifyContent={"center"} sx={{px:0}}>
                     {/* Left side - Image */}
                     <Grid item xs={12} md={6}>
                         <Box
@@ -68,7 +68,7 @@ function Homesection2({ title2, description2 ,aboutimg}) {
                         </Typography>
                     </Grid>
                 </Grid>
-            {/* </Container> */}
+            </Container>
         </Box>
     );
 }

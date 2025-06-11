@@ -27,7 +27,7 @@ function Ourevents({ events = [], isLoading = false }) {
         padding: '100px 20px',
       }}
     >
-      {/* <Container> */}
+      <Container>
         <Typography
           variant="h3"
           component="h2"
@@ -116,7 +116,7 @@ function Ourevents({ events = [], isLoading = false }) {
             })}
           </Grid>
         )}
-      {/* </Container> */}
+      </Container>
     </Box>
   );
 }

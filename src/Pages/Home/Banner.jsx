@@ -28,7 +28,8 @@ function Banner({banners}) {
               style={{ backgroundImage: `url(${banner.image})` }}
             >
               <div className="overlay absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 z-10" />
-                <Container>
+                {/* <Container> */}
+                <div className="w-[90%] sm:max-w-[1200px]">
               <div className="relative z-20 px-0 h-full flex items-center justify-start text-white">
                   <div className="text-left">
                     <h1 className="text-3xl md:text-5xl md:w-[75%]    font_poppins font-bold mb-4" style={{lineHeight:"70px"}}>
@@ -39,7 +40,8 @@ function Banner({banners}) {
                     </p>
                   </div>
               </div>
-                </Container>
+                </div>
+                {/* </Container> */}
             </div>
           </div>
         ))}

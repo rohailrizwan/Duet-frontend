@@ -30,11 +30,13 @@ import { FacultyTab, StudentTab, AlumniTab } from '../../routes/Tabs';
 import { Outlet, useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/duetlogo.png'
 import { useSelector } from 'react-redux';
+import NotificationModal from '../../Pages/Notification';
 const drawerWidth = 260;
 
 function ResponsiveDrawer(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [notifymodal, setnotifymodal] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState('Home');
@@ -80,7 +82,8 @@ function ResponsiveDrawer(props) {
           component="img"
           src={logo} // Replace with your logo path
           alt="Logo"
-          sx={{ height: '100px', width: '100px' }}
+          sx={{ height: '100px', width: '100px',cursor:"pointer" }}
+          onClick={()=>navigate('/')}
         />
       </Box>
       <Divider />
@@ -229,7 +232,7 @@ function ResponsiveDrawer(props) {
               }}
             >
               <Badge badgeContent={4} color="error">
-                <ChatIcon sx={{ color: '#1a3c34' }} />
+                <ChatIcon sx={{ color: '#1a3c34',cursor:"pointer" }} onClick={()=>navigate('/profile/chat')}/>
               </Badge>
             </IconButton>
             <IconButton
@@ -240,7 +243,7 @@ function ResponsiveDrawer(props) {
               }}
             >
               <Badge badgeContent={2} color="error">
-                <NotificationsIcon sx={{ color: '#1a3c34' }} />
+                <NotificationsIcon sx={{ color: '#1a3c34' ,cursor:"pointer"}} onClick={()=>setnotifymodal(true)}/>
               </Badge>
             </IconButton>
             <Box
@@ -315,6 +318,7 @@ function ResponsiveDrawer(props) {
       >
         <Outlet />
       </Box>
+      <NotificationModal open={notifymodal} setOpen={setnotifymodal}/>
     </Box>
   );
 }

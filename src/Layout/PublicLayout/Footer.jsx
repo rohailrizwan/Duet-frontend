@@ -35,8 +35,8 @@ function Footer() {
     });
     return (
         <div className="bg-[white] relative ">
-            {/* <Container> */}
-                <Box sx={{ py: { xs: 6, sm: 8, md: 10  } ,px:3 ,justifyContent:'center' }} >
+            <Container>
+                <Box sx={{ py: { xs: 6, sm: 8, md: 10  } ,px:0 ,justifyContent:'center' }} >
                     <Grid container spacing={4}>
                         {/* Company Info */}
                         <Grid item xs={12} sm={6} md={4}>
@@ -131,7 +131,7 @@ function Footer() {
                         </Grid>
                     </Grid>
                 </Box>
-            {/* </Container> */}
+            </Container>
 
             {/* Bottom Bar */}
             <Box

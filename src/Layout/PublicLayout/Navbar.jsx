@@ -101,8 +101,8 @@ export default function Navbar({user}) {
                         src={cardlogo}
                         alt="Logo"
                         sx={{
-                            height: "100px",
-                            width: "100px",
+                            height: "70px",
+                            width: "70px",
                             borderRadius: "50%",
                             display: { xs: "none", md: "block" }
                         }}

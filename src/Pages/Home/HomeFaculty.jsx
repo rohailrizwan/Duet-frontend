@@ -72,7 +72,7 @@ const FacultySection = ({ data = [], loading = false }) => {
         padding: "100px 0px"
       }}
     >
-      {/* <Container> */}
+      <Container>
         <Typography
           variant="h3"
           component="h2"
@@ -140,7 +140,7 @@ const FacultySection = ({ data = [], loading = false }) => {
         <Box sx={{ margin: '40px 0px 0px 0px', display: "flex", justifyContent: "center" }}>
           <NewButton title="View More" handleFunction={handleFunction} />
         </Box>
-      {/* </Container> */}
+      </Container>
     </Box>
   );
 };
