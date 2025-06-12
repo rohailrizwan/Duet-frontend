@@ -22,6 +22,7 @@
     "emoji-picker-react": "^4.12.2",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.7.4",
+    "moment": "^2.30.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.8",
@@ -34,6 +35,7 @@
     "react-slick": "^0.30.3",
     "redux-persist": "^6.0.0",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.8.1",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
