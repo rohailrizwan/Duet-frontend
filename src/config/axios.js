@@ -1,8 +1,7 @@
 import axios from "axios";
 
-
-const server = "https://duet.mangotech-api.com/api";
-export const baseUrl = "https://duet.mangotech-api.com/";
+const server = "http://localhost:8000/api";
+export const baseUrl = "http://localhost:8000/";
 export const imagebaseUrl = "https://duet.mangotech-api.com/uploads";
 
 // Default instance (without token)
@@ -31,18 +30,17 @@ const authInstance = axios.create({
 
 authInstance.interceptors.request.use((request) => {
   const persistRoot = localStorage.getItem("persist:root");
-  let token
+  let token;
   if (persistRoot) {
     const parsedRoot = JSON.parse(persistRoot);
     const authString = parsedRoot.auth;
     if (authString) {
       const authData = JSON.parse(authString);
-       token = authData.token;
+      token = authData.token;
 
       // console.log("Token:", token);
     }
   }
-
 
   request.headers = {
     ...request.headers,

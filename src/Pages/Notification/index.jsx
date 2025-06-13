@@ -1,21 +1,26 @@
-
-import { Popover, Box, Typography, Button, Badge, IconButton } from "@mui/material"
-import { MoreVert, Notifications } from "@mui/icons-material"
-import Colors from "../../assets/Style"
-import { useEffect, useState } from "react"
-import io from "socket.io-client";
+import {
+  Popover,
+  Box,
+  Typography,
+  Button,
+  Badge,
+  IconButton,
+} from "@mui/material";
+import { MoreVert, Notifications } from "@mui/icons-material";
+import Colors from "../../assets/Style";
+import { useEffect, useState } from "react";
 import { baseUrl } from "../../Config/axios";
 import { useSelector } from "react-redux";
 import WebServices from "../../apis/Website";
+import socket from "../../../socket";
 
 const NotificationModal = ({ open, setOpen, anchorEl }) => {
-  const handleClose = () => setOpen(false)
-  const user = useSelector((state) => state?.auth?.user)
-  console.log(user,"userssss");
-  
+  const handleClose = () => setOpen(false);
+  const user = useSelector((state) => state?.auth?.user);
+  console.log(user, "userssss");
+
   const [notifications, setNotifications] = useState([]);
 
-  const socket = io(baseUrl);
 
   useEffect(() => {
     socket.on("connection", () => {
@@ -37,16 +42,14 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
 
   const getnotify = async () => {
     try {
-      const response = await WebServices?.getnotify()
+      const response = await WebServices?.getnotify();
       console.log(response);
-      setNotifications(response?.data)
-    } catch (error) {
-
-    }
-  }
+      setNotifications(response?.data);
+    } catch (error) {}
+  };
   useEffect(() => {
-    getnotify()
-  }, [])
+    getnotify();
+  }, []);
   // Get notification type color
   const getTypeColor = (type) => {
     switch (type?.toLowerCase()) {
@@ -60,7 +63,6 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
         return Colors.PrimaryBlue;
     }
   };
-
 
   return (
     <Popover
@@ -183,7 +185,6 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
                   border: `2px solid ${getTypeColor(notification?.creator)}`,
                 }}
               />
-
             </Box>
 
             {/* Content */}
@@ -195,9 +196,8 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
                 sx={{ mb: 0.5 }}
               >
                 {notification?.title?.length > 50
-                  ? notification.title.substring(0, 50) + '...'
+                  ? notification.title.substring(0, 50) + "..."
                   : notification?.title}
-
               </Typography>
               <Typography
                 variant="body2"
@@ -206,9 +206,8 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
                 sx={{ mb: 1, lineHeight: 1.4 }}
               >
                 {notification?.description?.length > 50
-                  ? notification.description.substring(0, 50) + '...'
+                  ? notification.description.substring(0, 50) + "..."
                   : notification?.description}
-
               </Typography>
               <Typography
                 variant="caption"
@@ -225,13 +224,11 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
                 {new Date(notification?.createdAt).toDateString()}
               </Typography>
             </Box>
-
           </Box>
         ))}
       </Box>
-
     </Popover>
-  )
-}
+  );
+};
 
-export default NotificationModal
+export default NotificationModal;
