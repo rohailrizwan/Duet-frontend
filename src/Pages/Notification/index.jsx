@@ -1,58 +1,83 @@
-"use client"
 
 import { Popover, Box, Typography, Button, Badge, IconButton } from "@mui/material"
 import { MoreVert, Notifications } from "@mui/icons-material"
 import Colors from "../../assets/Style"
+import { useEffect, useState } from "react"
+import io from "socket.io-client";
+import { baseUrl } from "../../Config/axios";
+import { useSelector } from "react-redux";
 
 const NotificationModal = ({ open, setOpen, anchorEl }) => {
   const handleClose = () => setOpen(false)
+  const user=useSelector((state)=>state?.auth?.user)
 
-  const notifications = [
-    {
-      image: "https://via.placeholder.com/40",
-      name: "New Job Posting Available",
-      description:
-        "We are excited to announce a new job opening for a software developer. Apply now to join our growing team.",
-      date: "2025-04-26",
-      unread: true,
-      type: "job",
-    },
-    {
-      image: "https://via.placeholder.com/40",
-      name: "Reminder: Meeting Tomorrow",
-      description: "Don't forget about the meeting scheduled for tomorrow at 10 AM. It's going to be an important one.",
-      date: "2025-04-25",
-      unread: true,
-      type: "reminder",
-    },
-    {
-      image: "https://via.placeholder.com/40",
-      name: "Event Reminder: Annual Conference",
-      description:
-        "The annual tech conference will be held next week. Mark your calendars and register early to secure your spot.",
-      date: "2025-04-24",
-      unread: false,
-      type: "event",
-    },
-    {
-      image: "https://via.placeholder.com/40",
-      name: "New Course Launched",
-      description:
-        "A new course on Advanced React has been launched. Enroll now to upgrade your skills and boost your career prospects.",
-      date: "2025-04-23",
-      unread: false,
-      type: "course",
-    },
-    {
-      image: "https://via.placeholder.com/40",
-      name: "System Maintenance Notification",
-      description:
-        "Our system will undergo scheduled maintenance this weekend. Some services may be temporarily unavailable.",
-      date: "2025-04-22",
-      unread: false,
-      type: "system",
-    },
-  ]
+  const [notifications, setNotifications] = useState([]);
+
+  const socket = io(baseUrl);
+
+  // const notifications = [
+  //   {
+  //     image: "https://via.placeholder.com/40",
+  //     name: "New Job Posting Available",
+  //     description:
+  //       "We are excited to announce a new job opening for a software developer. Apply now to join our growing team.",
+  //     date: "2025-04-26",
+  //     unread: true,
+  //     type: "job",
+  //   },
+  //   {
+  //     image: "https://via.placeholder.com/40",
+  //     name: "Reminder: Meeting Tomorrow",
+  //     description: "Don't forget about the meeting scheduled for tomorrow at 10 AM. It's going to be an important one.",
+  //     date: "2025-04-25",
+  //     unread: true,
+  //     type: "reminder",
+  //   },
+  //   {
+  //     image: "https://via.placeholder.com/40",
+  //     name: "Event Reminder: Annual Conference",
+  //     description:
+  //       "The annual tech conference will be held next week. Mark your calendars and register early to secure your spot.",
+  //     date: "2025-04-24",
+  //     unread: false,
+  //     type: "event",
+  //   },
+  //   {
+  //     image: "https://via.placeholder.com/40",
+  //     name: "New Course Launched",
+  //     description:
+  //       "A new course on Advanced React has been launched. Enroll now to upgrade your skills and boost your career prospects.",
+  //     date: "2025-04-23",
+  //     unread: false,
+  //     type: "course",
+  //   },
+  //   {
+  //     image: "https://via.placeholder.com/40",
+  //     name: "System Maintenance Notification",
+  //     description:
+  //       "Our system will undergo scheduled maintenance this weekend. Some services may be temporarily unavailable.",
+  //     date: "2025-04-22",
+  //     unread: false,
+  //     type: "system",
+  //   },
+  // ]
+  useEffect(() => {
+    socket.on("connection", () => {
+      console.log("Connected to socket server");
+    });
+    socket.emit("join", user?._id);
+
+    socket.on("notification", (data) => {
+      console.log("📨 New Notification received:", data);
+    });
+
+    return () => {
+      return () => {
+        socket.off("notification");
+        socket.off("connect");
+      };
+    };
+  }, []);
 
   // Get notification type color
   const getTypeColor = (type) => {
