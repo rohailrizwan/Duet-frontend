@@ -145,7 +145,7 @@ function MyJob() {
                                             <NewButton2
                                                 title="View Resume"
                                                 fontsize="12px"
-                                                handleFunction={() => navigate('/profile/ViewResume')}
+                                                handleFunction={() => navigate(`/profile/ViewResume/${job?.name}`)}
                                                 className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-1 px-3 rounded-full transform transition-transform hover:scale-105"
                                             />
                                         </TableCell>

@@ -1,6 +1,7 @@
 const resumeRoute = {
  createresume:"/user/resume",
- getresume:"/user/resume",
+ getresume:"/job/resume-jobs",
+ getResumebyid:"/user/resume",
 };
 
 export default resumeRoute;

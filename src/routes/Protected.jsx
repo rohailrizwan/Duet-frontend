@@ -41,7 +41,7 @@ const ProtectedLinks=[
         component: <MyJob />,
     },
     {
-    path: "/profile/ViewResume", // faculty and alumni
+    path: "/profile/ViewResume/:id", // faculty and alumni
         component: <ViewResume />,
     },
     {

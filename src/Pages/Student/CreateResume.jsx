@@ -463,7 +463,7 @@ function CreateResume() {
 
     const getData = async () => {
         try {
-            const response = await resumeService?.getResume()
+            const response = await resumeService?.getResumebyid()
             if (response) {
                 setresumeData(response?.data)
             }
@@ -703,7 +703,7 @@ function CreateResume() {
             setloader(false)
         } catch (error) {
             console.error("Error generating PDF:", error)
-            ErrorToaster("Failed to generate PDF. Please try again.")
+            // ErrorToaster("Failed to generate PDF. Please try again.")
             setloader(false)
         }
     }
@@ -1402,7 +1402,7 @@ function CreateResume() {
             <Box
                 sx={{
                     minHeight: "100vh",
-                    backgroundColor: "#f8f9fa",
+                    // backgroundColor: "#f8f9fa",
                     py: { xs: 2, sm: 4 },
                     px: { xs: 1, sm: 2 },
                 }}
@@ -1477,7 +1477,7 @@ function CreateResume() {
                                     <Box sx={{ mt: 2, textAlign: "center" }}>
                                         <Typography variant="body1" color="primary">
                                             <a href={pdfUrl} download={`${formData?.personalInfo.fullname}_Resume.pdf`}>
-                                                Download your Resume PDF
+                                                View your Resume PDF
                                             </a>
                                         </Typography>
                                     </Box>

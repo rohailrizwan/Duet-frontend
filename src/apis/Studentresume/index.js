@@ -7,8 +7,12 @@ const resumeService = {
         const result = await posttoken(`${resumeRoute?.createresume}`, obj);
         return result;
     },
-    getResume: async () => {
-        const result = await gettoken(resumeRoute?.getresume );
+    getResume: async (name) => {
+        const result = await gettoken(`${resumeRoute?.getresume}/${name}` );
+        return result;
+    },
+    getResumebyid: async () => {
+        const result = await gettoken(`${resumeRoute?.getResumebyid}` );
         return result;
     },
 
