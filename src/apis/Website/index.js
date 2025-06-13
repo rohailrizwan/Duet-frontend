@@ -1,4 +1,4 @@
-import { get } from "..";
+import { get, gettoken } from "..";
 import webroute from "./route";
 
 const WebServices = {
@@ -10,12 +10,16 @@ const WebServices = {
         const result = await get(webroute.getabout);
         return result;
     },
-    getEvent: async (page,limit) => {
+    getEvent: async (page, limit) => {
         const result = await get(webroute.getEvents + `?page=${page || 1}&limit=${limit || 10}`);
         return result;
     },
-    getTerms: async (page,limit) => {
+    getTerms: async (page, limit) => {
         const result = await get(webroute.getTerms + `?page=${page || 1}&limit=${limit || 10}`);
+        return result;
+    },
+    getnotify: async () => {
+        const result = await gettoken(webroute.getnotify);
         return result;
     },
 

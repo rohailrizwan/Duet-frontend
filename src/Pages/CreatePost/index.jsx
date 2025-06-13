@@ -21,7 +21,7 @@ import { ErrorToaster, SuccessToaster } from "../../Components/Toaster";
 import { imagebaseUrl } from "../../Config/axios";
 import PostService from "../../apis/Post";
 
-const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedit,setselectedpost}) => {
+const CreatePostModal = ({ open, setOpen, callback,selectedPost,setisedit ,isedit,setselectedpost=()=>{}}) => {
     const [altText, setAltText] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
