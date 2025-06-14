@@ -25,7 +25,7 @@ const UpdateProfileHeader = ({ text }) => {
           transition: "transform 0.3s ease, text-shadow 0.3s ease",
         }}
       >
-        {text} Use the dynamic text prop
+        {text}
       </Typography>
     </Box>
   );

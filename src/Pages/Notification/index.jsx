@@ -5,6 +5,7 @@ import {
   Button,
   Badge,
   IconButton,
+  Avatar,
 } from "@mui/material";
 import { MoreVert, Notifications } from "@mui/icons-material";
 import Colors from "../../assets/Style";
@@ -30,6 +31,7 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
 
     socket.on("notification", (data) => {
       console.log("📨 New Notification received:", data);
+      setNotifications([data, ...notifications]);
     });
 
     return () => {
@@ -174,9 +176,9 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
 
             {/* Profile image with status indicator */}
             <Box sx={{ position: "relative" }}>
-              <img
-                src={notification.image || "/placeholder.svg"}
-                alt="notification icon"
+              <Avatar
+                src={notification?.image || "/placeholder.svg"}
+                alt={notification?.title}
                 style={{
                   width: 48,
                   height: 48,
