@@ -132,8 +132,6 @@ const Chat = () => {
     if (chatContainerRef.current) {
       const element = chatContainerRef.current;
       const scrollTop = element.scrollTop;
-
-      // Prevent setting isScrolling to true if it's a new chat or initial load
       if (scrollTop <= 5 && !isInitialLoad && !isNewChatOpen) {
         setIsScrolling(true);
       } else {
@@ -195,25 +193,25 @@ const Chat = () => {
   const handleSendMessage = async () => {
     const inputElement = document.getElementById("input");
     const newMessage = inputElement?.value?.trim();
-  
+
     if (!newMessage) return;
-  
+
     const messageData = {
       receiver: selectedChat?.receiverId,
       receiverRole: selectedToggle === "alumini" ? "alumni" : "faculty",
       message: newMessage,
     };
-  
-    console.log(messageData, "messageData");
-  
-    try {
-      const res = await ChatServices.sendChat(messageData);
-  
 
-      if (res?.status ==true) {
+    console.log(messageData, "messageData");
+
+    try {
+      const res= await ChatServices.sendChat(messageData);
+
+      console.log(res, "response");
+      if (res?.status) {
         console.log(res.data, "response success ==>>");
-  
-        getChatWithRoomId();
+
+        getChatWithRoomId(res?.data);
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
         inputElement.value = "";
       } else {
@@ -224,8 +222,6 @@ const Chat = () => {
       console.log("Error response:", error?.response);
     }
   };
-  
-  
 
   const getAllChats = async () => {
     try {
@@ -254,10 +250,12 @@ const Chat = () => {
   useEffect(() => {
     getAllChats();
   }, []);
+ 
 
   console.log(selectedChat, "selectedChat");
   const getChatWithRoomId = async (chat) => {
-    const res = await ChatServices.getChatHistory(user?._id, chat?.receiverId);
+    console.log(chat)
+    const res = await ChatServices.getChatHistory(user?._id, chat?.receiverId != undefined ? chat?.receiverId : chat?.receiver,page );
     setMessages(res?.data);
   };
 

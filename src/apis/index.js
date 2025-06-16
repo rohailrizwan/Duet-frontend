@@ -62,7 +62,7 @@ export const gettoken = async (endPoint, param) => {
 export const posttoken = async (endPoint, data) => {
   try {
     const result = await authInstance.post(endPoint, data);
-    if (result.status == 200 || result.status == 206) return result.data;
+    if (result.status == 200 || result.status == 206 || result.status == 201) return result.data;
     else throw result
   } catch (e) {
     throw ErrorHandler(e)
