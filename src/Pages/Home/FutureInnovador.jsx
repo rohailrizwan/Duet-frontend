@@ -7,13 +7,19 @@ import {
     Card,
     CardContent,
     Avatar,
-    Skeleton
+    Chip ,
+    Skeleton,
+    Tooltip,
+    Stack,
+    IconButton ,
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Download, Email, GitHub, School ,LinkedIn } from '@mui/icons-material';
+import { Divider } from 'antd';
 
 const FutureInnovatorsSection = ({ data = [], loading = false }) => {
     const sliderSettings = {
@@ -40,6 +46,7 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
             }
         ]
     };
+    const compact = true
 
     const renderSkeletons = () => (
         Array.from({ length: 3 }).map((_, index) => (
@@ -96,60 +103,166 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
                         {data.map((student, index) => (
                             <Box key={index} px={2}>
                                 <Card
-                                    component={motion.div}
-                                    whileHover={{ scale: 1.01, boxShadow: '0 0 30px rgba(0,0,0,0.15)' }}
-                                    transition={{ type: 'spring', stiffness: 200 }}
-                                    sx={{
-                                        p: 3,
-                                        borderRadius: 6,
-                                        textAlign: 'center',
-                                        backdropFilter: 'blur(10px)',
-                                        background: 'rgba(255, 255, 255, 0.9)',
-                                        border: '1px solid #e0e0e0',
-                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
-                                    }}
-                                >
-                                    <Avatar
-                                        alt={student.name}
-                                        src={student?.profilePicture}
-                                        sx={{
-                                            width: 90,
-                                            height: 90,
-                                            mx: 'auto',
-                                            mb: 2,
-                                            border: '3px solid #1976d2',
-                                            boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
-                                        }}
-                                    />
-                                    <CardContent>
-                                        <Typography variant="h6" fontWeight="bold" gutterBottom>
-                                            {student.name}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.secondary" gutterBottom>
-                                           Program Year {student.programYear}
-                                        </Typography>
-                                        <Button
-                                            variant="contained"
-                                            size="small"
-                                            component="a"
-                                            href={student.resume}
-                                            download
-                                            sx={{
-                                                mt: 2,
-                                                borderRadius: 8,
-                                                background: 'linear-gradient(to right, #1976d2, #2196f3)',
-                                                color: '#fff',
-                                                textTransform: 'none',
-                                                fontWeight: 500,
-                                                '&:hover': {
-                                                    background: 'linear-gradient(to right, #1565c0, #1e88e5)'
-                                                }
-                                            }}
-                                        >
-                                            Download Resume
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+      component={motion.div}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{
+        scale: 1.02,
+        boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+      }}
+      transition={{ duration: 0.3 }}
+      sx={{
+        maxWidth: compact ? 300 : 380,
+        borderRadius: 3,
+        overflow: "hidden",
+        background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
+        border: "1px solid #e0e0e0",
+      }}
+    >
+      {/* Header Section */}
+      <Box
+        sx={{
+          background: "linear-gradient(90deg, #7b9acc, #2f3c5a)",
+          color: "white",
+          p: compact ? 2 : 3,
+          textAlign: "center",
+        }}
+      >
+        <Avatar
+          src={student.profilePicture}
+          alt={`${student.name} ${student.lastName}`}
+          sx={{
+            width: compact ? 70 : 90,
+            height: compact ? 70 : 90,
+            mx: "auto",
+            mb: 2,
+            border: "3px solid rgba(255,255,255,0.3)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+          }}
+        />
+        <Typography variant={compact ? "h6" : "h5"} fontWeight="bold" gutterBottom>
+          {student.name} {student.lastName}
+        </Typography>
+        <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
+          {student.department.name}
+        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 1 }}>
+          <Chip
+            label={`${student.academicDetails.semester} Semester`}
+            size="small"
+            sx={{
+              backgroundColor: "rgba(255,255,255,0.2)",
+              color: "white",
+              fontSize: "0.75rem",
+            }}
+          />
+          <Chip
+            label={`CGPA: ${student.cgpa}`}
+            size="small"
+            sx={{
+              backgroundColor: "rgba(255,255,255,0.2)",
+              color: "white",
+              fontSize: "0.75rem",
+              fontWeight: "bold",
+            }}
+          />
+        </Box>
+      </Box>
+
+      <CardContent sx={{ p: compact ? 2 : 3 }}>
+        {/* Contact Information */}
+        {/* {showContact && ( */}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ color: "#667eea" }}>
+              <Email sx={{ mr: 1, fontSize: 16, verticalAlign: "middle" }} />
+              Contact
+            </Typography>
+            <Stack spacing={0.5}>
+              <Typography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                📧 {student.email}
+              </Typography>
+              <Typography variant="body2" sx={{ fontSize: "0.85rem" }}>
+                📞 {student.contactNumber}
+              </Typography>
+            </Stack>
+          </Box>
+        {/* )} */}
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Skills */}
+        
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ color: "#667eea" }}>
+              <School sx={{ mr: 1, fontSize: 16, verticalAlign: "middle" }} />
+              Skills
+            </Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+              {student?.skills?.map((skill, index) => (
+                <Chip
+                  key={index}
+                  label={skill}
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    fontSize: "0.75rem",
+                    height: 24,
+                    borderColor: "#667eea",
+                    color: "#667eea",
+                    "&:hover": {
+                      backgroundColor: "#667eea",
+                      color: "white",
+                    },
+                  }}
+                />
+              ))}
+              {/* {student.skills.length > (compact ? 3 : 6) && (
+                <Chip
+                  label={`+${student.skills.length - (compact ? 3 : 6)}`}
+                  size="small"
+                  sx={{
+                    fontSize: "0.75rem",
+                    height: 24,
+                    backgroundColor: "#f0f0f0",
+                    color: "#666",
+                  }}
+                />
+              )} */}
+            </Box>
+          </Box>
+        
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Action Buttons */}
+        <Box sx={{ display: "flex", gap: 1, justifyContent: "center", flexWrap: "wrap" }}>
+          <Button
+            variant="contained"
+            size={compact ? "small" : "medium"}
+            startIcon={<Download />}
+            href={student.resumeUrl}
+            download
+            sx={{
+              borderRadius: 2,
+              background: "linear-gradient(90deg, #7b9acc, #2f3c5a)",
+              textTransform: "none",
+              fontWeight: 600,
+              fontSize: compact ? "0.75rem" : "0.875rem",
+              "&:hover": {
+                background: "linear-gradient(90deg, #7b9acc, #2f3c5a)",
+                transform: "translateY(-1px)",
+              },
+            }}
+          >
+            Resume
+          </Button>
+
+          
+         
+         
+        </Box>
+      </CardContent>
+    </Card>
                             </Box>
                         ))}
                     </Slider>
