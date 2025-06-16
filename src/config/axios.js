@@ -1,4 +1,4 @@
-import axios from "axios";
+  import axios from "axios";
 
 const server = "https://duet.mangotech-api.com/api";
 export const baseUrl = "https://duet.mangotech-api.com/";
@@ -47,6 +47,7 @@ authInstance.interceptors.request.use((request) => {
     Accept: "application/json, text/plain, */*",
     Authorization: `Bearer ${token}`,
     deviceuid: "TTxTT",
+    origins:"cd"
   };
   return request;
 });

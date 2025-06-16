@@ -24,6 +24,7 @@ const JobService = {
         const result = await deletedtoken(postRoutes?.deletejob + `/${id}`);
         return result;
     },
+    
 };
 
 export default JobService;

@@ -267,7 +267,7 @@ const MyProfile = () => {
         </Grid>
 
         {/* Job Opportunities Column */}
-        <Grid item xs={12} md={4} sx={{ display: { xs: "none", md: "block" } }}>
+        <Grid item xs={12} md={4} >
           <Box
             sx={{
               position: "sticky",

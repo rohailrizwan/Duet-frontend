@@ -1,8 +1,8 @@
 const ChatRoutes = {
-    sendRequest: "/lawyers/sendRequest",
-    getAllChat : '/users/chatRooms',
-    getChatWithRoomId:"/users/chats",
-    getRoomDetail:'/users/roomDetails'
+    sendChat: "/chat/",
+    getChatList : '/chat/list',
+    getChatHistory:"/chat/history",
+   
   }
   
   export default ChatRoutes;

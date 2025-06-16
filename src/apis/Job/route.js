@@ -4,7 +4,8 @@ const jobRoutes = {
   updatejob: "/job/",
   deletejob: "/job",
   getalljob: "/job",
-  getjobbyid:'/job/my-posts'
+  getjobbyid:'/job/my-posts',
+  
 };
 
 export default jobRoutes;

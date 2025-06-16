@@ -1,23 +1,20 @@
-import { post, get, put, deleted } from "../index";
+import { posttoken, gettoken} from "../index";
 import ChatRoutes from "./route";
 
 const ChatServices = {
-  sendRequest: async (obj) => {
-    const result = await post(ChatRoutes.sendRequest, obj);
+  sendChat: async (obj) => {
+    const result = await posttoken(ChatRoutes.sendChat, obj);
     return result;
   },
-  getAllChat: async (type) => {
-    const result = await get(ChatRoutes.getAllChat + `?type=${type}&page=${1}&limit=${10000}`);
+  getChatList: async () => {
+    const result = await gettoken(ChatRoutes.getChatList);
     return result;
   },
-  getChatWithRoomId: async (roomId,page,limit) => {
-    const result = await get(ChatRoutes.getChatWithRoomId + `?room_id=${roomId}&page=${page}&limit=${limit}`);
+  getChatHistory: async (senderId , recieverId) => {
+    const result = await gettoken(ChatRoutes.getChatHistory + `/${senderId}/${recieverId}`);
     return result;
   },
-  getRoomDetail: async (roomId) => {
-    const result = await get(ChatRoutes.getRoomDetail + `?room_id=${roomId}`);
-    return result;
-  },
+
 
 };
 

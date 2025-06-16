@@ -27,13 +27,13 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import moment from "moment";
 import Colors from "../../assets/Style";
 import ChatServices from "../../apis/Chat";
-import DuetLogo from "../../assets/images/duetLogo.png"
+import DuetLogo from "../../assets/images/duetLogo.png";
 import LaunchIcon from "@mui/icons-material/Launch";
 import { io } from "socket.io-client";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { baseUrl } from "../../Config/axios";
-
+import { useSelector } from "react-redux";
 
 const theme = createTheme({
   palette: {
@@ -51,10 +51,12 @@ const theme = createTheme({
 });
 
 const Chat = () => {
+  const user = useSelector((state) => state?.auth?.user);
+
   const [messages, setMessages] = useState([]);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
-  const [selectedToggle, setSelectedToggle] = useState("client_matter");
+  const [selectedToggle, setSelectedToggle] = useState("alumini"); // Default toggle value
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [chatLoading, setchatLoading] = useState(false);
@@ -69,9 +71,9 @@ const Chat = () => {
   const { state } = useLocation();
   const RoomID = state;
   const navigate = useNavigate();
-  // const socket = io("");
+  const socket = io(baseUrl);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [messageSent, setMessageSent] = useState(false); 
+  const [messageSent, setMessageSent] = useState(false);
 
   const MessageBubble = styled(Paper)(({ theme, sender }) => ({
     padding: "5px 15px",
@@ -99,9 +101,9 @@ const Chat = () => {
 
       setLoading(true);
       try {
-        const result = await ChatServices.getAllChat(newValue);
+        const result = await ChatServices.getChatList();
         if (result.responseCode === 200) {
-          setChats(result?.data?.chats);
+          setChats(result?.data);
           setSelectedChat(null);
         }
       } catch (error) {
@@ -111,34 +113,6 @@ const Chat = () => {
       }
     }
   };
- 
-  useEffect(() => {
-    if (RoomID?.type != "") {
-      setSelectedToggle(
-        RoomID?.type == "client_request" ? "client_request" : "client_matter"
-      );
-    }
-  }, [RoomID]);
-  console.log(selectedToggle, "selectedTogoke");
-
- 
-
-  const getRoomDetail = async () => {
-    try {
-      const result = await ChatServices.getRoomDetail(RoomID?.room_id);
-      if (result.responseCode === 200) {
-        setSelectedToggle(
-          result?.data?.details?.requestDetails._id
-            ? "client_request"
-            : "client_matter"
-        );
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  console.log(messages, "DataData");
 
   const groupMessagesByDate = (messages) => {
     return messages.reduce((acc, message) => {
@@ -152,11 +126,7 @@ const Chat = () => {
   };
   const groupedMessages = groupMessagesByDate(messages);
 
- 
-
   const chatContainerRef = useRef(null);
-
-  let timeoutId = null;
 
   const handleScroll = () => {
     if (chatContainerRef.current) {
@@ -207,151 +177,89 @@ const Chat = () => {
   }, [messages, selectedChat]);
 
   useEffect(() => {
-    getRoomDetail();
-  }, [RoomID]);
+    const handleReceiveMessage = (messageData) => {
+      console.log(messageData, "DataData");
+      const parsedData = JSON.parse(messageData);
+      console.log(parsedData, "DataData");
 
- 
-  
-
-  useEffect(() => {
-    // if (selectedChat!= null || RoomID != null) {
-    //   socket.emit(
-    //     "joinRoom",
-    //     selectedChat?.room_details?._id || RoomID?.room_id
-    //   );
-    // }
-  
-    // Socket listener for receiveMessage
-    // const handleReceiveMessage = (messageData) => {
-    //   console.log(messageData, "DataData");
-    //   const parsedData = JSON.parse(messageData);
-    //   console.log(parsedData, "DataData");
-    //     setLastChat(parsedData);
-    //   setMessages((prevMessages) => [...prevMessages, parsedData]);
-    //   console.log("messages ==>> ", messages);
-    //     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    // };
-    //   socket.on("receiveMessage", handleReceiveMessage);
-    // return () => {
-    //   socket.off("receiveMessage", handleReceiveMessage);
-    // };
-  }, [selectedChat]); 
-
-  const handleSendMessage = () => {
-    let newMessage = document.getElementById("input").value;
-    if (newMessage == "") {
-      return;
-    } else if (newMessage.trim()) {
-      const messageData = {
-        room_id: selectedChat?.room_details?._id
-          ? selectedChat?.room_details?._id
-          : RoomID?.room_id,
-        sender_id: selectedChat?.requester_id,
-        receiver_id: selectedChat?.client_id,
-        message: newMessage,
-        type: selectedChat?.type == "client_matter" ? "Matter" : "Request",
-        type_name:
-          selectedToggle == "client_matter"
-            ? selectedChat?.client_matter_details[0]?.title
-            : selectedChat?.client_request_details[0]?.title,
-      };
-
-      console.log(messageData ,"messageData232")
-
-      // socket.emit("sendMessage", messageData);
+      setMessages((prevMessages) => [...prevMessages, parsedData]);
+      console.log("messages ==>> ", messages);
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      // setNewMessage("");
-      document.getElementById("input").value = "";
-    }
-  };
+    };
+    socket.on("newMessage", handleReceiveMessage);
+    return () => {
+      socket.off("newMessage", handleReceiveMessage);
+    };
+  }, [selectedChat]);
+
+  const handleSendMessage = async () => {
+    const inputElement = document.getElementById("input");
+    const newMessage = inputElement?.value?.trim();
   
-  console.log("selectedChat ==>>>>", selectedChat);
-  const getChatWithRoomId = async (selectedChat) => {
-    setchatLoading(true);
-
+    if (!newMessage) return;
+  
+    const messageData = {
+      receiver: selectedChat?.receiverId,
+      receiverRole: selectedToggle === "alumini" ? "alumni" : "faculty",
+      message: newMessage,
+    };
+  
+    console.log(messageData, "messageData");
+  
     try {
-      const roomId = selectedChat?.room_details?._id || RoomID?.room_id;
+      const res = await ChatServices.sendChat(messageData);
+  
 
-      if (!roomId) {
-        console.error("No valid room ID found");
-        return;
-      }
-
-      const result = await ChatServices.getChatWithRoomId(roomId, page, 10);
-
-      if (result.responseCode === 200) {
-        setCount(result?.data?.count);
-
-        const newMessages = result?.data?.users?.slice().reverse();
-        setMessages((prevMessages) => [...newMessages, ...prevMessages]);
-
-        if (roomId && result?.data?.count == 0 && selectedChat) {
-          console.log(result?.data?.count, "messageData44");
-
-          const messageData = {
-            room_id: roomId,
-            sender_id: selectedChat?.requester_id,
-            receiver_id: selectedChat?.client_id,
-            message: selectedToggle === "client_matter" ? "Hello! Thank you for submitting your case.I've reviewed the details you've provided and I'm here to help.Please feel free to share any additional information or documents.Looking forward to assisting  you further!":  "Thank you for the request, please share more documents.", 
-            type: selectedChat?.type === "client_matter" ? "Matter" : "Request",
-            type_name:
-              selectedToggle === "client_matter"
-                ? selectedChat?.client_matter_details[0]?.title
-                : selectedChat?.client_request_details[0]?.title,
-          };
-          // socket.emit("sendMessage", messageData);
-          chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        }
+      if (res?.status ==true) {
+        console.log(res.data, "response success ==>>");
+  
+        getChatWithRoomId();
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        inputElement.value = "";
+      } else {
+        console.error("API responded with an error status:", res);
       }
     } catch (error) {
-      console.error("Error in getChatWithRoomId:", error);
-    } finally {
-      setchatLoading(false);
+      console.error("Error in sending message:", error);
+      console.log("Error response:", error?.response);
     }
   };
   
-  console.log(page , "page");
   
-  useEffect(() => {
-    if (selectedChat !=null) {
-      getChatWithRoomId(selectedChat);
-    }
-  }, [page]); 
-  
+
   const getAllChats = async () => {
     try {
-      const result = await ChatServices.getAllChat(selectedToggle);
-      if (result.responseCode === 200) {
-        const allChats = result?.data?.chats;
-        setChats(allChats);
-        if (RoomID?.room_id && !selectedChat) {
-          const matchingChat = allChats.find(
-            (chat) => chat.room_details?._id === RoomID.room_id
-          );
+      const result = await ChatServices.getChatList();
+      console.log(result, "chatsData");
 
-          if (matchingChat) {
-            getChatWithRoomId(matchingChat)
-            setSelectedChat(matchingChat);            
-          } else {
-           
-          }
-        }
-      }
+      setChats(result?.data);
+
+      // if (RoomID?.room_id && !selectedChat) {
+      //   const matchingChat = allChats.find(
+      //     (chat) => chat.room_details?._id === RoomID.room_id
+      //   );
+
+      //   if (matchingChat) {
+      //     getChatWithRoomId(matchingChat)
+      //     setSelectedChat(matchingChat);
+      //   } else {
+
+      //   }
+      // }
     } catch (error) {
       console.error(error);
     }
   };
-  // useEffect(() => {
-  //   getAllChats();
-  // }, [selectedToggle ,RoomID ,lastChat]);
+
   useEffect(() => {
     getAllChats();
-      const timer = setInterval(() => {
-      getAllChats();
-    }, 10000);
-      return () => clearInterval(timer);
-  }, [selectedToggle, RoomID, lastChat]);
-  
+  }, []);
+
+  console.log(selectedChat, "selectedChat");
+  const getChatWithRoomId = async (chat) => {
+    const res = await ChatServices.getChatHistory(user?._id, chat?.receiverId);
+    setMessages(res?.data);
+  };
 
   return (
     <ThemeProvider theme={theme} sx={{ padding: "0px 24px !important" }}>
@@ -374,10 +282,10 @@ const Chat = () => {
                 },
                 fontFamily: "Poppins",
               }}
-              value="client_matter"
-              aria-label="ALumini"
+              value="alumini"
+              aria-label="Alumini"
             >
-             Alumuni
+              Alumuni
             </ToggleButton>
             <ToggleButton
               sx={{
@@ -389,10 +297,10 @@ const Chat = () => {
                 },
                 fontFamily: "Poppins",
               }}
-              value="client_request"
+              value="faculty"
               aria-label="Faculty"
             >
-            Faculty
+              Faculty
             </ToggleButton>
           </ToggleButtonGroup>
         </Box>
@@ -451,79 +359,57 @@ const Chat = () => {
                   }}
                 >
                   {chats.map((chat) => {
-                    console.log(chat?._id === selectedChat?._id ," ==>>> chat")
-                    return(
-
-                    <React.Fragment key={chat._id}>
-                      <ListItem
-                        button
-                        style={{ backgroundColor:chat?._id === selectedChat?._id ? 'rgb(86 86 86 / 17%)' : "" }}
-                        sx={{
-                          cursor: "pointer",
-                          backgroundColor:
-                            chat?._id === selectedChat?._id
-                              ? "rgb(86 86 86 / 17%)"
-                              : "",
-                        }}
-                        onClick={() => {
-                          if (selectedChat?._id == chat?._id) {
-                            setSelectedChat(chat);
-                            getChatWithRoomId(chat)
-                          } else {
-                            setSelectedChat(chat);
-                            getChatWithRoomId(chat)
-                            setMessages([]);
-                            openNewChat();
-                          }
-                          setPage(1);
-                        }}
-                      >
-                        <ListItemAvatar>
-                          <Avatar
-                            src={baseUrl + "/" + chat?.client_details?.picture}
-                          />
-                        </ListItemAvatar>
-                        <ListItemText
-                          primary={
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                fontFamily: "Poppins",
-                              }}
-                            >
-                              <Box sx={{ fontFamily: "Poppins" }}>
-                                {/* Client Name */}
-                                <Box>
-                                  {chat?.client_details?.first_name +
-                                    " " +
-                                    chat?.client_details?.last_name}
+                    console.log(chat, " ==>>> chat");
+                    return (
+                      <React.Fragment key={chat._id}>
+                        <ListItem
+                          button
+                          style={{
+                            backgroundColor:
+                              chat?._id === selectedChat?._id
+                                ? "rgb(86 86 86 / 17%)"
+                                : "",
+                          }}
+                          sx={{
+                            cursor: "pointer",
+                            backgroundColor:
+                              chat?._id === selectedChat?._id
+                                ? "rgb(86 86 86 / 17%)"
+                                : "",
+                          }}
+                          onClick={() => {
+                            if (selectedChat?._id == chat?._id) {
+                              setSelectedChat(chat);
+                              getChatWithRoomId(chat);
+                            } else {
+                              setSelectedChat(chat);
+                              getChatWithRoomId(chat);
+                              setMessages([]);
+                              openNewChat();
+                            }
+                            setPage(1);
+                          }}
+                        >
+                          <ListItemAvatar>
+                            <Avatar src={chat?.profileImage} />
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  fontFamily: "Poppins",
+                                }}
+                              >
+                                <Box sx={{ fontFamily: "Poppins" }}>
+                                  {/* Client Name */}
+                                  <Box>{chat?.name + " " + chat?.lastName}</Box>
                                 </Box>
 
-                                <Tooltip
-                                  title={
-                                    chat?.client_matter_details?.[0]?.title ||
-                                    chat?.client_request_details?.[0]?.title
-                                  }
-                                >
-                                  <Box
-                                    sx={{
-                                      whiteSpace: "nowrap",
-                                      overflow: "hidden",
-                                      textOverflow: "ellipsis",
-                                      width: "100px",
-                                      cursor: "pointer",
-                                    }}
-                                  >
-                                    {chat?.client_matter_details?.[0]?.title ||
-                                      chat?.client_request_details?.[0]?.title}
-                                  </Box>
-                                </Tooltip>
-                              </Box>
-                             
-                              {console.log(lastChat, "messageData2")}
+                                {console.log(lastChat, "messageData2")}
 
-                              {chat?.last_chat && (
+                                {/* {chat?.lastMessage && (
                                 <Box
                                   sx={{
                                     fontSize: "13px",
@@ -534,57 +420,51 @@ const Chat = () => {
                                     chat?.last_chat?.sender_id &&
                                   lastChat?.receiver_id ===
                                     chat?.last_chat?.receiver_id
-                                    ? moment(lastChat?.created_at).format(
+                                    ? moment(chat?.created_at).format(
                                         "hh:mm a"
                                       )
-                                    : moment(chat?.last_chat?.sent_at).format(
+                                    : moment(chat?.createdAt).format(
                                         "hh:mm a"
                                       )}
                                 </Box>
-                              )}
-                            </Box>
-                          }
-                          secondary={
-                            <>
-                              {chat?.last_chat &&
-                                (chat?.last_chat?.is_seen ? (
-                                  <DoneAllIcon
-                                    sx={{
-                                      color: "rgb(101 158 211)",
-                                      fontSize: "1rem",
-                                      verticalAlign: "middle",
-                                      marginRight: "4px",
-                                    }}
-                                  />
-                                ) : (
-                                  <DoneAllIcon
-                                    sx={{
-                                      color: "gray",
-                                      fontSize: "1rem",
-                                      verticalAlign: "middle",
-                                      marginRight: "4px",
-                                    }}
-                                  />
-                                ))}
+                              )} */}
+                              </Box>
+                            }
+                            secondary={
+                              <>
+                                {chat?.lastMessage &&
+                                  (chat?.unreadCount ? (
+                                    <DoneAllIcon
+                                      sx={{
+                                        color: "rgb(101 158 211)",
+                                        fontSize: "1rem",
+                                        verticalAlign: "middle",
+                                        marginRight: "4px",
+                                      }}
+                                    />
+                                  ) : (
+                                    <DoneAllIcon
+                                      sx={{
+                                        color: "gray",
+                                        fontSize: "1rem",
+                                        verticalAlign: "middle",
+                                        marginRight: "4px",
+                                      }}
+                                    />
+                                  ))}
 
-                              {lastChat &&
-                              lastChat?.sender_id ===
-                                chat?.last_chat?.sender_id &&
-                              lastChat?.receiver_id ===
-                                chat?.last_chat?.receiver_id
-                                ? lastChat?.message
-                                : chat?.last_chat
-                                ? chat?.last_chat?.message
-                                : "No New Messaages"}
-                            </>
-                          }
-                          secondaryTypographyProps={{ noWrap: true }}
-                        />
-                      </ListItem>
-                      <Divider />
-                    </React.Fragment>
-                    )
-})}
+                                {chat?.lastMessage
+                                  ? chat?.lastMessage
+                                  : "No New Messaages"}
+                              </>
+                            }
+                            secondaryTypographyProps={{ noWrap: true }}
+                          />
+                        </ListItem>
+                        <Divider />
+                      </React.Fragment>
+                    );
+                  })}
                 </List>
               </Box>
 
@@ -613,26 +493,10 @@ const Chat = () => {
                                 fontFamily: "Poppins",
                               }}
                             >
-                              {selectedChat?.client_details?.first_name +
+                              {selectedChat?.name +
                                 " " +
-                                selectedChat?.client_details?.last_name}{" "}
-                              -{" "}
-                              {selectedToggle == "client_matter"
-                                ? selectedChat?.client_matter_details[0]?.title
-                                : selectedChat?.client_request_details[0]
-                                    ?.title}
+                                selectedChat?.lastName}{" "}
                             </Typography>
-                            <IconButton
-                              onClick={() =>
-                                navigate(
-                                  selectedToggle === "client_matter"
-                                    ? `/client-matter-detail/${selectedChat?.type_id}`
-                                    : `/client-request-detail/${selectedChat?.type_id}`
-                                )
-                              }
-                            >
-                              <LaunchIcon sx={{ color: Colors.white }} />
-                            </IconButton>
                           </>
                         )}
                       </Toolbar>
