@@ -41,9 +41,11 @@ function ResponsiveDrawer(props) {
   const [settingsOpen, setSettingsOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState('Home');
   const [activeTab, setActiveTab] = React.useState([]);
+  const [notifications, setNotifications] = useState([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+
 
   const user=useSelector((state)=>state?.auth?.user)
 
@@ -242,7 +244,7 @@ function ResponsiveDrawer(props) {
                 transition: 'transform 0.2s ease, background-color 0.3s ease',
               }}
             >
-              <Badge badgeContent={2} color="error">
+              <Badge badgeContent={notifications?.length} color="error">
                 <NotificationsIcon sx={{ color: '#1a3c34' ,cursor:"pointer"}} onClick={()=>setnotifymodal(true)}/>
               </Badge>
             </IconButton>
@@ -318,7 +320,7 @@ function ResponsiveDrawer(props) {
       >
         <Outlet />
       </Box>
-      <NotificationModal open={notifymodal} setOpen={setnotifymodal}/>
+    <NotificationModal open={notifymodal} setOpen={setnotifymodal} notifications ={notifications} setNotifications ={setNotifications}/>
     </Box>
   );
 }

@@ -15,12 +15,12 @@ import { useSelector } from "react-redux";
 import WebServices from "../../apis/Website";
 import socket from "../../../socket";
 
-const NotificationModal = ({ open, setOpen, anchorEl }) => {
+const NotificationModal = ({ open, setOpen, anchorEl ,notifications ,setNotifications }) => {
   const handleClose = () => setOpen(false);
   const user = useSelector((state) => state?.auth?.user);
   console.log(user, "userssss");
 
-  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([]);
 
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const NotificationModal = ({ open, setOpen, anchorEl }) => {
   useEffect(() => {
     getnotify();
   }, []);
-  // Get notification type color
+  
   const getTypeColor = (type) => {
     switch (type?.toLowerCase()) {
       case "user":
