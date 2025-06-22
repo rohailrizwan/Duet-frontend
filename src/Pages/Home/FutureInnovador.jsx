@@ -112,7 +112,7 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
       }}
       transition={{ duration: 0.3 }}
       sx={{
-        maxWidth: compact ? 300 : 380,
+        maxWidth: compact ? 400 : 380,
         borderRadius: 3,
         overflow: "hidden",
         background: "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)",
