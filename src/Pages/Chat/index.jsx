@@ -31,6 +31,7 @@ import { useSelector } from "react-redux";
 import ChatServices from "../../apis/Chat";
 import Colors from "../../assets/Style";
 import socket from "../../../socket";
+import { useLocation } from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -103,7 +104,7 @@ const Chat = () => {
   const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const prevScrollHeightRef = useRef(0);
-
+  const location=useLocation()
   const toggleOptions = {
     user: [
       { value: "alumni", label: "Alumni" },
@@ -385,7 +386,12 @@ const Chat = () => {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight - prevScrollHeightRef.current;
     }
   }, [messages]);
-
+  useEffect(()=>{
+      if(location?.state){
+        console.log(location?.state);
+        handleChatSelect(location?.state)
+      }
+  },[])
   return (
     <ThemeProvider theme={theme}>
       <ChatContainer>

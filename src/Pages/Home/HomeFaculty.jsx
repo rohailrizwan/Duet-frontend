@@ -6,13 +6,15 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Skeleton
+  Skeleton,
+  Divider,
+  Chip
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import Container from '../../Components/Container';
 import { NewButton } from '../../Components/BtnComponent';
 import { useNavigate } from 'react-router-dom';
-
+import sampleuser from '../../assets/images/sampleuser.png'
 const FacultySection = ({ data = [], loading = false }) => {
   const navigate = useNavigate();
 
@@ -114,22 +116,86 @@ const FacultySection = ({ data = [], loading = false }) => {
           <Slider {...sliderSettings}>
             {data.map((faculty, index) => (
               <Box key={index} sx={{ display: 'flex !important', justifyContent: 'center', padding: "10px 0px" }}>
-                <Card sx={{ borderRadius: 3, boxShadow: 3, maxWidth: 300, marginRight: "5px", width: '100%' }}>
+                <Card
+                  component={motion.div}
+                  whileHover={{ scale: 1.05, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)' }}
+                  sx={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '420px', // Fixed height for consistency
+                    backgroundColor: '#fff',
+                    transition: 'all 0.3s ease-in-out',
+                  }}
+                >
                   <CardMedia
                     component="img"
-                    height="220"
-                    image={faculty.image}
-                    alt={faculty.name}
-                    sx={{ objectFit: 'cover' }}
+                    image={faculty?.profilePicture || sampleuser}
+                    alt={faculty.name || 'Faculty'}
+                    sx={{
+                      height: '230px', // Adjusted height for better proportion
+                      objectFit: 'contain',
+                      borderBottom: '2px solid #3f51b5',
+                    }}
                   />
-                  <CardContent>
-                    <Typography variant="h6" className='font_poppins' sx={{ fontWeight: 600 }}>
-                      {faculty.name}
-                    </Typography>
-                    <Typography color="text.secondary" className='font_poppins'>{faculty.department}</Typography>
-                    <Typography variant="body2" color="primary">
-                      {faculty.designation}
-                    </Typography>
+                  <CardContent
+                    sx={{
+                      flexGrow: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      p: 2,
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        variant="h6"
+                        fontWeight={600}
+                        noWrap
+                        sx={{ color: '#1a237e', mb: 1 }}
+                      >
+                        {faculty.name || 'Unknown Faculty'}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ mb: 1, fontStyle: 'italic' }}
+                      >
+                        {faculty?.academicDetails?.designation || 'No Designation'}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                        {faculty?.academicDetails?.qualification || 'No Qualification'}
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ my: 1, borderColor: '#e0e0e0' }} />
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {faculty?.academicDetails?.department?.length > 0 ? (
+                        faculty.academicDetails.department.map((dept, idx) => (
+                          <Chip
+                            key={idx}
+                            label={dept?.name || 'Unknown'}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                            sx={{
+                              borderColor: '#3f51b5',
+                              color: '#3f51b5',
+                              fontWeight: 500,
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <Chip
+                          label="No Department"
+                          size="small"
+                          color="default"
+                          variant="outlined"
+                          sx={{ fontWeight: 500 }}
+                        />
+                      )}
+                    </Box>
                   </CardContent>
                 </Card>
               </Box>

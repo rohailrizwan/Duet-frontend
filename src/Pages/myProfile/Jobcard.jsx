@@ -7,6 +7,7 @@ import PhoneIcon from "@mui/icons-material/Phone"
 import VerifiedIcon from "@mui/icons-material/Verified"
 import ChatServices from "../../apis/Chat" // Adjust the import path as necessary
 import { useSelector } from "react-redux"
+import { useNavigate } from "react-router-dom"
 
 const JobCard = ({ job, truncate = false, maxlength = 120, istruncate = false, sx = {}, onReadMore }) => {
   const { name, companyname, timing, description, location, phonenumber, user } = job
@@ -14,18 +15,18 @@ const JobCard = ({ job, truncate = false, maxlength = 120, istruncate = false, s
   const shouldTruncate = truncate && description.length > MAX_LENGTH
   const displayedDescription = shouldTruncate ? `${description.slice(0, MAX_LENGTH)}...` : description
   const userdata=useSelector((state)=>state?.auth?.user)
-console.log(job?.user?._id , userdata?._id,"user")
-
+console.log(user?.lastname,"user")
+  const navigate=useNavigate()
   const sendChat  =async () => {
-    const chatData = {
-        receiver: user?._id,
-        receiverRole: user?.role,
-        message: "Hey, are you joining the session today?"
-    }
-
-    const res = await ChatServices.sendChat(chatData)
-    console.log(res)
-
+      console.log(user);
+      let obj={
+        receiverId:user?._id,
+        role:user?.role,
+        name:user?.name,
+        lastName:user?.lastname
+      }
+      navigate('/profile/chat',{state:obj})
+      
   }
   return (
     <Card
