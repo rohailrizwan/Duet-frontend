@@ -598,7 +598,7 @@ const Chat = () => {
               </Box>
             </>
           ) : (
-            <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+            <Box display="flex" alignItems="center" justifyContent="center" height="100%" sx={{display:{lg:"flex",md:"flex",sm:'none',xs:"none"}}}>
               <CardMedia component="img" sx={{ width: 300, height: "auto" }} image={DuetLogo} alt="Chat Icon" />
             </Box>
           )}

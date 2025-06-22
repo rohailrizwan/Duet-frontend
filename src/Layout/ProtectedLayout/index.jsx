@@ -311,7 +311,7 @@ function ResponsiveDrawer(props) {
           pt:0,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           backgroundColor: 'white',
-          minHeight: '100vh',
+          // minHeight: '100vh',
           // borderRadius: '8px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           mt: { xs: 8, sm: 7 },
