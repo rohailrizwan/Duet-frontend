@@ -12,18 +12,15 @@ function ViewResume() {
     const params = useParams()
     const [resume, setresume] = useState([])
     const [loading, setloading] = useState(true)
-    console.log(params?.id);
 
     const getResume = async () => {
         setloading(true)
         try {
             const response = await resumeService?.getResume(params?.id)
-            console.log(response);
             setresume(response?.matchedResumes || [])
             setloading(false)
 
         } catch (error) {
-            console.log(error);
             setloading(false)
 
         }

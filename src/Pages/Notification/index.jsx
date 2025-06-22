@@ -30,7 +30,7 @@ const NotificationModal = ({ open, setOpen, anchorEl ,notifications ,setNotifica
     socket.emit("join", user?._id);
 
     socket.on("notification", (data) => {
-      console.log("📨 New Notification received:", data);
+      // console.log("📨 New Notification received:", data);
       setNotifications([data, ...notifications]);
     });
 

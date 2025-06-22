@@ -29,7 +29,6 @@ const AvatarComponent = ({ scrolled }) => {
   };
 
   const handleGoToProfile = () => {
-    console.log("Go to Profile");
     navigate('/profile'); // or whatever your route is
     handleClose();
   };
@@ -39,7 +38,6 @@ const AvatarComponent = ({ scrolled }) => {
   };
 
   const handleLogout = () => {
-    console.log("Logout");
     dispatch(clearAuth())
     handleClose();
   };

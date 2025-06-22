@@ -73,7 +73,7 @@ const ViewJob = () => {
                 backgroundColor: "#ffffff",
                 border: "1px solid #e2e8f0",
                 overflow: "hidden",
-                boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+                // boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
               }}
             >
               {/* List Header */}
@@ -154,7 +154,7 @@ const ViewJob = () => {
                     </Typography>
                   </Box>
                 ) : (
-                  jobs.map((job, index) => (
+                  jobs?.map((job, index) => (
                     <Fade in={true} timeout={200 + index * 50} key={job.id}>
                       <Box
                         onClick={() => setSelectedJob(job)}
@@ -168,20 +168,21 @@ const ViewJob = () => {
                             left: 0,
                             top: 0,
                             bottom: 0,
-                            width: selectedJob?.id === job.id ? "4px" : "0px",
+                            width: selectedJob?._id === job._id ? "4px" : "0px",
                             backgroundColor: "#3b82f6",
                             borderRadius: "0 2px 2px 0",
                             transition: "width 0.2s ease",
                           },
                         }}
                       >
+                        
                         <JobCard
                           job={job}
                           truncate
                           maxlength={80}
                           istruncate
                           sx={{
-                            border: selectedJob?.id === job.id ? "2px solid #3b82f6" : "1px solid #e2e8f0",
+                            border: selectedJob?._id === job._id ? "2px solid #3b82f6" : "1px solid #e2e8f0",
                             borderRadius: 2,
                             transition: "all 0.2s ease",
                             backgroundColor: selectedJob?.id === job.id ? "#eff6ff" : "#ffffff",

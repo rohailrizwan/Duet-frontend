@@ -12,7 +12,6 @@ import { useSelector } from 'react-redux';
 
 function ProtectedRoutes() {
   const user = useSelector((state)=>state?.auth?.user)
-  console.log(user,"user");
   
   const [loading, setLoading] = useState(true); // Initial Loader
   const location = useLocation();

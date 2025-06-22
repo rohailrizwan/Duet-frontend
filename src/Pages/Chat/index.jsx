@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   ThemeProvider,
   createTheme,
@@ -20,671 +20,589 @@ import {
   ToggleButton,
   CircularProgress,
   CardMedia,
-  Tooltip,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import moment from "moment";
-import Colors from "../../assets/Style";
-import ChatServices from "../../apis/Chat";
 import DuetLogo from "../../assets/images/duetLogo.png";
-import LaunchIcon from "@mui/icons-material/Launch";
-import { io } from "socket.io-client";
-
-import { useLocation, useNavigate } from "react-router-dom";
-import { baseUrl } from "../../Config/axios";
 import { useSelector } from "react-redux";
+import ChatServices from "../../apis/Chat";
+import Colors from "../../assets/Style";
+import socket from "../../../socket";
 
 const theme = createTheme({
   palette: {
-    primary: {
-      main: "#075E54",
-    },
-    secondary: {
-      main: "#128C7E",
-    },
-    background: {
-      default: "#FFFFFF",
-      paper: "#FFFFFF",
-    },
+    primary: { main: "#173f72" },
+    secondary: { main: "#128C7E" },
+    background: { default: "#F5F5F5", paper: "#FFFFFF" },
   },
+  typography: { fontFamily: "'Poppins', sans-serif" },
 });
+
+const ChatContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  height: "85vh",
+  width: "100%",
+  overflow: "hidden",
+  [theme.breakpoints.down("sm")]: { flexDirection: "column" },
+}));
+
+const Sidebar = styled(Box)(({ theme, selectedChat }) => ({
+  width: "30%",
+  minWidth: "300px",
+  backgroundColor: theme.palette.background.paper,
+  borderRight: `1px solid ${theme.palette.divider}`,
+  display: "flex",
+  flexDirection: "column",
+  overflow: "hidden",
+  transition: "width 0.3s ease, height 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    width: "100%",
+    minWidth: "100%",
+    height: selectedChat ? 0 : "100%",
+    overflow: selectedChat ? "hidden" : "auto",
+  },
+}));
+
+const ChatArea = styled(Box)(({ theme, selectedChat }) => ({
+  flex: 1,
+  display: "flex",
+  flexDirection: "column",
+  backgroundColor: theme.palette.background.default,
+  transition: "width 0.3s ease, height 0.3s ease",
+  [theme.breakpoints.down("sm")]: {
+    height: selectedChat ? "100%" : 0,
+    width: "100%",
+  },
+}));
+
+const MessageBubble = styled(Paper)(({ theme, isSender }) => ({
+  padding: "8px 12px",
+  maxWidth: "70%",
+  borderRadius: isSender ? "20px 20px 0 20px" : "20px 20px 20px 0",
+  backgroundColor: isSender ? theme.palette.primary.main : "#65A2D3",
+  color: "#FFFFFF",
+  alignSelf: isSender ? "flex-end" : "flex-start",
+  marginBottom: theme.spacing(1),
+  wordBreak: "break-word",
+}));
 
 const Chat = () => {
   const user = useSelector((state) => state?.auth?.user);
-
   const [messages, setMessages] = useState([]);
   const [chats, setChats] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
-  const [selectedToggle, setSelectedToggle] = useState("alumini"); // Default toggle value
+  const [selectedToggle, setSelectedToggle] = useState("alumni");
   const [loading, setLoading] = useState(false);
+  const [chatLoading, setChatLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [chatLoading, setchatLoading] = useState(false);
-  const [lastChat, setLastChat] = useState(null);
-  const [count, setCount] = useState(0);
-  const [isNewChatOpen, setIsNewChatOpen] = useState(false);
-
+  const [hasMore, setHasMore] = useState(true);
+  const [error, setError] = useState(null);
+  const chatContainerRef = useRef(null);
   const chatEndRef = useRef(null);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const prevScrollHeightRef = useRef(0);
 
-  const chatStartRef = useRef(null);
-  const { state } = useLocation();
-  const RoomID = state;
-  const navigate = useNavigate();
-  const socket = io(baseUrl);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [messageSent, setMessageSent] = useState(false);
+  const toggleOptions = {
+    user: [
+      { value: "alumni", label: "Alumni" },
+      { value: "faculty", label: "Faculty" },
+    ],
+    alumni: [
+      { value: "user", label: "Student" },
+      { value: "alumni", label: "Alumni" },
+      { value: "faculty", label: "Faculty" },
+    ],
+    faculty: [
+      { value: "user", label: "Student" },
+      { value: "alumni", label: "Alumni" },
+      { value: "faculty", label: "Faculty" },
+    ],
+  };
 
-  const MessageBubble = styled(Paper)(({ theme, sender }) => ({
-    padding: "5px 15px",
-    maxWidth: "60%",
-    borderRadius:
-      sender?.sender_id == selectedChat?.requester_id
-        ? "20px 20px 0 20px"
-        : "20px 20px 20px 0",
-    backgroundColor:
-      sender?.sender_id == selectedChat?.requester_id
-        ? Colors.primary
-        : "rgb(101 158 211)",
-    alignSelf:
-      sender?.sender_id == selectedChat?.requester_id
-        ? "flex-end"
-        : "flex-start",
-    marginBottom: theme.spacing(1),
-    wordBreak: "break-word",
-    overflowWrap: "break-word",
-  }));
+  const filterChatsByRole = (chats, role) => {
+    console.log("Filtering chats:", chats, "for role:", role);
+    return chats.filter((chat) => chat.role === role);
+  };
 
   const handleToggleChange = async (event, newValue) => {
     if (newValue !== null) {
       setSelectedToggle(newValue);
-
       setLoading(true);
-      try {
-        const result = await ChatServices.getChatList();
-        if (result.responseCode === 200) {
-          setChats(result?.data);
-          setSelectedChat(null);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
+      setSelectedChat(null);
+      setMessages([]);
+      await getAllChats(newValue);
+      setLoading(false);
     }
+  };
+
+  const handleChatSelect = async (chat) => {
+    setSelectedChat(chat);
+    setMessages([]);
+    setPage(1);
+    setHasMore(true);
+    await getChatWithRoomId(chat, 1);
+  };
+
+  const handleBackToSidebar = () => {
+    setSelectedChat(null);
+    setMessages([]);
+    setPage(1);
+    setHasMore(true);
   };
 
   const groupMessagesByDate = (messages) => {
     return messages.reduce((acc, message) => {
       const date = moment(message.created_at).format("DD-MM-YYYY");
-      if (!acc[date]) {
-        acc[date] = [];
-      }
+      if (!acc[date]) acc[date] = [];
       acc[date].push(message);
       return acc;
     }, {});
   };
+
   const groupedMessages = groupMessagesByDate(messages);
 
-  const chatContainerRef = useRef(null);
+  const getAllChats = async (role = selectedToggle) => {
+    try {
+      setLoading(true);
+      const result = await ChatServices.getChatList();
+      if (result?.data) {
+        const filteredChats = filterChatsByRole(result?.data || [], role);
+        setChats(filteredChats);
+      } else {
+        console.error("API error:", result);
+        setChats([]);
+        setError("Failed to load chats");
+      }
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+      setChats([]);
+      setError("Error fetching chats");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getChatWithRoomId = async (chat, pageNum = 1) => {
+    try {
+      setChatLoading(true);
+      const receiverId = chat?.receiverId || chat?.receiver;
+      const res = await ChatServices.getChatHistory(user?._id, receiverId, pageNum);
+      if (res?.data) {
+        const newMessages = res?.data || [];
+        if (pageNum === 1) {
+          setMessages(newMessages);
+        } else {
+          setMessages((prev) => [...newMessages, ...prev]);
+        }
+        setHasMore(newMessages.length > 0 && messages.length + newMessages.length < (res?.total || 0));
+      } else {
+        console.error("API error:", res);
+        setError("Failed to load chat history");
+      }
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+      setError("Error fetching chat history");
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   const handleScroll = () => {
     if (chatContainerRef.current) {
-      const element = chatContainerRef.current;
-      const scrollTop = element.scrollTop;
-      if (scrollTop <= 5 && !isInitialLoad && !isNewChatOpen) {
-        setIsScrolling(true);
-      } else {
-        setIsScrolling(false);
-      }
-
-      if (scrollTop <= 5) {
-        timeoutId = setTimeout(() => {
-          if (!chatLoading) {
-            setPage((prevPage) => {
-              const maxPages = Math.ceil(count / 10);
-              if (prevPage < maxPages) {
-                return prevPage + 1;
-              }
-              return prevPage;
-            });
-          }
-        }, 500);
+      const { scrollTop, scrollHeight } = chatContainerRef.current;
+      if (scrollTop < 50 && !chatLoading && hasMore) {
+        prevScrollHeightRef.current = scrollHeight;
+        setPage((prev) => prev + 1);
       }
     }
   };
-  const openNewChat = (chat) => {
-    setIsNewChatOpen(true);
-    setIsScrolling(false);
-    setTimeout(() => {
-      setIsNewChatOpen(false);
-    }, 300);
-  };
-
-  useEffect(() => {
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    console.log(isScrolling, "isScroll");
-    if (!isScrolling) {
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, selectedChat]);
-
-  useEffect(() => {
-    const handleReceiveMessage = (messageData) => {
-      console.log(messageData, "DataData");
-      const parsedData = JSON.parse(messageData);
-      console.log(parsedData, "DataData");
-
-      setMessages((prevMessages) => [...prevMessages, parsedData]);
-      console.log("messages ==>> ", messages);
-      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-    socket.on("newMessage", handleReceiveMessage);
-    return () => {
-      socket.off("newMessage", handleReceiveMessage);
-    };
-  }, [selectedChat]);
 
   const handleSendMessage = async () => {
     const inputElement = document.getElementById("input");
     const newMessage = inputElement?.value?.trim();
 
-    if (!newMessage) return;
+    if (!newMessage || !selectedChat) return;
 
     const messageData = {
-      receiver: selectedChat?.receiverId,
-      receiverRole: selectedToggle === "alumini" ? "alumni" : "faculty",
+      receiver: selectedChat?.receiverId || selectedChat?.receiver,
+      receiverRole: selectedToggle,
       message: newMessage,
+      sender: user?._id,
+      created_at: new Date().toISOString(),
+      _id: `temp_${Date.now()}`,
     };
 
-    console.log(messageData, "messageData");
-
     try {
-      const res= await ChatServices.sendChat(messageData);
+      // Add message locally for sender
+      setMessages((prevMessages) => {
+        if (!prevMessages.some((msg) => msg._id === messageData._id)) {
+          return [...prevMessages, messageData];
+        }
+        return prevMessages;
+      });
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
-      console.log(res, "response");
-      if (res?.status) {
-        console.log(res.data, "response success ==>>");
+      // Update chats for sender
+      setChats((prevChats) => {
+        const chatExists = prevChats.find(
+          (chat) => (chat.receiverId || chat.receiver) === messageData.receiver
+        );
+        if (chatExists) {
+          return prevChats.map((chat) =>
+            (chat.receiverId || chat.receiver) === messageData.receiver
+              ? {
+                  ...chat,
+                  lastMessage: messageData.message,
+                  created_at: messageData.created_at,
+                }
+              : chat
+          );
+        }
+        return prevChats;
+      });
 
-        getChatWithRoomId(res?.data);
-        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      // Emit socket event
+      socket.emit("sendMessage", {
+        receiver: messageData.receiver,
+        receiverRole: messageData.receiverRole,
+        message: messageData.message,
+        sender: messageData.sender,
+        created_at: messageData.created_at,
+      });
+      console.log("Emitted sendMessage:", messageData);
+
+      // Send message via API
+      const res = await ChatServices.sendChat({
+        receiver: messageData.receiver,
+        receiverRole: messageData.receiverRole,
+        message: messageData.message,
+      });
+
+      if (res?.status && res?.data) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) =>
+            msg._id === messageData._id ? { ...msg, _id: res.data._id } : msg
+          )
+        );
         inputElement.value = "";
       } else {
         console.error("API responded with an error status:", res);
+        setError("Failed to send message");
       }
     } catch (error) {
       console.error("Error in sending message:", error);
-      console.log("Error response:", error?.response);
-    }
-  };
-
-  const getAllChats = async () => {
-    try {
-      const result = await ChatServices.getChatList();
-      console.log(result, "chatsData");
-
-      setChats(result?.data);
-
-      // if (RoomID?.room_id && !selectedChat) {
-      //   const matchingChat = allChats.find(
-      //     (chat) => chat.room_details?._id === RoomID.room_id
-      //   );
-
-      //   if (matchingChat) {
-      //     getChatWithRoomId(matchingChat)
-      //     setSelectedChat(matchingChat);
-      //   } else {
-
-      //   }
-      // }
-    } catch (error) {
-      console.error(error);
+      setError("Error sending message");
     }
   };
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to socket server:", socket.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error.message);
+      setError("Socket connection failed");
+    });
+
+    socket.on("newMessage", (data) => {
+      console.log("New message received:", data);
+      setMessages((prevMessages) => {
+        if (!prevMessages.some((msg) => msg._id === data._id)) {
+          return [...prevMessages, data];
+        }
+        return prevMessages;
+      });
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+
+      setChats((prevChats) => {
+        const receiverId = data.sender === user?._id ? data.receiver : data.sender;
+        const chatExists = prevChats.find(
+          (chat) => (chat.receiverId || chat.receiver) === receiverId
+        );
+        if (chatExists) {
+          return prevChats.map((chat) =>
+            (chat.receiverId || chat.receiver) === receiverId
+              ? {
+                  ...chat,
+                  lastMessage: data.message,
+                  created_at: data.created_at,
+                }
+              : chat
+          );
+        }
+        return [
+          ...prevChats,
+          {
+            _id: `chat_${receiverId}_${Date.now()}`,
+            lastMessage: data.message,
+            created_at: data.created_at,
+            name: data.sender?.name || "Unknown",
+            lastName: data.sender?.lastName || "",
+            profileImage: data.sender?.profileImage || "",
+            role: data.sender?.role || selectedToggle,
+            receiverId: receiverId,
+          },
+        ];
+      });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("newMessage");
+    };
+  }, []);
+
+  useEffect(() => {
     getAllChats();
   }, []);
- 
 
-  console.log(selectedChat, "selectedChat");
-  const getChatWithRoomId = async (chat) => {
-    console.log(chat)
-    const res = await ChatServices.getChatHistory(user?._id, chat?.receiverId != undefined ? chat?.receiverId : chat?.receiver,page );
-    setMessages(res?.data);
-  };
+  useEffect(() => {
+    if (selectedChat && page > 1) {
+      getChatWithRoomId(selectedChat, page);
+    }
+  }, [page, selectedChat]);
+
+  useEffect(() => {
+    if (selectedChat && page === 1 && !chatLoading) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, chatLoading, selectedChat]);
+
+  useEffect(() => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      chatContainer.addEventListener("scroll", handleScroll);
+      return () => chatContainer.removeEventListener("scroll", handleScroll);
+    }
+  }, [chatLoading, hasMore, selectedChat]);
+
+  useEffect(() => {
+    if (page > 1 && chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight - prevScrollHeightRef.current;
+    }
+  }, [messages]);
 
   return (
-    <ThemeProvider theme={theme} sx={{ padding: "0px 24px !important" }}>
-      <Box sx={{ height: "80vh", display: "flex", flexDirection: "column" }}>
-        <Box sx={{ p: 1, borderBottom: 1, borderColor: "divider" }}>
-          <ToggleButtonGroup
-            value={selectedToggle}
-            exclusive
-            onChange={handleToggleChange}
-            aria-label="Chat Type"
-            sx={{ width: "100%", display: "flex", justifyContent: "end" }}
-          >
-            <ToggleButton
-              sx={{
-                borderTopLeftRadius: "20px ",
-                borderBottomLeftRadius: "20px ",
-                "&.Mui-selected": {
-                  backgroundColor: Colors.primary,
-                  color: "white",
-                },
-                fontFamily: "Poppins",
-              }}
-              value="alumini"
-              aria-label="Alumini"
-            >
-              Alumuni
-            </ToggleButton>
-            <ToggleButton
-              sx={{
-                borderTopRightRadius: "20px ",
-                borderBottomRightRadius: "20px ",
-                "&.Mui-selected": {
-                  backgroundColor: Colors.primary,
-                  color: "white",
-                },
-                fontFamily: "Poppins",
-              }}
-              value="faculty"
-              aria-label="Faculty"
-            >
-              Faculty
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-
-        {loading ? (
-          <>
-            <Box
-              sx={{
-                flex: 1,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          </>
-        ) : chats?.length > 0 ? (
-          <>
-            <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
-              <Box
-                sx={{
-                  width: { xs: "100%", sm: "350px" },
-                  borderRight: 1,
-                  borderColor: "divider",
-                }}
+    <ThemeProvider theme={theme}>
+      <ChatContainer>
+        <Sidebar selectedChat={selectedChat}>
+          <AppBar position="static" color="primary" elevation={0}>
+            <Toolbar>
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Chats
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          {user?.role && (
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+              <ToggleButtonGroup
+                value={selectedToggle}
+                exclusive
+                onChange={handleToggleChange}
+                aria-label="Chat Type"
+                sx={{ width: "100%", display: "flex", gap: 1 }}
               >
-                <AppBar position="static" color="default" elevation={0}>
-                  <Toolbar
+                {toggleOptions[user?.role]?.map((option) => (
+                  <ToggleButton
+                    key={option.value}
+                    value={option.value}
+                    aria-label={option.label}
                     sx={{
-                      background: Colors.primary,
-                      borderTopLeftRadius: "10px",
-                      borderBottomLeftRadius: "10px",
+                      flex: 1,
+                      borderRadius: "20px",
+                      "&.Mui-selected": {
+                        backgroundColor: theme.palette.primary.main,
+                        color: "white",
+                      },
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        flexGrow: 1,
-                        color: Colors.white,
-                        fontFamily: "Poppins",
-                      }}
-                    >
-                      Chats
-                    </Typography>
-                  </Toolbar>
-                </AppBar>
-
-                <List
-                  sx={{
-                    overflow: "auto",
-                    height: "460px",
-                    "&::-webkit-scrollbar": {
-                      display: "none",
-                    },
-                  }}
-                >
-                  {chats.map((chat) => {
-                    console.log(chat, " ==>>> chat");
-                    return (
-                      <React.Fragment key={chat._id}>
-                        <ListItem
-                          button
-                          style={{
-                            backgroundColor:
-                              chat?._id === selectedChat?._id
-                                ? "rgb(86 86 86 / 17%)"
-                                : "",
-                          }}
-                          sx={{
-                            cursor: "pointer",
-                            backgroundColor:
-                              chat?._id === selectedChat?._id
-                                ? "rgb(86 86 86 / 17%)"
-                                : "",
-                          }}
-                          onClick={() => {
-                            if (selectedChat?._id == chat?._id) {
-                              setSelectedChat(chat);
-                              getChatWithRoomId(chat);
-                            } else {
-                              setSelectedChat(chat);
-                              getChatWithRoomId(chat);
-                              setMessages([]);
-                              openNewChat();
-                            }
-                            setPage(1);
-                          }}
-                        >
-                          <ListItemAvatar>
-                            <Avatar src={chat?.profileImage} />
-                          </ListItemAvatar>
-                          <ListItemText
-                            primary={
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  fontFamily: "Poppins",
-                                }}
-                              >
-                                <Box sx={{ fontFamily: "Poppins" }}>
-                                  {/* Client Name */}
-                                  <Box>{chat?.name + " " + chat?.lastName}</Box>
-                                </Box>
-
-                                {console.log(lastChat, "messageData2")}
-
-                                {/* {chat?.lastMessage && (
-                                <Box
-                                  sx={{
-                                    fontSize: "13px",
-                                    fontFamily: "Poppins",
-                                  }}
-                                >
-                                  {lastChat?.sender_id ===
-                                    chat?.last_chat?.sender_id &&
-                                  lastChat?.receiver_id ===
-                                    chat?.last_chat?.receiver_id
-                                    ? moment(chat?.created_at).format(
-                                        "hh:mm a"
-                                      )
-                                    : moment(chat?.createdAt).format(
-                                        "hh:mm a"
-                                      )}
-                                </Box>
-                              )} */}
-                              </Box>
-                            }
-                            secondary={
-                              <>
-                                {chat?.lastMessage &&
-                                  (chat?.unreadCount ? (
-                                    <DoneAllIcon
-                                      sx={{
-                                        color: "rgb(101 158 211)",
-                                        fontSize: "1rem",
-                                        verticalAlign: "middle",
-                                        marginRight: "4px",
-                                      }}
-                                    />
-                                  ) : (
-                                    <DoneAllIcon
-                                      sx={{
-                                        color: "gray",
-                                        fontSize: "1rem",
-                                        verticalAlign: "middle",
-                                        marginRight: "4px",
-                                      }}
-                                    />
-                                  ))}
-
-                                {chat?.lastMessage
-                                  ? chat?.lastMessage
-                                  : "No New Messaages"}
-                              </>
-                            }
-                            secondaryTypographyProps={{ noWrap: true }}
-                          />
-                        </ListItem>
-                        <Divider />
-                      </React.Fragment>
-                    );
-                  })}
-                </List>
-              </Box>
-
-              <Box
-                sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
-              >
-                {selectedChat ? (
-                  <>
-                    <AppBar position="static" color="default" elevation={1}>
-                      <Toolbar
-                        sx={{
-                          background: Colors.primary,
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderTopRightRadius: "10px",
-                          borderBottomRightRadius: "10px",
-                        }}
-                      >
-                        {selectedChat && (
-                          <>
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                flexGrow: 1,
-                                color: Colors.white,
-                                fontFamily: "Poppins",
-                              }}
-                            >
-                              {selectedChat?.name +
-                                " " +
-                                selectedChat?.lastName}{" "}
-                            </Typography>
-                          </>
-                        )}
-                      </Toolbar>
-                    </AppBar>
-                    <Box
-                      sx={{
-                        flex: 1,
-                        overflow: "hidden",
-                        display: "flex",
-                        flexDirection: "column",
-                        p: "0px ",
-                        backgroundColor: Colors.white,
-                      }}
-                    >
-                      <Paper
-                        elevation={0}
-                        sx={{
-                          flex: 1,
-                          overflow: "auto",
-                          p: "0px",
-
-                          backgroundColor: "transparent",
-                          backgroundColor: "transparent",
-
-                          "&::-webkit-scrollbar": {
-                            display: "none",
-                          },
-                        }}
-                      >
-                        <List>
-                          <div ref={chatContainerRef}></div>
-
-                          <Box
-                            onScroll={handleScroll}
-                            sx={{
-                              overflowY: "auto",
-                              maxHeight: "830px",
-
-                              "&::-webkit-scrollbar": {
-                                display: "none !important",
-                              },
-                            }}
-                            ref={chatContainerRef}
-                          >
-                            {chatLoading && (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  padding: "10px",
-                                }}
-                              >
-                                <CircularProgress
-                                  size={40}
-                                  sx={{ color: Colors.primary }}
-                                />
-                              </div>
-                            )}
-
-                            <div ref={chatStartRef}></div>
-
-                            {Object.entries(groupedMessages).map(
-                              ([date, messages]) => (
-                                <div key={date}>
-                                  <Typography
-                                    sx={{
-                                      color: Colors.primary,
-                                      fontWeight: "bold",
-                                      textAlign: "center",
-                                      fontSize: "15px",
-                                    }}
-                                  >
-                                    {date}
-                                  </Typography>
-                                  {messages.map((message, index) => (
-                                    <ListItem
-                                      key={message._id}
-                                      sx={{
-                                        display: "flex",
-                                        justifyContent:
-                                          message.sender_id ===
-                                          selectedChat?.requester_id
-                                            ? "flex-end"
-                                            : "flex-start",
-                                      }}
-                                      ref={
-                                        index === messages.length - 1
-                                          ? chatEndRef
-                                          : null
-                                      }
-                                    >
-                                      <MessageBubble sender={message}>
-                                        <ListItemText
-                                          primary={message.message}
-                                          secondary={moment(
-                                            message.created_at
-                                          ).format("hh:mm a")}
-                                          sx={{
-                                            "& .MuiListItemText-primary": {
-                                              color: "#FFFFFF",
-                                              fontFamily: "Poppins",
-                                            },
-                                            "& .MuiListItemText-secondary": {
-                                              color: "#ffffff",
-                                              display: "flex",
-                                              justifyContent: "end",
-                                              fontSize: "12px",
-                                              fontFamily: "Poppins",
-                                            },
-                                          }}
-                                        />
-                                      </MessageBubble>
-                                    </ListItem>
-                                  ))}
-                                </div>
-                              )
-                            )}
-                          </Box>
-
-                          {/* <div ref={chatEndRef}></div> */}
-                        </List>
-                      </Paper>
-                    </Box>
-                    <Paper
-                      elevation={3}
-                      sx={{ p: 1, display: "flex", alignItems: "center" }}
-                    >
-                      <TextField
-                        fullWidth
-                        variant="standard"
-                        placeholder="Type a message"
-                        id={"input"}
-                        // onChange={(e) => console.log(e.target.value)}
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            handleSendMessage();
-                          }
-                        }}
-                        InputProps={{
-                          disableUnderline: true,
-                        }}
-                        sx={{ mx: 1, fontFamily: "Poppins" }}
-                      />
-
-                      {true && (
-                        <IconButton
-                          id="sendIcon"
-                          sx={{ color: Colors.primary }}
-                          onClick={handleSendMessage}
-                        >
-                          <SendIcon />
-                        </IconButton>
-                      )}
-                    </Paper>
-                  </>
-                ) : (
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                    height="100vh"
+                    {option.label}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Box>
+          )}
+          {loading ? (
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <CircularProgress />
+            </Box>
+          ) : chats.length === 0 ? (
+            <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <Typography color="text.secondary">No Chats Found</Typography>
+            </Box>
+          ) : (
+            <List sx={{ overflow: "auto", flex: 1, "&::-webkit-scrollbar": { width: "5px" } }}>
+              {chats.map((chat) => (
+                <React.Fragment key={chat._id}>
+                  <ListItem
+                    button
+                    onClick={() => handleChatSelect(chat)}
+                    sx={{
+                      backgroundColor: chat._id === selectedChat?._id ? "rgba(86, 86, 86, 0.17)" : "",
+                      "&:hover": { backgroundColor: "rgba(86, 86, 86, 0.1)" },
+                    }}
                   >
-                    <CardMedia
-                      component="img"
-                      sx={{ width: 300, height: "auto" }}
-                      image={DuetLogo}
-                      alt="Chat Icon"
+                    <ListItemAvatar>
+                      <Avatar src={chat?.profileImage} />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <Typography sx={{ fontWeight: 500 }}>
+                            {chat?.name + " " + chat?.lastName}
+                          </Typography>
+                          {chat?.lastMessage && (
+                            <Typography sx={{ fontSize: "12px", color: "text.secondary" }}>
+                              {moment(chat?.created_at).format("hh:mm a")}
+                            </Typography>
+                          )}
+                        </Box>
+                      }
+                      secondary={
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          {chat?.lastMessage && (
+                            <DoneAllIcon
+                              sx={{
+                                color: chat?.unreadCount ? "#65A2D3" : "gray",
+                                fontSize: "1rem",
+                              }}
+                            />
+                          )}
+                          <Typography
+                            sx={{
+                              color: "text.secondary",
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {chat?.lastMessage || "No New Messages"}
+                          </Typography>
+                        </Box>
+                      }
                     />
-                  </Box>
-                )}
+                  </ListItem>
+                  <Divider />
+                </React.Fragment>
+              ))}
+            </List>
+          )}
+        </Sidebar>
+        <ChatArea selectedChat={selectedChat}>
+          {selectedChat ? (
+            <>
+              <AppBar position="static" color="primary" elevation={1}>
+                <Toolbar>
+                  <IconButton
+                    edge="start"
+                    color="inherit"
+                    onClick={handleBackToSidebar}
+                    sx={{ display: { xs: "block", sm: "none" }, mr: 1 }}
+                  >
+                    <SendIcon sx={{ transform: "rotate(180deg)" }} />
+                  </IconButton>
+                  <Avatar src={selectedChat?.profileImage} sx={{ mr: 2 }} />
+                  <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    {selectedChat?.name + " " + selectedChat?.lastName}
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+              <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <Paper
+                  elevation={0}
+                  sx={{ flex: 1, overflow: "auto", "&::-webkit-scrollbar": { width: "5px" } }}
+                  ref={chatContainerRef}
+                >
+                  {chatLoading && (
+                    <Box sx={{ display: "flex", justifyContent: "center", p: 2 }}>
+                      <CircularProgress size={24} />
+                    </Box>
+                  )}
+                  <List sx={{ p: 2 }}>
+                    {Object.entries(groupedMessages).map(([date, messages]) => (
+                      <Box key={date} sx={{ mb: 2 }}>
+                        <Typography
+                          sx={{
+                            textAlign: "center",
+                            color: theme.palette.primary.main,
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                            my: 1,
+                          }}
+                        >
+                          {date}
+                        </Typography>
+                        {messages.map((message, index) => (
+                          <ListItem
+                            key={message._id}
+                            sx={{
+                              display: "flex",
+                              justifyContent:
+                                (message.sender?._id === user?._id || message?.sender === user?._id)
+                                  ? "flex-end"
+                                  : "flex-start",
+                              p: 0.5,
+                            }}
+                            ref={index === messages.length - 1 && page === 1 ? chatEndRef : null}
+                          >
+                            <MessageBubble
+                              isSender={message.sender?._id === user?._id || message?.sender === user?._id}
+                            >
+                              <ListItemText
+                                primary={message.message}
+                                secondary={moment(message.created_at).format("hh:mm a")}
+                                sx={{
+                                  "& .MuiListItemText-primary": { fontSize: "14px", whiteSpace: "normal" },
+                                  "& .MuiListItemText-secondary": {
+                                    color: "#FFFFFF",
+                                    fontSize: "12px",
+                                    textAlign: "right",
+                                  },
+                                }}
+                              />
+                            </MessageBubble>
+                          </ListItem>
+                        ))}
+                      </Box>
+                    ))}
+                  </List>
+                </Paper>
+                <Paper elevation={3} sx={{ p: 1, display: "flex", alignItems: "center" }}>
+                  <TextField
+                    fullWidth
+                    variant="standard"
+                    placeholder="Type a message"
+                    id="input"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleSendMessage();
+                      }
+                    }}
+                    InputProps={{ disableUnderline: true }}
+                    sx={{ mx: 1, fontFamily: "Poppins" }}
+                  />
+                  <IconButton id="sendIcon" sx={{ color: Colors.primary }} onClick={handleSendMessage}>
+                    <SendIcon />
+                  </IconButton>
+                </Paper>
               </Box>
+            </>
+          ) : (
+            <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+              <CardMedia component="img" sx={{ width: 300, height: "auto" }} image={DuetLogo} alt="Chat Icon" />
             </Box>
-          </>
-        ) : (
-          <>
-            <Box
-              sx={{
-                height: "100%",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                fontFamily: "Poppins",
-              }}
-            >
-              No Chat Found
-            </Box>
-          </>
-        )}
-      </Box>
+          )}
+        </ChatArea>
+      </ChatContainer>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
     </ThemeProvider>
   );
 };

@@ -1,0 +1,464 @@
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ThemeProvider,
+  createTheme,
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  Avatar,
+  Paper,
+  TextField,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  Divider,
+  styled,
+  ToggleButtonGroup,
+  ToggleButton,
+  CircularProgress,
+  CardMedia,
+} from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import moment from "moment";
+import Colors from "../../assets/Style"; // Adjust path as needed
+import ChatServices from "../../apis/Chat"; // Adjust path as needed
+import DuetLogo from "../../assets/images/duetLogo.png"; // Adjust path as needed
+import { useLocation, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import socket from "../../../socket"; // Adjust path as needed
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#075E54",
+    },
+    secondary: {
+      main: "#128C7E",
+    },
+    background: {
+      default: "#FFFFFF",
+      paper: "#FFFFFF",
+    },
+  },
+});
+
+const MessageBubble = styled(Paper)(({ theme, sender, isSender }) => ({
+  padding: "5px 15px",
+  maxWidth: "60%",
+  borderRadius: isSender ? "20px 20px 0 20px" : "20px 20px 20px 0",
+  backgroundColor: isSender ? Colors.primary : "rgb(101 158 211)",
+  alignSelf: isSender ? "flex-end" : "flex-start",
+  marginBottom: theme.spacing(1),
+  wordBreak: "break-word",
+  overflowWrap: "break-word",
+}));
+
+const Chat = () => {
+  const user = useSelector((state) => state?.auth?.user);
+  const [messages, setMessages] = useState([]);
+  const [chats, setChats] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedToggle, setSelectedToggle] = useState("alumini");
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [chatLoading, setChatLoading] = useState(false);
+  const [totalMessages, setTotalMessages] = useState(0);
+  const [isNewChatOpen, setIsNewChatOpen] = useState(false);
+  const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const { state } = useLocation();
+  const RoomID = state;
+  const navigate = useNavigate();
+
+  const groupMessagesByDate = (messages) => {
+    return messages.reduce((acc, message) => {
+      const date = moment(message.created_at).format("DD-MM-YYYY");
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(message);
+      return acc;
+    }, {});
+  };
+  const groupedMessages = groupMessagesByDate(messages);
+
+  const handleToggleChange = async (event, newValue) => {
+    if (newValue !== null) {
+      setSelectedToggle(newValue);
+      setLoading(true);
+      try {
+        const result = await ChatServices.getChatList();
+        if (result.responseCode === 200) {
+          setChats(result?.data);
+          setSelectedChat(null);
+          setMessages([]);
+          setPage(1);
+        }
+      } catch (error) {
+        console.error("Error fetching chat list:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleScroll = () => {
+    if (chatContainerRef.current && !chatLoading) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+      if (scrollTop <= 50 && messages.length < totalMessages) {
+        setChatLoading(true);
+        setPage((prevPage) => prevPage + 1);
+      }
+    }
+  };
+
+  const openNewChat = (chat) => {
+    setIsNewChatOpen(true);
+    setTimeout(() => setIsNewChatOpen(false), 300);
+  };
+
+  const getAllChats = async () => {
+    try {
+      setLoading(true);
+      const result = await ChatServices.getChatList();
+      setChats(result?.data || []);
+      if (RoomID?.room_id && !selectedChat) {
+        const matchingChat = result?.data?.find(
+          (chat) => chat.room_details?._id === RoomID.room_id
+        );
+        if (matchingChat) {
+          setSelectedChat(matchingChat);
+          getChatWithRoomId(matchingChat);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getChatWithRoomId = async (chat, pageNum = 1) => {
+    try {
+      setChatLoading(true);
+      const receiverId = chat?.receiverId || chat?.receiver;
+      const res = await ChatServices.getChatHistory(user?._id, receiverId, pageNum);
+      if (pageNum === 1) {
+        setMessages(res?.data || []);
+      } else {
+        setMessages((prev) => [...res?.data, ...prev]);
+      }
+      setTotalMessages(res?.total || 0);
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    const inputElement = document.getElementById("input");
+    const newMessage = inputElement?.value?.trim();
+    if (!newMessage || !selectedChat) return;
+
+    const messageData = {
+      receiver: selectedChat?.receiverId,
+      receiverRole: selectedToggle === "alumini" ? "alumni" : "faculty",
+      message: newMessage,
+      senderId: user?._id,
+      chatId: selectedChat?._id,
+    };
+
+    try {
+      const res = await ChatServices.sendChat(messageData);
+      if (res?.status) {
+        const sentMessage = {
+          ...res.data,
+          sender_id: user?._id,
+          created_at: new Date().toISOString(),
+        };
+        socket.emit("sendMessage", sentMessage);
+        setMessages((prevMessages) => [...prevMessages, sentMessage]);
+        setChats((prevChats) =>
+          prevChats.map((chat) =>
+            chat._id === selectedChat._id
+              ? { ...chat, lastMessage: newMessage, created_at: new Date().toISOString() }
+              : chat
+          )
+        );
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        inputElement.value = "";
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
+
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected to socket server:", socket.id);
+    });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error.message);
+    });
+
+    socket.on("newMessage", (data) => {
+      console.log("New message received:", data);
+      if (selectedChat && data.chatId === selectedChat._id) {
+        setMessages((prevMessages) => [...prevMessages, data]);
+        chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+      setChats((prevChats) => {
+        const chatExists = prevChats.find((chat) => chat._id === data.chatId);
+        if (chatExists) {
+          return prevChats.map((chat) =>
+            chat._id === data.chatId
+              ? {
+                  ...chat,
+                  lastMessage: data.message,
+                  created_at: data.created_at,
+                  unreadCount: chat._id === selectedChat?._id ? chat.unreadCount : (chat.unreadCount || 0) + 1,
+                }
+              : chat
+          );
+        }
+        return [...prevChats, { ...data, _id: data.chatId, lastMessage: data.message, unreadCount: 1 }];
+      });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("newMessage");
+    };
+  }, [selectedChat]);
+
+  useEffect(() => {
+    getAllChats();
+  }, []);
+
+  useEffect(() => {
+    if (selectedChat && page > 1) {
+      getChatWithRoomId(selectedChat, page);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (!chatLoading) {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, chatLoading]);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Box sx={{ height: "80vh", display: "flex", flexDirection: "column", padding: "0 24px" }}>
+        <Box sx={{ p: 1, borderBottom: 1, borderColor: "divider" }}>
+          <ToggleButtonGroup
+            value={selectedToggle}
+            exclusive
+            onChange={handleToggleChange}
+            aria-label="Chat Type"
+            sx={{ width: "100%", display: "flex", justifyContent: "end" }}
+          >
+            <ToggleButton
+              sx={{
+                borderTopLeftRadius: "20px",
+                borderBottomLeftRadius: "20px",
+                "&.Mui-selected": { backgroundColor: Colors.primary, color: "white" },
+                fontFamily: "Poppins",
+              }}
+              value="alumini"
+              aria-label="Alumini"
+            >
+              Alumni
+            </ToggleButton>
+            <ToggleButton
+              sx={{
+                borderTopRightRadius: "20px",
+                borderBottomRightRadius: "20px",
+                "&.Mui-selected": { backgroundColor: Colors.primary, color: "white" },
+                fontFamily: "Poppins",
+              }}
+              value="faculty"
+              aria-label="Faculty"
+            >
+              Faculty
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
+        {loading ? (
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <CircularProgress />
+          </Box>
+        ) : chats?.length > 0 ? (
+          <Box sx={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            <Box sx={{ width: { xs: "100%", sm: "350px" }, borderRight: 1, borderColor: "divider" }}>
+              <AppBar position="static" color="default" elevation={0}>
+                <Toolbar sx={{ background: Colors.primary, borderTopLeftRadius: "10px", borderBottomLeftRadius: "10px" }}>
+                  <Typography variant="h6" sx={{ flexGrow: 1, color: Colors.white, fontFamily: "Poppins" }}>
+                    Chats
+                  </Typography>
+                </Toolbar>
+              </AppBar>
+              <List sx={{ overflow: "auto", height: "460px", "&::-webkit-scrollbar": { display: "none" } }}>
+                {chats?.map((chat) => (
+                  <React.Fragment key={chat._id}>
+                    <ListItem
+                      button
+                      sx={{
+                        cursor: "pointer",
+                        backgroundColor: chat._id === selectedChat?._id ? "rgb(86 86 86 / 17%)" : "",
+                      }}
+                      onClick={() => {
+                        console.log("hello",chat);
+                        
+                        if (selectedChat?._id !== chat?.receiverId) {
+                          setSelectedChat(chat);
+                          setMessages([]);
+                          setPage(1);
+                          getChatWithRoomId(chat);
+                          openNewChat(chat);
+                        }
+                      }}
+                    >
+                      <ListItemAvatar>
+                        <Avatar src={chat?.profileImage} />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={
+                          <Box sx={{ display: "flex", justifyContent: "space-between", fontFamily: "Poppins" }}>
+                            <Box>{chat?.name + " " + chat?.lastName}</Box>
+                            {chat?.lastMessage && (
+                              <Box sx={{ fontSize: "13px", fontFamily: "Poppins" }}>
+                                {moment(chat?.created_at).format("hh:mm a")}
+                              </Box>
+                            )}
+                          </Box>
+                        }
+                        secondary={
+                          <>
+                            {chat?.lastMessage && (
+                              <DoneAllIcon
+                                sx={{
+                                  color: chat?.unreadCount ? "rgb(101 158 211)" : "gray",
+                                  fontSize: "1rem",
+                                  verticalAlign: "middle",
+                                  marginRight: "4px",
+                                }}
+                              />
+                            )}
+                            {chat?.lastMessage || "No New Messages"}
+                          </>
+                        }
+                        secondaryTypographyProps={{ noWrap: true }}
+                      />
+                    </ListItem>
+                    <Divider />
+                  </React.Fragment>
+                ))}
+              </List>
+            </Box>
+            <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+              {selectedChat ? (
+                <>
+                  <AppBar position="static" color="default" elevation={1}>
+                    <Toolbar sx={{ background: Colors.primary, borderTopRightRadius: "10px", borderBottomRightRadius: "10px" }}>
+                      <Typography variant="h6" sx={{ flexGrow: 1, color: Colors.white, fontFamily: "Poppins" }}>
+                        {selectedChat?.name + " " + selectedChat?.lastName}
+                      </Typography>
+                    </Toolbar>
+                  </AppBar>
+                  <Box sx={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", backgroundColor: Colors.white }}>
+                    <Paper elevation={0} sx={{ flex: 1, overflow: "auto", backgroundColor: "transparent", "&::-webkit-scrollbar": { display: "none" } }}>
+                      <List>
+                        <Box
+                          onScroll={handleScroll}
+                          sx={{ overflowY: "auto", maxHeight: "500px", "&::-webkit-scrollbar": { display: "none" } }}
+                          ref={chatContainerRef}
+                        >
+                          {chatLoading && (
+                            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "10px" }}>
+                              <CircularProgress size={40} sx={{ color: Colors.primary }} />
+                            </Box>
+                          )}
+                          {Object.entries(groupedMessages).map(([date, messages]) => (
+                            <div key={date}>
+                              <Typography sx={{ color: Colors.primary, fontWeight: "bold", textAlign: "center", fontSize: "15px" }}>
+                                {date}
+                              </Typography>
+                              {messages.map((message, index) => (
+                                <ListItem
+                                  key={message._id}
+                                  sx={{
+                                    display: "flex",
+                                    justifyContent: message.sender_id === user?._id ? "flex-end" : "flex-start",
+                                  }}
+                                  ref={index === messages.length - 1 ? chatEndRef : null}
+                                >
+                                  <MessageBubble sender={message} isSender={message.sender_id === user?._id}>
+                                    <ListItemText
+                                      primary={message.message}
+                                      secondary={moment(message.created_at).format("hh:mm a")}
+                                      sx={{
+                                        "& .MuiListItemText-primary": { color: "#FFFFFF", fontFamily: "Poppins" },
+                                        "& .MuiListItemText-secondary": {
+                                          color: "#ffffff",
+                                          display: "flex",
+                                          justifyContent: "end",
+                                          fontSize: "12px",
+                                          fontFamily: "Poppins",
+                                        },
+                                      }}
+                                    />
+                                  </MessageBubble>
+                                </ListItem>
+                              ))}
+                            </div>
+                          ))}
+                        </Box>
+                      </List>
+                    </Paper>
+                    <Paper elevation={3} sx={{ p: 1, display: "flex", alignItems: "center" }}>
+                      <TextField
+                        fullWidth
+                        variant="standard"
+                        placeholder="Type a message"
+                        id="input"
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            handleSendMessage();
+                          }
+                        }}
+                        InputProps={{ disableUnderline: true }}
+                        sx={{ mx: 1, fontFamily: "Poppins" }}
+                      />
+                      <IconButton id="sendIcon" sx={{ color: Colors.primary }} onClick={handleSendMessage}>
+                        <SendIcon />
+                      </IconButton>
+                    </Paper>
+                  </Box>
+                </>
+              ) : (
+                <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                  <CardMedia component="img" sx={{ width: 300, height: "auto" }} image={DuetLogo} alt="Chat Icon" />
+                </Box>
+              )}
+            </Box>
+          </Box>
+        ) : (
+          <Box sx={{ height: "100%", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "Poppins" }}>
+            No Chat Found
+          </Box>
+        )}
+      </Box>
+    </ThemeProvider>
+  );
+};
+
+export default Chat;

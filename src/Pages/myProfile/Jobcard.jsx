@@ -6,13 +6,15 @@ import ChatIcon from "@mui/icons-material/Chat"
 import PhoneIcon from "@mui/icons-material/Phone"
 import VerifiedIcon from "@mui/icons-material/Verified"
 import ChatServices from "../../apis/Chat" // Adjust the import path as necessary
+import { useSelector } from "react-redux"
 
 const JobCard = ({ job, truncate = false, maxlength = 120, istruncate = false, sx = {}, onReadMore }) => {
   const { name, companyname, timing, description, location, phonenumber, user } = job
   const MAX_LENGTH = maxlength
   const shouldTruncate = truncate && description.length > MAX_LENGTH
   const displayedDescription = shouldTruncate ? `${description.slice(0, MAX_LENGTH)}...` : description
-console.log(user)
+  const userdata=useSelector((state)=>state?.auth?.user)
+console.log(job?.user?._id , userdata?._id,"user")
 
   const sendChat  =async () => {
     const chatData = {
@@ -41,7 +43,7 @@ console.log(user)
         position: "relative",
         "&:hover": {
           transform: "translateY(-4px)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+          // boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
         },
         "&::-webkit-scrollbar": {
           height: "4px",
@@ -227,6 +229,7 @@ console.log(user)
           borderTop: "1px solid #f0f0f0",
         }}
       >
+        {job?.user?._id !== userdata?._id && (
         <Stack direction="row" spacing={1}>
           <Button
             variant="contained"
@@ -246,7 +249,7 @@ console.log(user)
             Chat Now
           </Button>
 
-          {phonenumber && (
+          {/* {phonenumber && (
             <Button
               variant="outlined"
               startIcon={<PhoneIcon />}
@@ -265,8 +268,9 @@ console.log(user)
             >
               Call
             </Button>
-          )}
+          )} */}
         </Stack>
+        )}
 
         {/* Read More if truncated */}
         {istruncate && shouldTruncate && (
