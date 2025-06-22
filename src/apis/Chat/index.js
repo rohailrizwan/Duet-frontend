@@ -11,7 +11,7 @@ const ChatServices = {
     return result;
   },
   getChatHistory: async (senderId , recieverId,page) => {
-    const result = await gettoken(ChatRoutes.getChatHistory + `/${senderId}/${recieverId}?page=${page}&limit=10`);
+    const result = await gettoken(ChatRoutes.getChatHistory + `/${senderId}/${recieverId}?page=${page}&limit=1000`);
     return result;
   },
 
