@@ -27,7 +27,7 @@ function ViewResume() {
     }
 
     useEffect(() => {
-        // getResume()
+        getResume()
     }, [])
     // const handleDownload = (url) => {
     //     fetch(url)

@@ -62,7 +62,7 @@ function AddJob() {
   return (
     <Box sx={{ py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',borderRadius:4 }}>
       <Container>
-        <Headertext title="Post a New Job" />
+        <Headertext title={location?.state ?"Edit Job" :"Post a New Job"} />
         
         <Paper 
           elevation={6} 
@@ -246,7 +246,7 @@ function AddJob() {
 
               <Grid item xs={12} sx={{ textAlign: 'right' }}>
                 <NewButton2 
-                  title="Post Job" 
+                  title={location?.state ?"Update Job" :"Post Job"} 
                   radius={2} 
                   type="submit"
                   loading={loading}
