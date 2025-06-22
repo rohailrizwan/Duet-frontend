@@ -17,6 +17,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { useNavigate } from "react-router-dom";
 import Colors from "../../assets/Style";
 import cardlogo from '../../assets/images/duet2logo.png'
+import cardlogo1 from '../../assets/images/duetlogo.png'
 import { styled } from "@mui/system";
 import AvatarComponent from "../../Components/Avatar";
 export default function Navbar({user}) {
@@ -178,7 +179,7 @@ export default function Navbar({user}) {
                     {/* Logo inside Drawer */}
                     <Box
                         component="img"
-                        src={cardlogo}
+                        src={cardlogo1}
                         alt="Logo"
                         sx={{
                             height: "80px",
