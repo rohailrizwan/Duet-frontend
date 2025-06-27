@@ -60,8 +60,8 @@ function AddJob() {
   };
 
   return (
-    <Box sx={{ py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',borderRadius:4 }}>
-      <Container>
+    <Box sx={{ py: 4, minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',px:3,borderRadius:4 }}>
+      {/* <Container> */}
         <Headertext title={location?.state ?"Edit Job" :"Post a New Job"} />
         
         <Paper 
@@ -256,7 +256,7 @@ function AddJob() {
             </Grid>
           </form>
         </Paper>
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 }

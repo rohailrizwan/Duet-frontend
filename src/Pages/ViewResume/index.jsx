@@ -76,8 +76,8 @@ function ViewResume() {
     }
 
     return (
-        <Box sx={{ py: 4, minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-            <Container>
+        <Box sx={{ py: 4,px:3, minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+            {/* <Container> */}
                 <Headertext title="Recommended Resumes" />
 
                 {resume?.length === 0 ? (
@@ -151,7 +151,7 @@ function ViewResume() {
                         ))}
                     </Grid>
                 )}
-            </Container>
+            {/* </Container> */}
         </Box>
     );
 }

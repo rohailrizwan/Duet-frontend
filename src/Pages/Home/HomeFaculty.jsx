@@ -18,31 +18,46 @@ import sampleuser from '../../assets/images/sampleuser.png'
 const FacultySection = ({ data = [], loading = false }) => {
   const navigate = useNavigate();
 
-  const sliderSettings = {
-    dots: false,
-    arrows: false,
-    infinite: data?.length > 3,
-    speed: 1000,
-    autoplay: true,
-    autoplaySpeed: 2000,
-    slidesToShow: 3,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 960,
-        settings: {
-          slidesToShow: 2
-        }
+const sliderSettings = {
+  dots: false,
+  arrows: true,
+  infinite: data?.length > 3,
+  speed: 1000,
+  autoplay: true,
+  autoplaySpeed: 2000,
+  slidesToShow: 3,
+  slidesToScroll: 1,
+  responsive: [
+    {
+      breakpoint: 1200, // For larger screens
+      settings: {
+        slidesToShow: 3,
       },
-      {
-        breakpoint: 600,
-        settings: {
-          slidesToShow: 1
-        }
-      }
-    ]
-  };
-
+    },
+    {
+      breakpoint: 960, // For medium screens (e.g., tablets)
+      settings: {
+        slidesToShow: 2,
+      },
+    },
+    {
+      breakpoint: 600, // For smaller screens (e.g., small tablets)
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: true,
+      },
+    },
+    {
+      breakpoint: 480, // For very small screens
+      settings: {
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        arrows: false,
+      },
+    },
+  ],
+};
   const handleFunction = () => {
     navigate('/viewfaculty');
   };
@@ -82,6 +97,7 @@ const FacultySection = ({ data = [], loading = false }) => {
           sx={{
             fontWeight: 700,
             mb: 6,
+            fontSize:{xs:"26px",sm:"48px"},
             textAlign: 'center',
             color: '#0A192F',
             letterSpacing: 1,
@@ -125,9 +141,12 @@ const FacultySection = ({ data = [], loading = false }) => {
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
-                    height: '420px', // Fixed height for consistency
+                    width: '100%', // Ensure card takes full width of slide
+                    maxWidth: 300, // Limit maximum width
+                    height: '420px',
                     backgroundColor: '#fff',
                     transition: 'all 0.3s ease-in-out',
+                    margin: '0 auto', // Center the card
                   }}
                 >
                   <CardMedia

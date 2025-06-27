@@ -31,7 +31,7 @@ function Ourevents({ events = [], isLoading = false }) {
         <Typography
           variant="h3"
           component="h2"
-          sx={{ fontWeight: 600, mb: 8, textAlign: 'center' }}
+          sx={{ fontWeight: 600, mb: 8, textAlign: 'center',fontSize:{xs:"26px",sm:"48px"} }}
           className="font_poppins headingcolorgradient"
         >
           Upcoming Events at DUET

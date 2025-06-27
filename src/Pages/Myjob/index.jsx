@@ -104,7 +104,7 @@ function MyJob() {
         bgcolor: "#f8fafc",
       }}
     >
-      <Container>
+      {/* <Container> */}
         <Headertext title="My Job Listings" />
 
         <TableContainer
@@ -423,7 +423,7 @@ function MyJob() {
             }}
           />
         </TableContainer>
-      </Container>
+      {/* </Container> */}
       {deletemodal && (
         <DeleteModal
           open={deletemodal}

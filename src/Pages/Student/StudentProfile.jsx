@@ -143,7 +143,7 @@ function StudentProfile({ userid }) {
 
   return (
     <Box sx={{ minHeight: "100vh", background: "transparent" }}>
-      <Container sx={{ py: 6, maxWidth: "lg" }}>
+      {/* <Container sx={{ py: 6, maxWidth: "lg" }}> */}
         <Card
           sx={{
             // borderRadius: 4,
@@ -495,7 +495,7 @@ function StudentProfile({ userid }) {
            
           </CardContent>
         </Card>
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 }

@@ -77,7 +77,7 @@ function AlumniProfile({ userid }) {
 
     return (
         <Box sx={{ minHeight: '100vh', background: 'transparent' }}>
-            <Container sx={{ py: 6, maxWidth: 'lg' }}>
+            {/* <Container sx={{ py: 6, maxWidth: 'lg' }}> */}
                 <Card
                     sx={{
                         // borderRadius: 4,
@@ -355,7 +355,7 @@ function AlumniProfile({ userid }) {
                         )}
                     </CardContent>
                 </Card>
-            </Container >
+            {/* </Container > */}
         </Box >
     );
 }

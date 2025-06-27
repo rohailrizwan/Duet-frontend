@@ -83,6 +83,7 @@ function Termlisting() {
             fontWeight: 600,
             textAlign: 'center',
             mb: 6,
+            fontSize:{xs:"26px",sm:"48px"}
           }}
           className="font_poppins headingcolorgradient"
         >

@@ -58,12 +58,12 @@ function Homesection2({ title2, description2 ,aboutimg}) {
                             variant="h3"
                             component="h2"
                             gutterBottom
-                            sx={{ fontWeight: '600' }}
+                            sx={{ fontWeight: '600',fontSize:{xs:"26px",sm:"48px"} }}
                             className='font_poppins headingcolorgradient'
                         >
                             {title2}
                         </Typography>
-                        <Typography variant="body1" color="text.secondary" style={{ lineHeight: "30px" }}>
+                        <Typography variant="body1" color="text.secondary" style={{ lineHeight: "30px",fontSize:{xs:"14px",sm:"20px"} }}>
                             {description2}
                         </Typography>
                     </Grid>

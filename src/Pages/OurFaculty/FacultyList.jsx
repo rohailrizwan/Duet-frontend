@@ -95,9 +95,10 @@ const FacultyList = () => {
           sx={{
             textAlign: 'center',
             fontWeight: 'bold',
-            mb: 5,
+            marginBottom: { xs: 2, sm: 5 },
             color: '#1a237e',
             fontFamily: '"Roboto", sans-serif',
+            fontSize:{xs:"26px",sm:"48px"}
           }}
           className="headingcolorgradient font_poppins"
         >

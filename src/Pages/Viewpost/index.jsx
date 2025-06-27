@@ -128,7 +128,7 @@ const Viewmypost = () => {
   const [postid, setpostid] = useState(null);
   const [showFullDesc, setShowFullDesc] = useState(false);
   const user = useSelector((state) => state?.auth?.user);
-
+  
   const fetchPosts = async () => {
     setLoading(true);
     try {
@@ -249,7 +249,7 @@ const Viewmypost = () => {
   }
   return (
     <Box sx={{ minHeight: "100vh", p: { xs: 1, md: 2 } }}>
-      <Container maxWidth={'lg'}>
+      {/* <Container maxWidth={'lg'}> */}
         {/* Profile Section */}
         <Box
           sx={{
@@ -415,7 +415,7 @@ const Viewmypost = () => {
         {/* delete post */}
         {deletemodal && <DeleteModal open={deletemodal} setOpen={setdeletemodal} loading={deleteloading} title="Post" handleOk={handleDelete} />}
 
-      </Container>
+      {/* </Container> */}
     </Box>
   );
 };
