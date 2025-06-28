@@ -192,51 +192,66 @@ const FutureInnovatorsSection = ({ data = [], loading = false }) => {
                     </Box>
                     {/* )} */}
 
-                    <Divider sx={{
+                    {/* <Divider sx={{
                       marginBottom: { xs: 0.5, sm: 1 },
                       marginTop: { xs: 0.5, sm: 1 },
-                    }} />
+                    }} /> */}
 
                     {/* Skills */}
-
+{/* 
                     <Box sx={{ marginBottom: { xs: 1, sm: 2 }, marginTop: { xs: 1, sm: 2 }, }}>
                       <Typography variant="subtitle2" fontWeight="bold" gutterBottom sx={{ color: "#667eea" }}>
                         <School sx={{ mr: 1, fontSize: 16, verticalAlign: "middle" }} />
                         Skills
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {student?.skills?.map((skill, index) => (
-                          <Chip
-                            key={index}
-                            label={skill}
-                            size="small"
-                            variant="outlined"
-                            sx={{
-                              fontSize: "0.75rem",
-                              height: 24,
-                              borderColor: "#667eea",
-                              color: "#667eea",
-                              "&:hover": {
-                                backgroundColor: "#667eea",
-                                color: "white",
-                              },
-                            }}
-                          />
-                        ))}
-                        {/* {student.skills.length > (compact ? 3 : 6) && (
-                <Chip
-                  label={`+${student.skills.length - (compact ? 3 : 6)}`}
-                  size="small"
-                  sx={{
-                    fontSize: "0.75rem",
-                    height: 24,
-                    backgroundColor: "#f0f0f0",
-                    color: "#666",
-                  }}
-                />
-              )} */}
+                      {student?.skills?.length > 0 && (
+  <>
+    {student.skills.slice(0, 3).map((skill, index) => (
+      <Chip
+        key={index}
+        label={skill}
+        size="small"
+        variant="outlined"
+        sx={{
+          fontSize: "0.75rem",
+          height: 24,
+          borderColor: "#667eea",
+          color: "#667eea",
+          mr: 0.5,
+          mb: 0.5,
+          "&:hover": {
+            backgroundColor: "#667eea",
+            color: "white",
+          },
+        }}
+      />
+    ))}
+
+    {student.skills.length > 3 && (
+      <Chip
+        label={`+${student.skills.length - 3} more`}
+        size="small"
+        variant="outlined"
+        sx={{
+          fontSize: "0.75rem",
+          height: 24,
+          borderColor: "#667eea",
+          color: "#667eea",
+          mr: 0.5,
+          mb: 0.5,
+          "&:hover": {
+            backgroundColor: "#667eea",
+            color: "white",
+          },
+        }}
+      />
+    )}
+  </>
+)}
+
                       </Box>
-                    </Box>
+                    </Box> */}
 
 
                     <Divider sx={{ my: 2 }} />
